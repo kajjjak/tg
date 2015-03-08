@@ -1,0 +1,388 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+
+
+			<div class="row">
+				
+				<div class="stats-date col-md-3">
+					<div>Monthly Statistics</div>
+					<div class="range">30 days</div>
+				</div><!--/col-->
+				
+				<div class="stats col-md-9">
+					
+					<div class="stat">
+						<div class="left">
+							<div class="number green" id="mainstate_total_customers">0</div>
+							<div class="title"><span class="color green"></span> Customers</div>
+						</div>
+						<div class="right">	
+							<div class="arrow">
+								<img src="assets/img/uparrow.png">
+							</div>
+							<div class="percent" id="mainstate_change_customers">+0%</div>
+						</div>
+					</div>
+					
+					<div class="stat">
+						<div class="left">
+							<div class="number yellow" id="mainstate_total_request">0</div>
+							<div class="title"><span class="color yellow"></span> Requests</div>
+						</div>
+						<div class="right">	
+							<div class="arrow">
+								<img src="assets/img/uparrow.png">
+							</div>
+							<div class="percent" id="mainstate_change_request">+0%</div>
+						</div>
+					</div>
+					
+					<div class="stat">
+						<div class="left">
+							<div class="number blue" id="mainstate_total_calls">0</div>
+							<div class="title"><span class="color blue"></span>Calls</div>
+						</div>
+						<div class="right">	
+							<div class="arrow">
+								<img src="assets/img/downarrow.png">
+							</div>
+							<div class="percent" id="mainstate_total_calls">+0%</div>
+						</div>
+					</div>
+					
+					<div class="stat">
+						<div class="left">
+							<div class="number red" id="mainstate_total_canceled">0</div>
+							<div class="title"><span class="color red"></span>Cancelations</div>
+						</div>
+						<div class="right">	
+							<div class="arrow">
+								<img src="assets/img/uparrow.png">
+							</div>
+							<div class="percent" id="mainstate_total_canceled">+0%</div>
+						</div>
+					</div>
+						
+				</div><!--/col-->
+			
+			</div><!--/row-->	
+
+			<div class="row">
+				
+				<div class="col-xs-12 overflow:hidden">
+				
+					<div id="stats-chart2" style="height:300px;" ></div>
+				
+				</div><!--/col-->	
+			
+			</div><!--/row-->
+			
+			<hr>
+			
+			<div class="row">
+				<!-- 
+				<div class="widget col-md-5 col-sm-12">
+					
+					<h2><i class="glyphicons globe"></i> Postcode</h2>
+					
+					<hr>
+					
+					<div class="content">
+						
+						<div class="verticalChart">
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>37%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">101</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>16%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">112</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>12%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">102</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>9%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">103</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>7%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">104</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>6%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">107</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>5%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">109</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>4%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">106</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>3%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">108</div>
+							
+							</div>
+							
+							<div class="singleBar">
+							
+								<div class="bar">
+								
+									<div class="value">
+										<span>1%</span>
+									</div>
+								
+								</div>
+								
+								<div class="title">301</div>
+							
+							</div>	
+							
+						</div>
+					
+					</div>
+					
+				</div><!--/col-->
+				
+				<!-- div class="widget col-md-3 col-sm-6">
+					
+					<h2><span class="glyphicons pie_chart"><i></i></span> Browsers</h2>
+					
+					<hr>
+					
+					<div class="content">
+						
+						<div class="browserStat big">
+							<img src="assets/img/browser-chrome-big.png" alt="Chrome">
+							<span>34%</span>
+						</div>
+						<div class="browserStat big">
+							<img src="assets/img/browser-firefox-big.png" alt="Firefox">
+							<span>34%</span>
+						</div>
+						<div class="browserStat">
+							<img src="assets/img/browser-ie.png" alt="Internet Explorer">
+							<span>34%</span>
+						</div>
+						<div class="browserStat">
+							<img src="assets/img/browser-safari.png" alt="Safari">
+							<span>34%</span>
+						</div>
+						<div class="browserStat">
+							<img src="assets/img/browser-opera.png" alt="Opera">
+							<span>34%</span>
+						</div>	
+								
+						
+					</div>
+				</div><!--/col--
+				
+				<div class="widget col-md-4 col-sm-6">
+					<h2><span class="glyphicons charts"><i></i></span> Weekly Stat</h2>
+					
+					<hr>
+					
+					<div class="content">
+						<div class="sparkLineStats">
+
+	                        <ul class="unstyled">
+	                            
+	                            <li>
+									<div class="sparkLineStats3"></div> 
+	                                Pageviews: 
+	                                <span class="number">781</span>
+	                            </li>
+	                            <li>
+									<div class="sparkLineStats4"></div>
+	                                Pages / Visit: 
+	                                <span class="number">2,19</span>
+	                            </li>
+	                            <li>
+									<div class="sparkLineStats5"></div>
+	                                Avg. Visit Duration: 
+	                                <span class="number">00:02:58</span>
+	                            </li>
+	                            <li>
+									<div class="sparkLineStats6"></div>
+	                                Bounce Rate: <span class="number">59,83%</span>
+	                            </li>
+	                            <li>
+									<div class="sparkLineStats7"></div>
+	                                % New Visits: 
+	                                <span class="number">70,79%</span>
+	                            </li>
+	                            <li>
+									<div class="sparkLineStats8"></div>
+	                                % Returning Visitor: 
+	                                <span class="number">29,21%</span>
+	                            </li>
+
+	                        </ul>
+	
+	                    </div><!-- End .sparkStats --
+					</div>
+				</div><!--/col--
+			
+			</div><!--/row-->
+			
+			<hr>
+			<!-- social stuff
+			<div class="row">
+				
+				<div class="widget col-sm-6 overflow:hidden">
+					<h2><span class="social facebook"><i></i></span>Facebook Fans</h2>
+					<hr>
+					<div class="content">
+						<div id="facebookChart" style="height:300px;" ></div>
+					</div>
+				</div><!--/col--
+				
+				<div class="widget col-sm-6 overflow:hidden">
+					<h2><span class="social twitter"><i></i></span>Twitter Followers</h2>
+					<hr>
+					<div class="content">
+						<div id="twitterChart" style="height:300px;" ></div>
+					</div>
+				</div><!--/col--
+			
+			</div><!--/row-->
+
+
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+			<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<!-- inline scripts related to this page -->
+	<!--[if lte IE 8]><script language="javascript" type="text/javascript" src="/assets/js/excanvas.min.js"></script><![endif]-->
+	<script src="/assets/js/jquery.flot.min.js"></script>
+	<script src="/assets/js/jquery.flot.pie.min.js"></script>
+	<script src="/assets/js/jquery.flot.stack.min.js"></script>
+	<script src="/assets/js/jquery.flot.resize.min.js"></script>
+	<script src="/assets/js/jquery.flot.time.min.js"></script>
+	<script src="/assets/js/retina.min.js"></script>
+
+	<!-- inline scripts related to this page -->
+	<script src="/js/dashboard.js"></script>	
+</body>
+</html>

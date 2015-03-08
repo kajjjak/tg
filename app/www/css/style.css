@@ -1,0 +1,53 @@
+/* Empty. Add your own CSS if you like */
+html, body {
+  height: 100%;
+}
+
+#map {
+    width:100%;
+    height:100%;
+}
+
+.slide_menu{
+  background-color: gray;
+  box-shadow: -2px 0px 17px rgb(74, 74, 74) inset;
+}
+.slide_menu_item{
+	background-color: rgb(205, 205, 205) !important;
+}
+
+.item-complex .item-content {
+  position: relative;
+  z-index: 2;
+  padding: 16px 49px 16px 16px;
+  border: none;
+  background-color: rgb(205, 205, 205);
+}
+
+
+.scroll {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: none;
+  -moz-text-size-adjust: none;
+  text-size-adjust: none;
+  -webkit-transform-origin: left top;
+  transform-origin: left top;
+  height:100%;
+}
+
+.job_address {
+  background-color: rgba(248, 248, 248, 0.8);
+  border-color: rgb(187, 187, 187);
+  border-width: 1px;
+  border-style: solid;
+  top: -4px;
+  padding: 4px;
+  border-radius: 6px;
+  width: 70%;
+  margin: 0 auto;
+  position: relative;
+}

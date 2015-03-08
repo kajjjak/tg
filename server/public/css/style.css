@@ -1,0 +1,9 @@
+.selected-job-details {
+  text-align: center;
+}
+
+.selected-row-table {
+	border-style:solid;
+	border-width: 3px;
+	border-color: black;
+}

@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<!--https://www.mapbox.com/mapbox.js/example/v1.0.0/divicon/-->
+<!-- http://chimera.labs.oreilly.com/books/1234000001654/ch04.html#resizing_an_image_painted_to_the_canvas -->
+<!-- http://gamedevelopment.tutsplus.com/articles/great-full-game-sprite-sheets-from-graphicriver--gamedev-3797   -->
+<!-- http://2dgameartforprogrammers.blogspot.com/2011/12/game-assets.html  -->
+<!-- http://opengameart.org/content/tanks-top-down-ww2 -->
+<html>
+<head>
+<meta charset=utf-8 />
+  <title>Defense map</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+ 
+  <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <!--<link rel="stylesheet" href="stylesheets/actors.css" type="text/css" media="all" />-->
+  <link rel="stylesheet" href="stylesheets/gui.css">
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  <script src="scripts/ledger.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/game_data.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/game_state.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/guicounter.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/resources.js" type="text/javascript" charset="utf-8"></script>
+
+  <style>
+    body { 
+        margin:0; 
+        padding:0; 
+        font-size:12px;
+    }
+
+  </style>
+</head>
+<body>
+  <div id="progressbar_gold" class="progressbar"><img src="http://img2.wikia.nocookie.net/__cb20140303055011/boombeach/images/thumb/1/10/Gold.png/20px-Gold.png" /><div class="progressbar_bar"></div><div class="progressbar_value">0</div></div>
+  <div id="progressbar_wood" class="progressbar"><img src="http://img2.wikia.nocookie.net/__cb20140303055632/boombeach/images/thumb/d/df/Wood.png/23px-Wood.png" /><div class="progressbar_bar"></div><div class="progressbar_value">0</div></div>
+  <div id="progressbar_stone" class="progressbar"><img src="http://img3.wikia.nocookie.net/__cb20140303055615/boombeach/images/thumb/d/d4/Stone.png/23px-Stone.png" /><div class="progressbar_bar"></div><div class="progressbar_value">0</div></div>
+  <div id="progressbar_iron" class="progressbar"><img src="http://img3.wikia.nocookie.net/__cb20140303055330/boombeach/images/thumb/4/45/Iron.png/23px-Iron.png" /><div class="progressbar_bar"></div><div class="progressbar_value">0</div></div>
+  <div id="progressbar_diamonds" class="progressbar menuitems_button_iap"><img src="http://img2.wikia.nocookie.net/__cb20140303055051/boombeach/images/thumb/e/ea/Diamond.png/31px-Diamond.png" /><div class="progressbar_bar"></div><div class="progressbar_value">0</div></div>
+  <br>
+  <span class="mainxp_button">
+      <span id="xp_value">0</span>
+      <div id="progressbar_xp" class="progressbar"><img src="http://cheatspulse.com/wp-content/uploads/2011/02/cityville-xp-icon.png" /><div class="progressbar_bar"></div><div class="progressbar_value">0</div></div>
+  </span>
+  <br><br><br><br><br>
+
+  <select id="transaction_types"></select><button onclick="trans('buy')">Make transaction</button><div id="transaction_error" style="background-color:red;"></div>
+  <br><br>store:<br>
+  <select id="shop_shelf" onchange="shop_select();"></select><button onclick="shop_purchase()">Buy item</button>
+  <div id="shop_item"></div>
+  <br><br>inventory:<br>
+  <div id="inventory_list"></div>
+
+  <div class="mainitems_button">Build <div class="purchase_count">0</div></div>
+
+  <div class="menudialog_container" style="display:none">
+    <div id="menudialog_iteminfo" class="menudialog_frame">
+      <h2></h2>
+      <img src=""/>
+      <p></p>
+      <i></i>
+    </div>
+  </div>
+
+  <div class="menudialog_character" style="display:none">
+    <img src="http://2.bp.blogspot.com/-SmfzB5ru7kA/UunRjWxF_uI/AAAAAAAAB2I/unY44Lnqc4I/s320/Rifleman_Troop.png" style="position:absolute; top:10;" />
+    <div class="menudialog_frame">
+      <div id="menudialog_character_say"></div>
+      <br>
+      <div id="menudialog_character_answer"></div>
+    </div>
+  </div>
+  
+  <div class="menuitems_container" style="display:none">
+    <div class="menuitems_container_message"></div>
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_economy" class="menuitems_slider_content">
+        <div class="menuitems_frameitem" id="item_detail_residence"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_sawmill"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_goldstorage"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_woodstorage"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_quarry"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_ironmine"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_stonestorage"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_ironstorage"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_vault"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+      </div>
+    </div>
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_defense" class="menuitems_slider_content">
+        <div class="menuitems_frameitem" id="item_detail_snipertower"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_machinegun"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_mortar"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_cannon"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_flamethrower"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_boomcannon"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_rocketlauncher"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_landminesmall"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_landminelarge"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+      </div>
+    </div>  
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_support" class="menuitems_slider_content">
+        <div class="menuitems_frameitem" id="item_detail_landingcraft"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_gunboat"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_sculptor"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_radar"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_armory"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+      </div>
+    </div>  
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_iap" class="menuitems_slider_content">
+        <div class="menuitems_frameitem" id="item_detail_iap01"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap02"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap03"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap04"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap05"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap06"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap07"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap08"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+        <div class="menuitems_frameitem" id="item_detail_iap09"><img src=""/><h2></h2><p></p><a href="#" onclick="btnAddResourceItem(this)" class="purchase">add</a><br><a href="#" onclick="guiShowItem(this)"  class="details">details</a></div>
+      </div>
+    </div>      
+    <div class="menuitems_buttoncontainer">
+      <center>
+        <div class="menuitems_button menuitems_button_economy">Economy <div class="purchase_count">0</div></div>
+        <div class="menuitems_button menuitems_button_defense">Defense <div class="purchase_count">0</div></div>
+        <div class="menuitems_button menuitems_button_support">Support <div class="purchase_count">0</div></div>
+      </center>
+    </div>
+  </div>
+
+<!-- scripts starts -->
+  <script src="scripts/gui.js" type="text/javascript" charset="utf-8"></script>
+  <script>
+    function trans(name){
+        try{
+           ledgers.addTransactionAction(name, ledger_item_transaction[$("#transaction_types").val()])
+        }catch(e){
+            $("#transaction_error").html(e);
+        }
+    }
+
+    function shop_select(){
+        var data = "";
+        var sel = $("#shop_shelf").val().split(" ");
+        var item = shop.inventory[sel[0]][sel[1]];
+        for (var i in item){
+            if((item[i] != null) && (item[i] != undefined) && (item[i] != "")){
+               data = i + "=" + item[i] + "<br>" + data;
+            }
+        }
+        $("#shop_item").html(data);
+    }
+
+    function shop_purchase(){
+        var data = "";
+        var sel = $("#shop_shelf").val().split(" ");
+        game_state.addPurchase(sel[0], sel[1]);
+        $("#resources").html("bought");
+    }
+
+    for (var i in ledger_item_transaction){
+        $("#transaction_types").append("<option value='"+i+"'>"+ledger_item_transaction[i].name+"</option>")
+    }
+    initGUI(); 
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,28 @@
+<ion-nav-back-button class="button-icon ion-arrow-left-c">
+</ion-nav-back-button>
+<ion-view view-title="{{lang.page.service.title}}">
+  <ion-content>
+    <div class="list">
+      <label class="item item-radio" ng-repeat="vehicle in vechicles" ng-click="setRequestProperty(vehicle)">
+        <input type="radio" name="group" ng-checked="vehicle.selected">
+        <div class="item-content">
+          <h2>{{vehicle.title}}</h2>
+          <p>{{vehicle.summary}}</p>
+        </div>
+        <i class="radio-icon ion-checkmark"></i>
+      </label>
+    </div>    
+    <!--ul class="list">
+      <li class="item item-toggle" ng-repeat="service in services" ng-click="setRequestProperty(service)">
+         {{service.title}}
+         <label class="toggle toggle-calm">
+           <input type="checkbox">
+           <div class="track">
+             <div class="handle"></div>
+           </div>
+         </label>
+      </li>
+
+    </ul -->    
+  </ion-content>
+</ion-view>

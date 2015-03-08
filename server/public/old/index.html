@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html manifest="_manifest.appcache">
+<head>
+  <meta charset=utf-8 />
+  <title>Ghost Burster</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no' />
+  
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css">
+  <link href='http://fonts.googleapis.com/css?family=Russo+One&effect=outline' rel='stylesheet' type='text/css'>
+
+  <style type="text/css">
+    /* this would probably be in a CSS file  #browserWarning { display:none; } */
+    #browserWarning { display:none; }
+
+  </style>
+  <!--[if lt IE 8]>
+    <style type="text/css">
+    #browserWarning { display:block; }
+    </style>
+  <![endif]--> 
+
+  <!-- -->
+  <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+  <script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+  <script src="http://www.mapquestapi.com/sdk/leaflet/v1.s/mq-map.js?key=Fmjtd%7Cluur296b25%2C7a%3Do5-90r55r"></script>
+  <!-- --
+  <link href='https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.css' rel='stylesheet' />  
+  <script src='https://api.tiles.mapbox.com/mapbox.js/v2.1.5/mapbox.js'></script>
+  <!-- -->
+  <script src="https://code.jquery.com/jquery-1.9.1.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  
+  <link rel="stylesheet" href="stylesheets/gui.css">
+  <link rel="stylesheet" href="stylesheets/actors.css">
+</head>
+<body>
+
+<div class="menudialog_splash" style="display:block;  width: 100%;height: 100%;top: 0px;position: absolute;">
+  <div class="menudialog_splash_image">
+    <div id="menudialog_splash_content">
+      <div id="progressbar_init" class="progressbar" style="margin: auto;">
+        <div class="progressbar_bar"></div>
+        <div class="progressbar_value font-effect-outline font-bright">Loading ...</div>
+        <br><br>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="browserWarning" style="width: 100%;height: 100%;position: fixed;background-color: rgb(116, 116, 116);z-index: 999999999999;margin: auto;text-align: center;vertical-align: middle;padding:50px;font-size: 29px;">Developed for <a href="https://www.google.com/intl/en/chrome/browser/" target="downl">Chrome</a>, <a href="http://www.mozilla.org/" target="downl">Firefox</a> or an versions of IE (9 and above).<br><br>Thanks</div>
+
+<div id='map'></div>
+
+<div id="battle_hud" class="ui_border_frame ui_border_panel battle_hud" style="display:none;">
+  <!-- <div id="battle_hud_wave"></div> -->
+  <div style="display:inline-block;">
+    <div id="battle_hud_budget" style="display: inline-block;vertical-align: top;margin: 5px;"></div>
+    <div id="progressbar_creeps" class="progressbar" style="display: inline-block;vertical-align: top;">
+      <div class="progressbar_bar"></div>
+      <div class="font-effect-outline font-bright progressbar_value"></div>
+    </div>
+  </div>
+  <div style="float:right;">
+    <img id="battle_hud_enemy_image" src="" height="24">
+    <img id="battle_hud_cancel_button" src="stylesheets/ui_frame_dark_x.png" height="24">
+  </div>
+  <div id="battle_hud_message" class="font-effect-outline font-bright"></div>
+</div>
+<div id="battle_hud_helicopter" class="ui_border_frame battle_hud" style="display:none;">
+  <div style="display:inline-block;">
+  <div id="battle_hud_bombs"></div>
+  </div>
+  <div style="float:right;" id="battle_hud_gunshipimage">
+  
+  </div>
+</div>
+
+<div id="battle_hud_weapons" class="battle_hud" style="position:absolute;bottom:0px;display:none;"></div>
+<!-- <div id="battle_hud_bombs" class="battle_hud" style="position:absolute;bottom:0px;right:0px;display:none;">
+</div> -->
+<div id="tutor_arrow" style="position:absolute;display:none;"><img class="blink_me" src="media/images/tutorial_arrow.gif" height="128"/></div>
+
+
+<div id='scan_plate'>
+    <div id='scan_label'>initialzing</div>
+    <progress id='scan_meter' value="22" max="100"></progress>
+</div>
+<div class="economy_hud mainattack_button">
+  <div class="attack_count font-effect-outline font-bright" style="display:none;">0</div>  
+</div>
+
+<div class="economy_hud mainitems_button"><div class="purchase_count font-effect-outline font-bright" style="display:none;">0</div></div>
+<div class="button_design mainconfig_button"><img src="media/images/btn_options.png" width="27"></div>
+
+<div class="economy_hud button_design mainachivements_button">
+  <div class="achivement_count font-effect-outline font-bright" style="display:none;">0</div>
+  <img src="media/images/btn_achivements.png" width="27">
+</div>
+
+<!--div class="economy_hud button_design mainmessages_button">
+  <div class="messages_count font-effect-outline font-bright" style="display:none;">0</div>
+  <img src="media/images/btn_messages.png" width="27">
+</div -->
+
+
+<div class="gameplay_countdown" style="display: none;"></div>
+<!-- new gui starts -->
+  <div class="economy_hud progress_economy">
+    <div id="progressbar_gold" class="progressbar"><img src="media/images/icon_small_gold.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_wood" class="progressbar"><img src="media/images/icon_small_wood.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_stone" class="progressbar"><img src="media/images/icon_small_stone.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_iron" class="progressbar"><img src="media/images/icon_small_iron.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_diamonds" class="progressbar menuitems_button_iap"><img src="media/images/icon_small_diamond.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <img src="media/images/btn_buy_diamond.png" class="progressbar_diamondpurchase menuitems_button_iap"/>
+  </div>
+  <div class="economy_hud progress_collected">
+    <div id="progressbar_car1" class="progressbar progressbar_car"><img src="media/images/icon_small_car1.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_car2" class="progressbar progressbar_car"><img src="media/images/icon_small_car2.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_car3" class="progressbar progressbar_car"><img src="media/images/icon_small_car3.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_car4" class="progressbar progressbar_car"><img src="media/images/icon_small_car4.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_car5" class="progressbar progressbar_car"><img src="media/images/icon_small_car5.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_car6" class="progressbar progressbar_car"><img src="media/images/icon_small_car6.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+    <div id="progressbar_car7" class="progressbar progressbar_car"><img src="media/images/icon_small_car7.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+  </div>  
+  <br>
+  <span class="economy_hud mainxp_button">
+      <span id="xp_value" class="font-effect-outline font-bright">0</span>
+      <div id="progressbar_xp" class="progressbar"><img src="media/images/icon_small_xp.png" /><div class="progressbar_bar"></div><div class="progressbar_value font-effect-outline font-bright">0</div></div>
+  </span>  
+  <div class="economy_hud main_profileinfo font-effect-outline font-bright"></div>
+  <div class="ui_border_frame font-bright main_networkprogress" style="display:none"></div>
+
+
+  <div class="menudialog_feedback" style="display:none;">
+    <div class="menudialog_frame ui_border_frame" style="text-align:center;">
+      <div class="ui_border_panel"></div>
+      <h2 class="font-effect-outline font-bright">Feedback</h2>
+      <div id="menudialog_feedback_content">sdf</div>
+
+    </div>
+  </div>
+
+  <div class="menudialog_character" style="display:none;">
+    <div class="menudialog_frame ui_border_frame" style="text-align:center;">
+      <div class="ui_border_panel"></div>
+      <h2 class="font-effect-outline font-bright">Attention!</h2>
+      <img class="menudialog_character_image" src="media/images/guide_character.png"/>
+      <div id="menudialog_character_say"></div>
+      <br>
+      <div id="menudialog_character_answer"></div>
+    </div>
+  </div>
+
+  <div class="menudialog_research" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <div class="menudialog_frame_x"></div>
+      <h2 class="font-effect-outline font-bright gui_title_label_m">Armory</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content">
+        <div class="menudialog_research_rows">
+          <div class="menudialog_research_items">
+            <div id="hud_actor_troops_rifleman" class="menudialog_research_item">
+              <h2>Rifleman 2</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src=""/><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+              
+            </div>
+            <div id="hud_actor_troops_heavy" class="menudialog_research_item">
+              <h2>Rifleman 2</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+              
+            </div>
+            <div id="hud_actor_troops_zooka" class="menudialog_research_item">
+              <h2>Rifleman 2</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+              
+            </div>
+            <div id="hud_actor_troops_warrior" class="menudialog_research_item">
+              <h2>Rifleman 2</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+                            
+            </div>
+            <div id="hud_actor_troops_tank" class="menudialog_research_item">
+              <h2>Rifleman 2</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+              
+            </div>
+            <div id="hud_actor_troops_medic" class="menudialog_research_item">
+              <h2>Rifleman 2</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+              
+            </div>
+          </div>
+          <div class="menudialog_research_items">
+            <div id="hud_actor_manual_artillery" class="menudialog_research_item">
+              <h2>Artilery</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+              
+            </div>
+            <div id="hud_actor_manual_flare" class="menudialog_research_item">
+              <h2>Artilery</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+                            
+            </div>
+            <div id="hud_actor_manual_medkit" class="menudialog_research_item">
+              <h2>Artilery</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+                            
+            </div>
+            <div id="hud_actor_manual_shockbomb" class="menudialog_research_item">
+              <h2>Artilery</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+                            
+            </div>
+            <div id="hud_actor_manual_barrage" class="menudialog_research_item">
+              <h2>Artilery</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+                            
+            </div>
+            <div id="hud_actor_manual_smokescreen" class="menudialog_research_item">
+              <h2>Artilery</h2>
+              <img class="iteminfo_imagebg menudialog_research_item_img" src="" /><p class="purchase_level_category"></p><span class="research_item_progress"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_achivements" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <div class="menudialog_frame_x"></div>
+      <h2 class="font-effect-outline font-bright gui_title_label_m">Achivements</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content" style="overflow: hidden; height: 220px;">
+        <div id="menudialog_achivements_container" class="dragdealer" style="top: 40px;">
+          <div class="handle">
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_messages" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <div class="menudialog_frame_x"></div>
+      <h2 class="font-effect-outline font-bright gui_title_label_m">Messages</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content" style="height: 218px;width: 458px;overflow-y: scroll;top: 10px;">
+        No messages
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_message" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="font-effect-outline font-bright" id="menudialog_message_title"></h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content">
+        <div id="menudialog_message_description"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_shareimage" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="font-effect-outline font-bright"></h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content">
+        <div id="menudialog_shareimage_content"></div>
+        <div id="menudialog_shareimage_progress" style="display:none;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_countdown" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <h2 class="font-effect-outline font-bright">Countdown</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content">
+        <p class="font-bright" style="text-align:center;">There is militia and they are attacking us!!</p>
+        <div class="font-bright" id="menudialog_countdown_counter"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_instantcomplete" style="display:none">  
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="font-effect-outline font-bright">Upgrade instantly</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content" style="text-align:center;">
+        <br><br><br>
+        <div id="menudialog_instantcomplete_content"></div>
+        <input id="menudialog_instantcomplete_itemid" type="hidden"/>
+        <input id="menudialog_instantcomplete_itemlevel" type="hidden"/>
+        <a class="button_link button_size_dialog gui_button_label_m" style="position: relative; top: 30px;" href="#"> build now </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_buyaipframe" style="display:none">  
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="font-effect-outline font-bright">Thanks</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content" style="text-align:center;">
+        <div id="menudialog_buyiapframe_content">
+          You bought
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_socialframe" style="display:none">  
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="font-effect-outline font-bright">Social</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content" style="text-align:center;">
+        <div id="menudialog_socialframe_content">
+          <!-- <iframe src="/profile/"></iframe>  -->
+          <h2>Login or Register with</h2>
+
+          <a id="menudialog_socialframe_fbbtn" href="#" class="btn_image"><img src="stylesheets/gui_btn_authfacebook.png"/></a>
+          <!--a target="_parent" href="/auth/google" class="btn_image"><img src="stylesheets/gui_btn_authgoogle.png"/></a>
+          <a target="_parent" href="/auth/twitter" class="btn_image"><img src="stylesheets/gui_btn_authtwitter.png"/></a>
+          <br><br>
+          <a href="/login" class="btn btn-default">Local Login</a>
+          <a href="/signup" class="btn btn-default">Local Signup</a>
+           -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_container" style="display:none">
+    <div id="menudialog_iteminfo" class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="font-effect-outline font-bright">Item info</h2>
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content">
+        <div class="iteminfo_imagecol">
+          <img class="iteminfo_imagebg" style="height:115px;" src=""/>
+          <div class="preview_level_title"></div>
+          <div class="purchase_instant"></div>
+        </div>
+        <div class="iteminfo_textcol">
+          <span></span>
+          <div class="iteminfo_constrtime"></div>
+        </div>
+        <i></i>
+        <input type="hidden"/>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_preferences" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="font-effect-outline font-bright">Preferences</h2>      
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content">
+        <!--br><br>
+        <input type="text" id="menudialog_preferences_soundvolume" value="1"><div class="menudialog_preferences_soundvolume gui_input_label_m">Volume</div><br><br>
+        <input type="checkbox" id="menudialog_preferences_musicmuted"><div class="menudialog_preferences_musicmuted gui_input_label_m">Mute music</div>
+        <input type="checkbox" id="menudialog_preferences_soundmuted"><div class="menudialog_preferences_soundmuted gui_input_label_m">Mute all</div>
+        <br><br>
+        <a href="editor.html" target="editor">editor</a><br>
+        <a href="#" onclick="showDialogResearch()">show armory</a><br>
+        <a href="#" onclick="game_state.addXP(100)">add 50 XP</a><br>
+        <a href="#" onclick="ledgers.addTransactionAction('buy', ledger_item_transaction['iditem-gold-startup']);">add 150 gold</a><br>
+        <a href="#" onclick='ledgers.addTransactionAction("buy", ledger_item_transaction["iditem-diamons01"]);'>More diamonds</a><br>
+        <a href="#" onclick="saveBattleLocation()" >save current battle</a><br -->
+        <br>
+        <div style="float:left;width:50%;">
+          
+            <div id="menudialog_preferences_soundvolume_container">
+              <div class="preference_section">master volume</div>
+              <div id="menudialog_preferences_soundvolume_slider"></div>
+            </div><br>
+            <div id="menudialog_preferences_musicvolume_container">
+              <div class="preference_section">music volume</div>
+              <div id="menudialog_preferences_musicvolume_slider"></div>
+            </div>
+            <br><br>
+            <a id="menudialog_preferences_socialaccount_button" href="#" class="button_link">Social account</a>
+            <a id="menudialog_preferences_logout_button" href="#" class="button_link">Logout</a>         
+           
+          <!-- BELLOW ARE MUTE OPTIONS FOR MUSIC          
+          <input type="checkbox" id="menudialog_preferences_musicmuted" style="width:;float: left;">
+          <div class="menudialog_preferences_musicmuted gui_input_label_m" style="">Mute music</div>
+          <input type="checkbox" id="menudialog_preferences_soundmuted" style="float: left;"><div class="menudialog_preferences_soundmuted gui_input_label_m">Mute all</div>
+           -->
+        </div>
+        <div style="float:right;width:50%;text-align:right;">
+          <br>
+          <!-- a id="menudialog_preferences_feedback_button" href="about.html" target="feedback" class="button_link">Give us your feedback</a>         
+          <br><br -->
+          <a id="menudialog_preferences_test_button" href="#" class="button_link" onclick="testCapturingTheDead()">Capture random ghost</a>
+          <div id="error_messages"></div>
+          <!-- a href="editor.html" target="editor">editor</a><br>
+          <a href="#" onclick="showDialogResearch()">show armory</a><br>
+          <a href="#" onclick="saveBattleLocation()">save current battle</a><br>
+        </div -->  
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="menudialog_battleresult" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="gui_title_label_m font-effect-outline font-bright"></h2>   
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content" style="text-align: center;">
+        <div style="min-height:50px;display:block;">
+          <div class="menudialog_battleresult_currency_frame_image gold"><img src="media/images/icon_small_gold.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image wood"><img src="media/images/icon_small_wood.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image stone"><img src="media/images/icon_small_stone.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image iron"><img src="media/images/icon_small_iron.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image xp"><img src="media/images/icon_small_xp.png"/></div>
+          <div style="text-align:center;">  
+            <div class="menudialog_battleresult_currency_frame_value gold"></div>
+            <div class="menudialog_battleresult_currency_frame_value wood"></div>
+            <div class="menudialog_battleresult_currency_frame_value stone"></div>
+            <div class="menudialog_battleresult_currency_frame_value iron"></div>
+            <div class="menudialog_battleresult_currency_frame_value xp"></div>
+          </div>
+        </div>
+        <center>
+          <div class="gui_label_battledone"></div>
+          <a href="#" class="button_image_share" style="display:none">share<div></div></a><br><br>
+          <a class="button_link button_size_dialog gui_button_battledone gui_button_label_m" href="#">Awesome</a>
+        </center>      
+      </div>
+    </div>
+  </div>
+    
+  <div class="menudialog_battledetails" style="display:none">
+    <div class="menudialog_frame ui_border_frame">
+      <a class="menudialog_frame_x"></a>
+      <h2 class="gui_title_label_m font-effect-outline font-bright"></h2>   
+      <div class="ui_border_panel"></div>
+      <div class="ui_border_content" style="text-align: center;">
+        <div style="min-height:50px;display:block;">
+          <div class="menudialog_battleresult_currency_frame_image gold"><img src="media/images/icon_small_gold.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image wood"><img src="media/images/icon_small_wood.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image stone"><img src="media/images/icon_small_stone.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image iron"><img src="media/images/icon_small_iron.png" width="100%"/></div>
+          <div class="menudialog_battleresult_currency_frame_image xp"><img src="media/images/icon_small_xp.png"/></div>
+          <div style="text-align:center;">  
+            <div class="menudialog_battleresult_currency_frame_value gold"></div>
+            <div class="menudialog_battleresult_currency_frame_value wood"></div>
+            <div class="menudialog_battleresult_currency_frame_value stone"></div>
+            <div class="menudialog_battleresult_currency_frame_value iron"></div>
+            <div class="menudialog_battleresult_currency_frame_value xp"></div>
+          </div>
+        </div>
+        <center>
+          <p></p>
+          <a class="button_link button_size_dialog gui_button_battleattack gui_button_label_m" href="#">Confirm</a>
+          <a class="button_link button_size_dialog gui_button_battledelagate gui_button_label_m" href="#">Delagate</a>
+          <a class="button_link button_size_dialog gui_button_battletutorial gui_button_label_m" href="#">Tutor</a>
+          <input type="hidden"/>
+        </center>      
+      </div>
+    </div>
+  </div>
+    
+  <div class="menuitems_container" style="display:none;">
+    <div class="menuitems_container_message"></div>
+
+<!-- drag dealer starts -->
+<div id="menuitems_slider" class="dragdealer">
+    <div class="red-bar handle">
+
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_economy" class="menuitems_slider_content">
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_residence"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_sawmill"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_goldstorage"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_woodstorage"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_quarry"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_ironmine"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_stonestorage"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_ironstorage"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_vault"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+      </div>
+    </div>
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_defense" class="menuitems_slider_content">
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_snipertower"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_machinegun"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_mortar"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_cannon"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_flamethrower"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_boomcannon"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_rocketlauncher"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <!--div class="menuitems_frameitem ui_border_frame" id="item_detail_landminesmall"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_landminelarge"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div-->
+      </div>
+    </div>  
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_support" class="menuitems_slider_content">
+        <!--div class="menuitems_frameitem ui_border_frame" id="item_detail_landingcraft"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div -->
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_gunboat"><img style="top: -100px; left: 0px;" class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <!--div class="menuitems_frameitem ui_border_frame" id="item_detail_sculptor"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div-->
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_radar"><img style="top: -100px; left: 0px;" class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div>
+        <!-- div class="menuitems_frameitem ui_border_frame" id="item_detail_armory"><img style="top: -100px; left: 0px;" class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright"></h2><p></p></div><a href="#" class="button_link purchase">add</a></div -->
+      </div>
+    </div>  
+    <div class="menuitems_slider_container" style="display:none">
+      <div id="menuitems_slider_content_iap" class="menuitems_slider_content">
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_iap01"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright nowrap"></h2><p></p><a id="iap01" href="#" class="button_link purchase_iap">add</a></div></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_iap02"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright nowrap"></h2><p></p><a id="iap02" href="#" class="button_link purchase_iap">add</a></div></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_iap03"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright nowrap"></h2><p></p><a id="iap03" href="#" class="button_link purchase_iap">add</a></div></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_iap04"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright nowrap"></h2><p></p><a id="iap04" href="#" class="button_link purchase_iap">add</a></div></div>
+        <div class="menuitems_frameitem ui_border_frame" id="item_detail_iap05"><img class="item_detail_info" src=""/><div class="ui_border_panel_item"></div><div class="item_detail_info menuitems_frameitem_detail"><h2 class="font-effect-outline font-bright nowrap"></h2><p></p><a id="iap05" href="#" class="button_link purchase_iap">add</a></div></div>
+      </div>
+    </div>   
+
+    </div>
+</div>
+<!-- drag dealer ends -->
+
+    <div class="menuitems_buttoncontainer">
+      <center>
+        <div class="menuitems_button_economy menuitems_button_category">
+          <div class="gui_button_label_l font-effect-outline font-bright">Economy</div>
+          <div class="purchase_count purchase_count_category font-bright">0</div>
+        </div>
+        <div class="menuitems_button_category menuitems_button_defense">
+          <div class="gui_button_label_l font-effect-outline font-bright">Defense</div>
+          <div class="purchase_count purchase_count_category font-bright">0</div>
+        </div>
+        <div class="menuitems_button_category menuitems_button_support">
+          <div class="gui_button_label_l font-effect-outline font-bright">Support</div>
+          <div class="purchase_count purchase_count_category font-bright">0</div>
+        </div>
+      </center>
+    </div>
+  </div>
+  <!-- vendor scripts begin -->
+  <script src="vendor/howler.min.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="vendor/tapping.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="vendor/dragdealer.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="vendor/guicounter.js" type="text/javascript" charset="utf-8"></script>
+  <script src="vendor/media_uploader.js" type="text/javascript" charset="utf-8"></script>
+  <script src="vendor/fastclick.min.js" type="text/javascript" charset="utf-8"></script>
+  <script src="vendor/QTransform.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="vendor/md5.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="vendor/sGlide-1.10.0.min.js" type="text/javascript" charset="utf-8"></script>
+  <!-- helper -->
+  <script type="text/javascript">
+  
+    function btnTE(event_id, p1, p2, p3){
+
+      if (event_id < 2000){ //events bellow 2000 are event where we have information we want to extract from element
+        $("body").trigger("e"+event_id, [$(p1).attr("id") || $(p1).parent().attr("id") || $(p1).parent().parent().attr("id") || $(p1).parent().parent().parent().attr("id"), p2, p3]);
+      }else{ // just pass the arguments through
+        $("body").trigger("e"+event_id, [p1, p2, p3]);
+      }
+    }  
+
+  </script>
+
+  <!-- game scripts begin -->
+  <script src="scripts/utils/utils.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/lang.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/soundmap.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/dev/tests.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/utils/mglutils.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/utils/mgl.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/economy/iapgems.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/utils/exceptions.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/utils/soundmanager.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/economy/ledger.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/ii_troops.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/ii_defence.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/ii_artillary.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/data.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/economy/state.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/economy/resources.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/config/gui.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/utils/locateplayer.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/utils/spriteanimation.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/event.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/config/main.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/config/ii_actors.js" type="text/javascript" charset="utf-8"></script> 
+  <script src="scripts/config/ghosts.js" type="text/javascript" charset="utf-8"></script> <!-- overwrite main.js functions -->
+  <script src="scripts/utils/iapstore.js" type="text/javascript" charset="utf-8"></script>   
+  <script src="scripts/config/init.js" type="text/javascript" charset="utf-8"></script>
+  <script src="scripts/utils/requests.js" type="text/javascript" charset="utf-8"></script>
+ 
+  <script type="text/javascript" src="../../cordova_plugins.js"></script>
+  <script type="text/javascript" src="../../cordova.js"></script>
+
+</body>
+</html>

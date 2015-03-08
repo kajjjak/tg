@@ -1,0 +1,285 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css" />
+	<script src="http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+	<style>
+		#map { height: 700px; }
+	</style>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+			<%if (!user.role.router) {%><% include partial_noaccess %><% } else { %>
+			
+
+
+			<div id="maptoolbar">
+
+
+				<div class="btn-group btn-group-justified" role="group" aria-label="...">
+				  <div class="btn-group" role="group">
+				    <button id="maptoolbar_create" type="button" class="maptoolbar_btn btn btn-primary" onclick="showJobState(this)">Create</button>
+				  </div>
+				  <div class="btn-group" role="group">
+				    <button id="maptoolbar_assign" type="button" class="maptoolbar_btn btn btn-danger" onclick="showJobState(this)">Assign</button>
+				  </div>
+				  <div class="btn-group" role="group">
+				    <button id="maptoolbar_pickup" type="button" class="maptoolbar_btn btn btn-warning" onclick="showJobState(this)">Waiting</button>
+				  </div>
+				  <div class="btn-group" role="group">
+				    <button id="maptoolbar_driving" type="button" class="maptoolbar_btn btn btn-success" onclick="showJobState(this)">Pickup</button>
+				  </div>
+				  <div class="btn-group" role="group">
+				    <button id="maptoolbar_complete" type="button" class="maptoolbar_btn btn btn-default" onclick="showJobState(this)">Complete</button>
+				  </div>
+				</div>
+
+
+			</div>
+			<div class="selected-job-details">None selected</div>
+			<div id="map"></div>
+
+			<% } %>
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+
+
+		<div class="modal fade" id="mdlJobCreate">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Create job</h4>
+					</div>
+					<div class="modal-body">
+						<p>Select the date and move the blue marker to the designated area or press the cancel button</p>
+						<p>* fields may be omitted</p>
+						<div class="container">
+						    <div class="row">
+						        <div class='col-sm-6'>
+						            <div class="form-group">
+						                <div class='input-group'>
+						                	<label for="job_street">Street</label>
+						                    <input id="job_street" type='text' class="form-control" />
+						                </div>
+						            </div>
+						            <div class="form-group">
+						                <div class='input-group'>
+						                	<label for="job_postcode">Postcode *</label>
+						                    <input id="job_postcode" type='text' class="form-control" />
+						                </div>
+						            </div>
+						            <div class="form-group">
+						                <div class='input-group'>
+						                	<label for="job_city">City</label>
+						                    <input id="job_city" type='text' class="form-control" />
+						                </div>
+						            </div>
+						            <div class="form-group">
+						                <div class='input-group'>
+						                	<label for="job_state">State *</label>
+						                    <input id="job_state" type='text' class="form-control" />
+						                </div>
+						            </div>
+						            <div class="form-group">
+						                <div class='input-group'>
+						                	<label for="job_country">Country</label>
+						                    <input id="job_country" type='text' class="form-control" />
+						                </div>
+						            </div>
+						        </div>
+						        <div class='col-sm-6'>						        
+						            <div class="form-group">
+					                	<label for="datepickerinput">Time for pickup</label>
+						                <div class='input-group' id='datetimepicker'>
+						                    <input id="datepickerinput" type='text' class="form-control" />
+						                    <span class="input-group-addon"><span class="glyphicon glyphicon-calendar"></span>
+						                    </span>
+						                </div>
+						            </div>
+						            <div class="form-group">
+					                	<label for="servicepicker">Vehicle type</label>
+						                <div class='input-group'>
+						                    <select id='servicepicker' class="form-control"></select>
+						                    <span class="input-group-addon"><span class="glyphicon glyphicon-road"></span>
+						                    </span>
+						                </div>
+						            </div>
+						        </div>
+						    </div>
+						</div>
+
+
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-success" data-dismiss="modal" onclick="setJobState(0)">Show</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(1)">Create</button>
+						<button type="button" class="btn btn-warning" data-dismiss="modal" onclick="setJobState(2)">Cancel</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<div class="modal fade" id="mdlJobCancel">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Cancel job</h4>
+					</div>
+					<div class="modal-body">
+						<div class="selected-job-details"></div>
+						<p>Reason for canceling job</p>
+						<div id="lstJobCanceledReason"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+
+		<div class="modal fade" id="mdlJobAssign">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Assign job</h4>
+					</div>
+					<div class="modal-body">
+						<div class="selected-job-details"></div>
+						<p>Select the driver that suites this jobs needs</p>
+						<div id="lstJobAssignDrivers"></div>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(4)">Assign</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+
+		<div class="modal fade" id="mdlJobPickup">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Pickup</h4>
+					</div>
+					<div class="modal-body">
+						<div class="selected-job-details"></div>
+						<p>Waiting for driver to arrive</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(5)">Arrived</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+
+		<div class="modal fade" id="mdlJobDriving">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Driving</h4>
+					</div>
+					<div class="modal-body">
+						<div class="selected-job-details"></div>	
+						<p>The current driver is on route with passanger</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(6)">Driving</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+
+		<div class="modal fade" id="mdlJobComplete">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Completed job</h4>
+					</div>
+					<div class="modal-body">
+						<div class="selected-job-details"></div>
+						<p>The driver has completed the job</p>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="showModalCancel(-2)">Driver canceled</button>
+						<button type="button" class="btn btn-warning" data-dismiss="modal" onclick="showModalCancel(-1)">Client canceled</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(7)">Complete</button>
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<%if (user.role.router) { %>
+
+	<script src="/js/pouchdb-3.3.1.min.js"></script>
+	<script src="/js/gatewayapi.js"></script>
+	<script src="/js/gatewaytracker.js"></script>
+	<script src="/js/mapgui.js"></script>
+
+	<script>
+
+        $(function () {
+
+			window.map = L.map('map').setView(<%= JSON.stringify(user.company.location) %>, 13);
+			// add an OpenStreetMap tile layer
+			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+			}).addTo(map);
+
+            window.datepicker = $('#datetimepicker').datetimepicker({
+            	defaultDate: new Date(),
+            	locale:'is',
+            	sideBySide: true,
+            	showTodayButton: true
+            });
+
+            window.gapi.getClientDoc(); //make sure we have updated info on client setup
+        });
+
+
+	</script>
+
+	<% } %>
+
+</body>
+</html>

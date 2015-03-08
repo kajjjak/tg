@@ -1,0 +1,31 @@
+<ion-view view-title="{{lang.page.request.title}}">
+  <ion-content>
+    <div class="list">
+
+      <a class="item item-icon-left" ng-click="showDatePicker()">
+        <i class="icon ion-clock"></i>
+        {{lang.page.request.row_time.label}}
+        <span id="request_time" class="item-note">
+          {{lang.page.request.row_time.value}}
+        </span>        
+      </a>
+
+      <a class="item item-icon-left" ng-click="showServicePicker()">
+        <i class="icon ion-model-s"></i>
+        {{lang.page.request.row_service.label}}
+        <span id="request_service" class="item-note">
+          {{lang.page.request.row_service.value}}
+        </span>        
+      </a>
+    </div>
+    <div class="card">
+      <div id="state_address" class="item item-text-wrap" style="text-align:center;"></div>
+    </div>
+    <div id="state_feedback"></div>
+  </ion-content>
+  <ion-footer-bar>
+    <div class="button-bar">
+      <button id="request_action" class="button button-calm" ng-click="confirmRequest()">{{lang.page.request.btn_confirm}}</button>
+    </div>
+  </ion-footer-bar>
+</ion-view>

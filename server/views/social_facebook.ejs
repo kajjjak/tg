@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html>
+  <head>
+    <meta property="og:title" content="<%= share.title %>" />
+    <meta property="og:url" content="<%= share.url %>" />
+    <meta property="og:description" content="<%= share.description %>" />
+    <meta property="og:image" content="<%= share.image %>" />
+
+    <link rel="stylesheet" href="/stylesheets/gui.css">
+    <link href='https://fonts.googleapis.com/css?family=Russo+One&effect=outline' rel='stylesheet' type='text/css'>
+
+  </head>
+  <body class='ui_border_panel' style="text-align:center;color:gray;">
+  <center>
+  	<h2 class="font-effect-outline"><%= share.title %></h2>
+  	<div class="content">
+	  	<img src="<%= share.image %>"/>
+	  	<p class='ui_border_frame' style="width:50%;background-color: gray;border-radius: 10px;color: black;;">
+	  		<%= share.description %>
+	  	</p>
+	  	<h4>Ghost burster</h4>
+	  	<p>
+	  		Sighting
+  		</p>
+  		<br>
+  		<br>
+  		<a class="button_link button_size_dialog" href="/">Enter game</a>
+  	</div>
+  </center>
+  </body>
+</html>

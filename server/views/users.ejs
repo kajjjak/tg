@@ -1,0 +1,77 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+
+		   <% if (!user.role.config) {%><% include partial_noaccess  %><% } else {  %>
+
+
+			<div class="row">		
+				<div class="col-lg-12">
+					<div class="box">
+						<div class="box-header" data-original-title>
+							<h2><i class="fa fa-user"></i><span class="break"></span>Members</h2>
+							<div class="box-icon">
+								<a href="#" onclick="showEditMember()"><i class="fa fa-plus"></i></a>
+								<a href="#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
+								<a href="#" class="btn-close"><i class="fa fa-times"></i></a>
+							</div>
+						</div>
+						<div class="box-content">
+							<table id="tblMembers" class="table table-striped table-bordered bootstrap-datatable datatable">
+							  <thead>
+								  <tr>
+									  <th>Name</th>
+									  <th>Username</th>
+									  <th>Since</th>
+									  <th>Role</th>
+									  <th>Status</th>
+									  <th>Actions</th>
+								  </tr>
+							  </thead>   
+						  </table>            
+						</div>
+					</div>
+				</div><!--/col-->
+			
+			</div><!--/row-->
+
+
+			<% } %>
+
+
+
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<!-- inline scripts related to this page -->
+	
+</body>
+</html>

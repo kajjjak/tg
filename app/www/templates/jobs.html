@@ -1,0 +1,20 @@
+<ion-nav-back-button class="button-icon ion-arrow-left-c">
+</ion-nav-back-button>
+<ion-view view-title="{{lang.page.jobs.title}}">
+  <ion-nav-buttons side="right">
+    <button class="button button-icon icon ion-plus-circled" ng-click="askNewFeedbackState()"></button>
+  </ion-nav-buttons>
+
+  <ion-content>
+    <div class="list">
+      <label class="item item-radio" ng-repeat="job in jobs" ng-click="setSelectedJob(job)">
+        <input type="radio" name="group">
+        <div class="item-content">
+          <h2>{{job.value.pickuptime_str}}</h2>
+          <p>{{job.value.state_str}}</p>
+        </div>
+        <i class="radio-icon ion-checkmark"></i>
+      </label>
+    </div>    
+  </ion-content>
+</ion-view>

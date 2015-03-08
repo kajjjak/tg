@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en" >
+    <head>
+        <meta charset="utf-8" />
+        <meta name="author" content="aGame Company" />
+        <title>Zombie Battle Grounds</title>
+        <!-- add styles -->
+        <link href="/stylesheets/gui.css" rel="stylesheet" type="text/css" />
+		<link href='//fonts.googleapis.com/css?family=Carter+One&effect=outline' rel='stylesheet' type='text/css'>
+		<style>
+			body {
+			  font-family: 'Carter One', cursive;
+			}
+		</style>        
+    </head>
+    <body class="menudialog_socialframe_iframe_body ui_border_panel" style="text-align:center;">
+    	<h2>Social connections</h2>
+		<% if (user.auth.facebook) { %>
+			<!-- <a class="btn_image" href="/unlink/facebook"><img style="opacity: 0.3;" src="/stylesheets/gui_btn_authfacebook.png"/></a> -->
+			Connected to Facebook
+		<% } else { %>
+			<a target="_top" href="/auth/facebook" class="btn_image"><img src="/stylesheets/gui_btn_authfacebook.png"/></a>
+		<% } %>
+		<!-- 
+
+		<% if (user.auth.google) { %>
+			<a class="btn_image" href="/unlink/google" class="btn_image"><img style="opacity: 0.3;" src="/stylesheets/gui_btn_authgoogle.png"/></a>
+		<% } else { %>
+			<a target="_top" href="/auth/google" class="btn_image"><img src="/stylesheets/gui_btn_authgoogle.png"/></a>
+		<% } %>
+
+
+		<% if (user.auth.twitter) { %>
+			<a class="btn_image" href="/unlink/twitter" class="btn_image"><img style="opacity: 0.3;" src="/stylesheets/gui_btn_authtwitter.png"/></a>
+		<% } else { %>
+			<a target="_top" href="/auth/twitter" class="btn_image"><img src="/stylesheets/gui_btn_authtwitter.png"/></a>
+		<% } %>
+		
+
+
+        <!-- authentication variables -->
+        <input type="hidden" id="user_id" value="<%= user._id %>">
+        <input type="hidden" id="user_name" value="<%= user.username %>">
+
+		<div id="fb-root"></div>
+		<script>(function(d, s, id) {
+		  var js, fjs = d.getElementsByTagName(s)[0];
+		  if (d.getElementById(id)) return;
+		  js = d.createElement(s); js.id = id;
+		  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1&appId=<%= app_social_facebook_appid %>";
+		  fjs.parentNode.insertBefore(js, fjs);
+		}(document, 'script', 'facebook-jssdk'));
+		</script>        
+		<script>
+			sessionStorage.setItem("auth", JSON.stringify({"user_id":"<%= user._id %>", "user_name": "<%= user.username %>"}));
+		</script>
+    </body>
+</html>
+
+<!-- doctype html>
+<html>
+<head>
+	<title>Node Authentication</title>
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.2/css/bootstrap.min.css">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.min.css">
+	<style>
+		body 		{ padding-top:80px; word-wrap:break-word; }
+	</style>
+</head>
+<body>
+<div class="container">
+
+	<div class="page-header text-center">
+		<h1><span class="fa fa-anchor"></span> Profile Page</h1>
+		<a href="/logout" class="btn btn-default btn-sm">Logout</a>
+	</div>
+
+	<div class="row">
+
+		<div class="col-sm-6">
+			<div class="well">
+				<h3><span class="fa fa-user"></span> Local</h3>
+
+				<% if (user) { %>
+					<p>
+						<strong>id</strong>: <%= user._id %><br>
+						<strong>user name</strong>: <%= user.username %><br>
+						<strong>email</strong>: <%= user.email %><br>
+						<strong>hash</strong>: <%= user.hash %>
+					</p>
+					
+					<a href="/unlink/local" class="btn btn-default">Unlink</a>
+				<% } else { %>
+					<a href="/connect/local" class="btn btn-default">Connect Local</a>
+				<% } %>
+
+			</div>
+		</div>
+
+		<div class="col-sm-6">
+			<div class="well">
+				<h3 class="text-primary"><span class="fa fa-facebook"></span> Facebook</h3>
+
+				<% if (user.facebook) { %>
+					<p>
+						<strong>id</strong>: <%= user.facebook.id %><br>
+						<strong>token</strong>: <%= user.facebook.token %><br>
+						<strong>email</strong>: <%= user.facebook.email %><br>
+						<strong>name</strong>: <%= user.facebook.name %><br>
+					</p>
+
+					<a href="/unlink/facebook" class="btn btn-primary">Unlink</a>
+				<% } else { %>
+					<a href="/connect/facebook" class="btn btn-primary">Connect Facebook</a>
+				<% } %>
+
+			</div>
+		</div>
+	</div>
+	<div class="row">
+
+		<div class="col-sm-6">
+			<div class="well">
+				<h3 class="text-info"><span class="fa fa-twitter"></span> Twitter</h3>
+
+				<% if (user.twitter) { %>
+					<p>
+						<strong>id</strong>: <%= user.twitter.id %><br>
+						<strong>token</strong>: <%= user.twitter.token %><br>
+						<strong>display name</strong>: <%= user.twitter.displayName %><br>
+						<strong>username</strong>: <%= user.twitter.username %>
+					</p>
+
+					<a href="/unlink/twitter" class="btn btn-info">Unlink</a>
+				<% } else { %>
+					<a href="/connect/twitter" class="btn btn-info">Connect Twitter</a>
+				<% } %>
+
+			</div>
+		</div>
+
+		<div class="col-sm-6">
+			<div class="well">
+				<h3 class="text-danger"><span class="fa fa-google-plus"></span> Google+</h3>
+
+				<% if (user.google) { %>
+					<p>
+						<strong>id</strong>: <%= user.google.id %><br>
+						<strong>token</strong>: <%= user.google.token %><br>
+						<strong>email</strong>: <%= user.google.email %><br>
+						<strong>name</strong>: <%= user.google.name %>
+					</p>
+
+					<a href="/unlink/google" class="btn btn-danger">Unlink</a>
+				<% } else { %>
+					<a href="/connect/google" class="btn btn-danger">Connect Google</a>
+				<% } %>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="text-center">
+		<p>A demo by <a href="http://scotch.io">Scotch</a>.</p>
+		<p>Visit the <a href="http://scotch.io/tutorials/javascript/easy-node-authentication-setup-and-local">tutorial</a>.</p>
+	</div>
+
+</div>
+</body>
+</html -->
+

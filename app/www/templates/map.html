@@ -1,0 +1,27 @@
+<ion-view title="{{lang.page.map.title}}">
+
+  <ion-nav-buttons side="left">
+    <button menu-toggle="left"class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+
+  <ion-nav-buttons side="right">
+    <button class="button button-icon icon ion-navigate" ng-click="showUserCurrentLocation()"></button>
+  </ion-nav-buttons>
+
+  <ion-content data-tap-disabled="true">
+    <div style="z-index:99999;position:absolute;width:100%;text-align: center;">
+      <div class="job_address" >
+        {{lang.page.map.instruction}}
+      </div>
+    </div>
+    <div id="map"></div> 
+
+  </ion-content>
+  <ion-footer-bar>
+    <div class="button-bar">
+      <button class="button button-balanced" ng-click="makeRequest()">{{lang.page.map.btn_continue}}</button>
+    </div>
+  </ion-footer-bar>
+  
+
+</ion-view>

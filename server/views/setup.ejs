@@ -1,0 +1,245 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+			<%if (!user.role.config) {%><% include partial_noaccess %><% } else { %>
+
+
+
+
+
+			<div class="row">
+				
+				<div class="col-lg-12">
+					<div class="box">
+						<div class="box-header">
+							<h2><i class="fa fa-edit"></i><span class="break"></span>Setup Wizard</h2>
+							<div class="box-icon">
+							</div>
+						</div>
+						<div class="box-content">
+							<div id="MyWizard" class="wizard">
+								<ul class="steps">
+									<li data-target="#step1" class="active"><span class="badge badge-info">1</span></li>
+									<li data-target="#step2"><span class="badge">2</span></li>
+									<li data-target="#step3"><span class="badge">3</span></li>
+									<li data-target="#step4"><span class="badge">4</span></li>
+									<li data-target="#step5"><span class="badge">5</span></li>
+								</ul>
+								<div class="actions">
+									<button type="button" class="btn btn-prev"> <i class="fa fa-arrow-left"></i> Prev</button>
+									<button type="button" class="btn btn-success btn-next" data-last="Finish" onclick="updateAccount()">Next <i class="fa fa-arrow-right"></i></button>
+								</div>
+							</div>
+							<div class="step-content">
+								<div class="step-pane active" id="step1">
+									<form class="form-horizontal">
+										<fieldset class="col-sm-12">	
+
+											<h1>Let setup your account</h1>
+											<p>
+												We need some basic information to get you up and running. Simply fill out the form and press next until all 5 steps have been completed.
+											</p>
+											
+										</fieldset>
+									</form>
+								</div>
+								<div class="step-pane" id="step2">
+									<form class="form-horizontal">
+										<fieldset class="col-sm-12">	
+											<h1>Company information</h1>
+											<div class="form-group">
+												<label class="control-label" for="companyName">Name</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="companyName">
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="streetAddress">Street Address</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="streetAddress">
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="postalCode">Post Code</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="postalCode">
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="stateAddress">State</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="stateAddress">
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="stateCity">City</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="stateCity">
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="addressCountry">Country</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="addressCountry">
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="telephone">Phone number</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="telephone">
+												</div>
+									  		</div>									  		
+									  		<div class="form-group">
+												<label class="control-label" for="website">Website</label>
+												<div class="controls">
+										  			<input type="text" class="form-control" id="website">
+												</div>
+									  		</div>
+										</fieldset>
+									</form>
+								</div>
+								<div class="step-pane" id="step3">
+									<form class="form-horizontal">
+										<fieldset class="col-sm-12">	
+											<h1>Contact person</h1>
+											<div class="form-group">
+												<label class="control-label" for="firstName">First Name</label>
+												<div class="controls row">
+													<div class="col-sm-4">
+										  				<input type="text" class="form-control" id="firstName">
+													</div>
+										  			<span class="help-block col-sm-8"></span>
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="lastName">Last Name</label>
+												<div class="controls row">
+										  			<div class="col-sm-4">
+										  				<input type="text" class="form-control" id="lastName">
+													</div>
+										  			<span class="help-block col-sm-8"></span>
+												</div>
+									  		</div>
+									  		<div class="form-group">
+												<label class="control-label" for="telephone2">Phone Number</label>
+												<div class="controls row">
+										  			<div class="col-sm-4">
+										  				<input type="text" class="form-control" id="telephone2">
+													</div>
+										  			<span class="help-block col-sm-8"></span>
+												</div>
+									  		</div>	
+											
+										</fieldset>
+									</form>	
+								</div>
+								<div class="step-pane" id="step4">
+									<div class="alert alert-info">
+										<button type="button" class="close" data-dismiss="alert">×</button>
+										<strong>Agreement!</strong> Simple agreement that we are on the same page
+									</div>
+									<p>
+										Basically we want you to understand that
+										<ul>
+											<li>We manage this website
+											<li>We manage your app based on your preferences
+										</ul>
+									</p>
+									<div class="controls">
+									  <label class="checkbox inline">
+										<input type="checkbox" id="inlineCheckbox2" value="option5"> I understand
+									  </label>
+									</div>	
+								</div>
+								<div class="step-pane" id="step5">
+									<form class="form-horizontal">
+										<fieldset class="col-sm-12">	
+											<h1>Congratulations</h1>
+											<p>We have all the information to configure your accout. Is all the information correct?</p>
+									   		<div class="form-group">
+									        	<label class="control-label"></label>
+									           	<div class="controls">
+									     			<label class="checkbox">
+									           			<input type="checkbox" id="confirm" value="" /> I confirm this information
+									             	</label>
+									 			</div>
+									       	</div>
+										</fieldset>
+									</form>	
+								</div>
+
+							</div>
+
+						</div>
+
+					</div>
+					
+				</div><!--/col-->
+
+			</div><!--/row-->
+
+
+			<% } %>
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+	
+	<!-- inline scripts related to this page -->
+	<script src="/assets/js/pages/form-wizard.js"></script>
+	<script src="/js/gapi.js"></script>
+	<script>
+		function updateAccount(){
+			var person = {};
+			var company = {};
+			if($('#confirm').prop('checked') ){
+				person["first_name"] = $("#firstName").val();
+				person["last_name"] = $("#lastName").val();
+				person["telephone"] = $("#telephone2").val();
+				company["name"] = $("#companyName").val();
+				company["street"] = $("#streetAddress").val();
+				company["postcode"] = $("#postalCode").val();
+				company["state"] = $("#stateAddress").val();
+				company["city"] = $("#cityAddress").val();
+				company["country"] = $("#addressCountry").val();
+				company["telephone"] = $("#telephone").val();
+				company["website"] = $("#website").val();
+				var info = {"company": company, "contact":person}
+				// send to server
+				setCompanyInformation(info, function(){
+					// got to app configuration
+					window.location.href = "/configuration.html";
+				}, function(){
+					alert("Sorry an error occured. Please run the setup again");
+				});
+			}
+		}
+	</script>
+</body>
+</html>
