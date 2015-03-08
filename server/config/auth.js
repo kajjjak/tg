@@ -1,18 +1,18 @@
 _cfgv_liveserverhost = {
   dbport: "http://",
   dbportnr: 80,
-  dbhost: "db00.ghostburster.com",
-  dbname: "ghostburster",
-  dbserver: "http://db00.ghostburster.com",
-  dbpath: "http://db00.ghostburster.com/ghostburster/",
+  dbhost: "db00.taxigateway.com",
+  dbname: "taxigateway_test1",
+  dbserver: "http://db00.taxigateway.com", 
+  dbpath: "https://db00.taxigateway.com/taxigateway_test1/",
   srvportname: "https://",
-  srvport: 15516 || process.env.PORT,
-  srvdomain: "ghostburster.com", 
-  srvhost: "https://ghostburster.com",
-  srvfacebook: "https://apps.facebook.com/ghostburster/",
+  srvport: 25774 || process.env.PORT,
+  srvdomain: "taxigateway.com", 
+  srvhost: "https://taxigateway.com",
+  srvfacebook: "https://apps.facebook.com/taxigateway/",
   social_facebook_appid: '248418481997473',
   social_facebook_secret: '89991ddf91fe7e8576817c0a45b6aed3',
-  social_facebook_page: 'https://apps.facebook.com/ghostburster' //used after login redirect
+  social_facebook_page: 'https://apps.facebook.com/taxigateway' //used after login redirect
 };
 
 _cfgv_testserverhost = {
@@ -20,10 +20,10 @@ _cfgv_testserverhost = {
   dbportnr: 443,
   dbhost: "db00.taxigateway.com",
   dbname: "taxigateway_test1",
-  dbserver: "http://db00.taxigateway.com",  //http://db00.ghostburster.com/_utils/
+  dbserver: "http://db00.taxigateway.com", 
   dbpath: "https://db00.taxigateway.com/taxigateway_test1/",
   srvportname: "https://",
-  srvport: 15918 || process.env.PORT,
+  srvport: 29078 || process.env.PORT,
   srvdomain: "taxigateway.com", 
   srvhost: "https://taxigateway.com",
   srvfacebook: "https://apps.facebook.com/taxigateway/",
