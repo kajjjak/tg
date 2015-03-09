@@ -10,8 +10,8 @@ _cfgv_liveserverhost = {
   srvdomain: "taxigateway.com", 
   srvhost: "https://taxigateway.com",
   srvfacebook: "https://apps.facebook.com/taxigateway/",
-  social_facebook_appid: '248418481997473',
-  social_facebook_secret: '89991ddf91fe7e8576817c0a45b6aed3',
+  social_facebook_appid: '382258661957064',
+  social_facebook_secret: 'd7fda2dde02362004894cebc10bc1e8e',
   social_facebook_page: 'https://apps.facebook.com/taxigateway' //used after login redirect
 };
 
@@ -27,8 +27,8 @@ _cfgv_testserverhost = {
   srvdomain: "taxigateway.com", 
   srvhost: "https://taxigateway.com",
   srvfacebook: "https://apps.facebook.com/taxigateway/",
-  social_facebook_appid: '', //test one
-  social_facebook_secret: '', //test one
+  social_facebook_appid: '382258661957064', //test one
+  social_facebook_secret: 'd7fda2dde02362004894cebc10bc1e8e', //test one
   social_facebook_page: 'https://apps.facebook.com/taxigateway'  //used after login redirect
 };
 
@@ -45,8 +45,8 @@ _cfgv_testlocalhost = {
   srvdomain: "localhost:8000",//"urbanbattleground.com", 
   srvhost: "http://localhost:8000",
   srvfacebook: "https://apps.facebook.com/taxigateway/",  
-  social_facebook_appid: '248418481997473',
-  social_facebook_secret: '89991ddf91fe7e8576817c0a45b6aed3',
+  social_facebook_appid: '382258661957064',
+  social_facebook_secret: 'd7fda2dde02362004894cebc10bc1e8e',
   social_facebook_page: "http://localhost:8000/",  //used after login redirect
 };
 
