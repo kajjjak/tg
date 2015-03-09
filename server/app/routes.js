@@ -410,54 +410,47 @@ module.exports = function(app, passport) {
 
     app.post('/api/client/:company_id/job', function(req, res) { //
         var job_id = getGuid();
-        var data, company_id = req.params.company_id;
+        try {
+            var data, company_id = req.params.company_id;
 
-        try{
-            var data = validateJobData(req.body);
+            try{
+                var data = validateJobData(req.body);
+            }catch(e){
+                res.send({"error": e});
+                return;
+            }
+            author = "client";
+            if(user.role.router){ author = "router";}
+            if(user.role.driver){ author = "driver";}
+            var time_now = new Date();
+            var job_start = {
+                doctype: "job",
+                location: data.location,
+                pickup_time: data.pickup_time,
+                author: author,
+                client: {},
+                driver: {},
+                address: data.address,
+                client_ts: data.client_ts,
+                server_ts: time_now.getTime(),
+                destination: null,
+                price: null,
+                route: null            
+            };
+            getCompanyDocument(company_id, job_id, function(){
+                res.send({"error": "job exists"});
+            }, function(){
+                setCompanyDocument(company_id, job_id, job_start, function(d){
+                    job_start.id = job_id;
+                    res.send({success:true, job: job_start});
+                }, function(e){
+                    res.send({"error": e});
+                });
+            });
         }catch(e){
             res.send({"error": e});
-            return;
+            //todo handle error
         }
-        author = "client";
-        if(user.role.router){ author = "router";}
-        if(user.role.driver){ author = "driver";}
-        var time_now = new Date();
-        var job_start = {
-            doctype: "job",
-            location: data.location,
-            pickup_time: data.pickup_time,
-            author: author,
-            client: {},
-            driver: {},
-            address: data.address,
-            client_ts: data.client_ts,
-            server_ts: time_now.getTime(),
-            /*
-            stats: {
-                "yearmonth": time_now.getUTCFullYear() + "" + doubleTimeValue(time_now.getUTCMonth()),
-                "yearmonthdate": time_now.getUTCFullYear() + "" + doubleTimeValue(time_now.getUTCMonth()) + "" + doubleTimeValue(time_now.getUTCDay()),
-                "yearmonthdatehour": time_now.getUTCFullYear() + "" + doubleTimeValue(time_now.getUTCMonth()) + "" + doubleTimeValue(time_now.getUTCDay()) + "" + doubleTimeValue(time_now.getUTCHours()),
-                "month": time_now.getUTCMonth(), 
-                "year": time_now.getUTCFullYear(), 
-                "date": time_now.getUTCDate(), 
-                "weekday":time_now.getUTCDay(), 
-                "hours": time_now.getUTCHours(), 
-                "minutes": time_now.getUTCMinutes()
-            },*/
-            destination: null,
-            price: null,
-            route: null            
-        };
-        getCompanyDocument(company_id, job_id, function(){
-            res.send({"error": "job exists"});
-        }, function(){
-            setCompanyDocument(company_id, job_id, job_start, function(d){
-                job_start.id = job_id;
-                res.send({success:true, job: job_start});
-            }, function(e){
-                res.send({"error": e});
-            });
-        });
     });
 
     app.post('/api/client/:company_id/job/:job_id/:state', function(req, res) { //

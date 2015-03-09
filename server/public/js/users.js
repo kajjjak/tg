@@ -25,7 +25,7 @@ $(document).ready(function(){
             memberlist.$('tr .selected-row-table').removeClass('selected-row-table');
             $(this).addClass('selected-row-table');
         }
-        console.info( 'You clicked on '+this.id+'\'s row' );        
+        filterByUser(this.id);
     } );
 
 	window.gu = new GatewayUsers();
@@ -37,6 +37,9 @@ $(document).ready(function(){
 	//ugly hack to remove the search from member list
 	$("#lstMembers_wrapper .row:first-child").hide();
 	$("#lstMembers_wrapper .row:last-child").hide();
+
+	//add select None
+	addMemberRow({name: "<i>All</i>", role:{driver:1}, email:"", created:"", group:"", status:"", buttons:""}, true);
 });
 
 function showEditMember(id){
@@ -44,23 +47,24 @@ function showEditMember(id){
 	$("#txtEditMemberId").val(id || "");
 }
 
-function addMemberRow(member){
+function addMemberRow(member, onlylist){
 	var buttons = '<td class="center"><a class="btn btn-success" href="#" onclick="showEditMemberPassword(\'' + member._id + '\');"><i class="fa fa-shield "></i></a><!-- a class="btn btn-info" href="table.html#"><i class="fa fa-edit "></i></a --><a class="btn btn-danger" href="#" onclick="gu.removeUser(\'' + member._id + '\');"><i class="fa fa-trash-o "></i> </a></td>';
 	member.status = '<span class="label label-success">Active</span>';
 	member.created_label = new Date(member.created).toLocaleDateString();
+	if(!onlylist){
+		var ri = $('#tblMembers').dataTable().api().row.add([
+			member.name,
+			member.email,
+			member.created_label,
+			member.group,
+			member.status,
+			buttons
+		]).draw();
+		var row = $('#tblMembers').dataTable().fnGetNodes(ri[0]);
+		$(row).attr('id', "tbl-" + member._id);
+	}
 
-	var ri = $('#tblMembers').dataTable().api().row.add([
-		member.name,
-		member.email,
-		member.created_label,
-		member.group,
-		member.status,
-		buttons
-	]).draw();
-	var row = $('#tblMembers').dataTable().fnGetNodes(ri[0]);
-	$(row).attr('id', "tbl-" + member._id);
-
-	if(member.group == "driver"){
+	if(member.role.driver){
 		ri = $('#lstMembers').dataTable().api().row.add([
 			"", //member.status,
 			member.name

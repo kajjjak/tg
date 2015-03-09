@@ -66,13 +66,19 @@ function showJobState(self){
 
 				for(var i in drivers){
 					driver = drivers[i].value;
-					tbl = tbl + "<tr id='" + driver._id + "'><td>" + driver.name + "</td><td>" + getJobVehiclesName(driver.vehicles, vehicles) + "</td></tr>";
+					tbl = tbl + "<tr id='" + driver.account + "'><td>" + driver.name + "</td><td>" + getJobVehiclesName(driver.vehicles, vehicles) + "</td></tr>";
 				}
 				$('#lstJobAssignDrivers').html('<table class="table table-striped">'+tbl+'</table>');
 				$('#lstJobAssignDrivers tr').click(function(sel) {
 				    window.driver_selected = sel.currentTarget.id;
 				});
-			});			
+
+				$('#lstJobAssignDrivers tbody').on( 'click', 'tr', function () {
+					memberlist.$('.selected-row-table').removeClass('selected-row-table');
+				    $(this).addClass('selected-row-table');
+				    console.info( 'You clicked on '+this.id+'\'s row' );        
+				} );				
+			});						
 		});
 		$('#lstJobAssignDrivers').html("... updating drivers list");
 		$('#mdlJobAssign').modal('show');
@@ -148,14 +154,16 @@ function setJobState(nr, data){
 	}
 	if(nr == 1){ // create a new job marker
 		fetchJobLocation(find_address, function(address){
+			var job_latlng = map.getCenter();
 			if(window.job_newlocation){
-				map.setView(window.job_newlocation.getLatLng());
+				job_latlng = window.job_newlocation.getLatLng();
+				map.setView(job_latlng);
 			}else{
 				var options = {
 					draggable: true,
 					riseOnHover: true
 				}
-				window.job_newlocation = L.marker(map.getCenter(), options).addTo(map);
+				window.job_newlocation = L.marker(job_latlng, options).addTo(map);
 				window.job_newlocation.bindPopup("<center><div class='job_address'>Drag me to street number</div><button class='btn btn-primary' onclick='setJobState(3)'>Save</button><button class='btn btn-warning' onclick='setJobState(2)'>Cancel</button></center>");
 				window.job_newlocation.on('dragend', function(){
 					var latlng = window.job_newlocation.getLatLng();
@@ -163,7 +171,7 @@ function setJobState(nr, data){
 					fetchJobAddress(latlng.lat, latlng.lng);
 				});
 			}
-			if(address){ window.job_newlocation.setLatLng(address.latlng); }
+			if(address){ window.job_newlocation.setLatLng(address.latlng || job_latlng); }
 			window.job_newlocation.pickup_time = getPickupTime();
 			window.job_newlocation.pickup_vehicle = getPickupVehicle();
 			window.job_newlocation.pickup_address = find_address;

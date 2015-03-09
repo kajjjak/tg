@@ -51,7 +51,7 @@ _cfgv_testlocalhost = {
 };
 
 //IMPORTANT: ALSO UPDATE INDEX.HTML
-global._cfgv = _cfgv_testlocalhost;
+global._cfgv = _cfgv_testserverhost;
 
 
 

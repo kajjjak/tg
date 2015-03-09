@@ -30,8 +30,12 @@ function GatewayAPI (dbid, callback_error) {
             //expects {"client_ts": new Date().getTime(), "time": time, "location": location};
             url = url + "/"+job_id+"/"+state;
         }
-		$.post(url, data, function(doc){
-    		call_success(doc);
+		$.post(url, data, function(result){
+            if(result.error){
+                handleError(result.error);
+            }else{
+                call_success(result);
+            }
     	}).fail(callback_error);
     };
 
