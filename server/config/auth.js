@@ -6,7 +6,7 @@ _cfgv_liveserverhost = {
   dbserver: "http://db00.taxigateway.com", 
   dbpath: "https://db00.taxigateway.com/taxigateway_test1/",
   srvportname: "https://",
-  srvport: 25774 || process.env.PORT,
+  srvport: 80 || process.env.PORT,
   srvdomain: "taxigateway.com", 
   srvhost: "https://taxigateway.com",
   srvfacebook: "https://apps.facebook.com/taxigateway/",
@@ -23,7 +23,7 @@ _cfgv_testserverhost = {
   dbserver: "http://db00.taxigateway.com", 
   dbpath: "https://db00.taxigateway.com/taxigateway_test1/",
   srvportname: "https://",
-  srvport: 29078 || process.env.PORT,
+  srvport: 80 || process.env.PORT,
   srvdomain: "taxigateway.com", 
   srvhost: "https://taxigateway.com",
   srvfacebook: "https://apps.facebook.com/taxigateway/",
@@ -41,7 +41,7 @@ _cfgv_testlocalhost = {
   dbserver: "http://db00.taxigateway.com",
   dbpath: "http://db00.taxigateway.com/taxigateway_test1/",
   srvportname: "http://",
-  srvport: 8000,
+  srvport: 80,
   srvdomain: "localhost:8000",//"urbanbattleground.com", 
   srvhost: "http://localhost:8000",
   srvfacebook: "https://apps.facebook.com/taxigateway/",  
@@ -51,7 +51,7 @@ _cfgv_testlocalhost = {
 };
 
 //IMPORTANT: ALSO UPDATE INDEX.HTML
-global._cfgv = _cfgv_testserverhost;
+global._cfgv = _cfgv_liveserverhost;
 
 
 
