@@ -113,61 +113,48 @@ module.exports = function(app, passport) {
 	});
 
 	// CONTENT SECTION =========================
+
+    function getCommonVars(req){
+        var params = global._cfgv
+        params["user"] = req.user; //{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user,
+        params["app_social_facebook_appid"] = global._cfgv.social_facebook_appid;
+        return params;
+    }
+
     app.get('/index.html', isLoggedIn, function(req, res) {
-        res.render('dashboard.ejs', {
-            header: global._cfgv.header,
-            user : req.user,
-            app_social_facebook_appid: global._cfgv.social_facebook_appid
-        });
+        var params = getCommonVars(req);
+        res.render('dashboard.ejs', params);
     });
 
     app.get('/pickups.html', isLoggedIn, function(req, res) {
-        res.render('map.ejs', {
-            header: global._cfgv.header,
-            user : req.user, //{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user,
-            app_social_facebook_appid: global._cfgv.social_facebook_appid
-        });
+        var params = getCommonVars(req);
+        res.render('map.ejs', params);
     });
 
     app.get('/users.html', isLoggedIn, function(req, res) {
-        res.render('users.ejs', {
-            header: global._cfgv.header,
-            user : req.user, //{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, "auth": {"local": {"id": "kjartan@taxigateway.com","username": "kjartan@taxigateway.com","password": "e94ef563867e9c9df3fcc999bdb045f5"}}}, //req.user,
-            app_social_facebook_appid: global._cfgv.social_facebook_appid
-        });
+        var params = getCommonVars(req);
+        res.render('users.ejs', params);
     });
 
     app.get('/setup.html', isLoggedIn, function(req, res) {
-        res.render('setup.ejs', {
-            header: global._cfgv.header,
-            user : req.user,
-            app_social_facebook_appid: global._cfgv.social_facebook_appid
-        });
+        var params = getCommonVars(req);
+        res.render('setup.ejs', params);
     });
 
     app.get('/payments.html', isLoggedIn, function(req, res) {
-        res.render('billing.ejs', {
-            header: global._cfgv.header,
-            user : req.user,
-            app_social_facebook_appid: global._cfgv.social_facebook_appid
-        });
+        var params = getCommonVars(req);
+        res.render('billing.ejs', params);
     });
 
     app.get('/mobilesetup.html', isLoggedIn, function(req, res) {
-        var company_id = req.user.company_id;
-        res.render('mobilesetup.ejs', {
-            header: global._cfgv.header,
-            user : req.user,
-            app_social_facebook_appid: global._cfgv.social_facebook_appid
-        });            
+        var params = getCommonVars(req);
+        res.render('mobilesetup.ejs', params);            
     });
 
     // PROFILE SECTION =========================
     app.get('/profile', isLoggedIn, function(req, res) {
-        res.render('profile.ejs', {
-            user : req.user,
-            app_social_facebook_appid: global._cfgv.social_facebook_appid
-        });
+        var params = getCommonVars(req);
+        res.render('profile.ejs', params);
     });
 
 	// LOGOUT ==============================
@@ -328,10 +315,64 @@ module.exports = function(app, passport) {
     });
 
     // company / app related stuff
+
+    app.post('/api/company/configure', isLoggedInAPI, function(req, res) { //
+        var body = req.body; 
+        var company_id = getCompanyDatabase(req, body)
+        var nano_full = getNano();
+        nano_full.db.replicate('tgc-template', company_id, {
+            create_target: true
+        }, function(err, body) {
+            if (err) {
+                res.send(err);
+            }else{
+                res.send({success: true, details: body});
+            }
+        });
+        //var template_database = "tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57";
+    });
+
+    app.post('/api/company/configure/dbuser', isLoggedInAPI, function(req, res){
+
+        var user =  {
+          "_id":"_security",
+          "cloudant":{}
+        }
+        var access = ["_reader", "_writer"];
+        var company_id = getCompanyDatabase(req, req.body);
+        //https://<username>.cloudant.com/_api/v2/db/<dbname>/_security
+        var request = require('request');
+        request.post(
+            'http://taxigateway.cloudant.com/_api/v2/api_keys', {
+            'json': true
+
+        }, function(status, result) {
+            //console.info(JSON.stringify(result))
+            var body = result.body;
+            user["cloudant"][body.key] = access;
+            var created_user = {name: body.key, passw: body.password};
+            request.put(
+                'http://taxigateway.cloudant.com/_api/v2/db/'+company_id+'/_security', {
+                'json': true,
+                'body': user,
+
+            }, function(status, body) {
+                    setDocument(company_id, {"access": created_user}, function(doc){
+                        res.send({success: true});
+                    });
+                }, function(err){
+                    res.send({"response": err, "success":false, "host": global._cfgv.dbhost});
+            }).auth("taxigateway", "alicia.123", false);
+
+            }, function(err){
+                res.send({"response": err, "success":false, "host": global._cfgv.dbhost});
+        }).auth("taxigateway", "alicia.123", false);        
+    });
+
     app.post('/api/company/information', isLoggedInAPI, function(req, res) { //
         var body = req.body; //{"company_id": "tgc-j3ljlsjfl3l"}//req.body;
         var company_id = getCompanyDatabase(req, body)
-        setCompanyDocumentForced(company_id, "registration", body, function(doc){
+        setDocument(company_id, {"registration": body}, function(doc){
             //then save this id to the user
             req.user.company_id = company_id;
             setDocument(req.user._id, {"company_id": company_id}, function(doc){ 
@@ -563,7 +604,7 @@ module.exports = function(app, passport) {
         data["company_id"] = company_id;
 
         getDocument(member_id, function(){
-            res.send({"error": "job exists"});
+            res.send({"error": "user exists"});
         }, function(){
             if(!data["auth"]){
                 data["auth"] = {
@@ -885,8 +926,8 @@ function getNano(){
       host: global._cfgv.dbhost,
       port: "80",
       ssl: false,
-      user:"akil",
-      pass:"O7Q32tt"
+      user:"taxigateway",
+      pass:"alicia.123"
     };
 
     cfg.credentials = function credentials() {
@@ -931,7 +972,7 @@ function setCompanyDocument(dbid, id, obj, success, failure){
     var db = nano.db.use(dbid);
     db.get(id, function(err, doc){
         if(err){
-            if (err.status_code != 404){ failure(err); return; }
+            if ((err.status_code || err.statusCode) != 404){ failure(err); return; }
             doc = {"_id": id};
         }
         for (var key in obj) {
@@ -995,7 +1036,7 @@ function setDocument(id, obj, success, failure){
 	var db = nano.db.use(global._cfgv.dbname);
     db.get(id, function(err, doc){
         if(err){
-        	if (err.status_code != 404){ failure(err); return; }
+        	if ((err.status_code || err.statusCode) != 404){ failure(err); return; }
         	doc = {"_id": id};
         }
         for (var key in obj) {
@@ -1023,7 +1064,7 @@ function getDocument(id, success, failure){
 	var db = nano.db.use(global._cfgv.dbname);
     db.get(id, function(err, doc){
         if(err){
-        	if (err.status_code != 404){ failure(err); return; }
+        	if ((err.status_code || err.statusCode) != 404){ failure(err); return; }
         	if(failure){failure(err);}
         }else{
         	if(success){success(doc);}
@@ -1036,7 +1077,7 @@ function delDocument(id, success, failure){
 	getDocument(id, function(org){
 		db.destroy(id, org._rev, function(err, doc){
 	        if(err){
-	        	if (err.status_code != 404){ failure(err); return; }
+	        	if ((err.status_code || err.statusCode) != 404){ failure(err); return; }
 	        	if(failure){failure(err);}
 	        }else{
 	        	if(success){success(doc);}

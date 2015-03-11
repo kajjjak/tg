@@ -129,7 +129,7 @@
       var company_id = window.config.database.name;
       var device_id = this.getUserIdentifier();
       var data = {"username": username, "passkey": passkey};
-      var url = "http://localhost:8000/api/client/" + company_id + "/sync/" + device_id;
+      var url = "http://taxigateway.com/api/client/" + company_id + "/sync/" + device_id;
       $.post(url, data, function(result){
         callback_result(result);
       });

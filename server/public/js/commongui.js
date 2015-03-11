@@ -35,8 +35,8 @@ function saveEditMemberPassword(){
 
 function filterByUser(user_id){
 	console.info( 'You clicked on '+user_id+'\'s list row' );
-	if(vt){
-		var mrkr, mrks = vt.getMarkers();
+	if(window.vt){
+		var mrkr, mrks = window.vt.getMarkers();
 		for(var i in mrks){
 			mrkr = mrks[i];
 			if((mrkr.doc.driver.assigned_id == user_id) || (!user_id)){

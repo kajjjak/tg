@@ -105,6 +105,8 @@ function setUser (doc_id, doc, done){
 
 function getUserById(username, callback_result){
     var url = global._cfgv.dbpath + "_design/list/_view/userid?key=%22"+username+"%22";
+    console.info(url)
+    console.info(url)
     http.get(url, function(res) {
         var _callback_result = callback_result;
         var body = '';

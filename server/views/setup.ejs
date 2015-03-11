@@ -162,7 +162,7 @@
 									</p>
 									<div class="controls">
 									  <label class="checkbox inline">
-										<input type="checkbox" id="inlineCheckbox2" value="option5"> I understand
+										<input type="checkbox" id="accept" value="agree"> I understand
 									  </label>
 									</div>	
 								</div>
@@ -175,7 +175,7 @@
 									        	<label class="control-label"></label>
 									           	<div class="controls">
 									     			<label class="checkbox">
-									           			<input type="checkbox" id="confirm" value="" /> I confirm this information
+									           			<input type="checkbox" id="confirm" value="confirm" /> I confirm this information
 									             	</label>
 									 			</div>
 									       	</div>
@@ -212,13 +212,17 @@
 	<% include partial_postscripts %>
 	
 	<!-- inline scripts related to this page -->
+	<script src="assets/js/jquery.chosen.min.js"></script>
+	<script src="assets/js/jquery.autosize.min.js"></script>
+	<script src="assets/js/jquery.placeholder.min.js"></script>
+
 	<script src="/assets/js/pages/form-wizard.js"></script>
-	<script src="/js/gapi.js"></script>
+	<script src="/js/gatewayapi.js"></script>
 	<script>
 		function updateAccount(){
 			var person = {};
 			var company = {};
-			if($('#confirm').prop('checked') ){
+			if($('#confirm').prop('checked')){
 				person["first_name"] = $("#firstName").val();
 				person["last_name"] = $("#lastName").val();
 				person["telephone"] = $("#telephone2").val();
@@ -232,11 +236,23 @@
 				company["website"] = $("#website").val();
 				var info = {"company": company, "contact":person}
 				// send to server
-				setCompanyInformation(info, function(){
+				window.gapi.setupClientDatabase(info, function(state){
 					// got to app configuration
-					window.location.href = "/configuration.html";
-				}, function(){
-					alert("Sorry an error occured. Please run the setup again");
+					var created = "DONE";
+					var pending = "pending";
+					var html = "<table width='100%'>";
+					html = html + "<tr><td>Requesting init</td><td>" + (state.request ? created : pending) + "</td></tr>"
+					html = html + "<tr><td>Create database</td><td>" + (state.createddb ? created : pending) + "</td></tr>"
+					html = html + "<tr><td>Create user</td><td>" + (state.createduser ? created : pending) + "</td></tr>"
+					html = html + "<tr><td>Stored information</td><td>" + (state.storedinfo ? created : pending) + "</td></tr>"
+					html = html + "<table>"
+					if(state.storedinfo){
+						html = html + "<p>Successfully created database. Continue <a href='mobilesetup.html'>configuring application </a>";
+						setTimeout(function(){
+							window.location.href="mobilesetup.html";
+						}, 2000);
+					}
+					showAlert(html);
 				});
 			}
 		}

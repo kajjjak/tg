@@ -40,7 +40,7 @@ function GatewayAPI (dbid, callback_error) {
     };
 
     this.getDriverList = function(callback_result){
-        var url = "http://db00.taxigateway.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/_design/list/_view/drivers";
+        var url = getCompanyDatabasePath() + "/_design/list/_view/drivers";
         $.getJSON(url, function(res){
 			if(callback_result){
 				callback_result(res["rows"]);
@@ -54,11 +54,37 @@ function GatewayAPI (dbid, callback_error) {
         });
     };
 
+    this.setupClientDatabase = function(info, callback_state){
+        var st = {"request": true};
+        callback_state(st);
+        $.post("/api/company/configure", {}, function(res){
+            console.info("Created database " + res);
+            st["createddb"] = true;
+            callback_state(st);
+            $.post("/api/company/configure/dbuser", {}, function(res){
+                st["createduser"] = true;
+                callback_state(st);
+                $.post("/api/company/information", info, function(res){
+                    st["storedinfo"] = true;
+                    callback_state(st);
+                });
+            });
+        });
+    }
+
     this.getAppDetails = function(callback_success){
         getClientDoc(function(info){
             callback_success(info.app_details);
         });
     };
+
+    function setClientDoc(info, callback_result){
+        $.post("/api/client/mobile/info", info, function(res){
+            sessionStorage.removeItem("config");
+            getClientDoc();            
+            callback_result(res);
+        });
+    }
 
     function getClientDoc(callback_success){
         //checks cache or fetches new version
@@ -80,11 +106,24 @@ function GatewayAPI (dbid, callback_error) {
         }
     }
 
+
+    function setCompanyConfig(info, callback_success, callback_failure){
+      var url = "/api/company/information"
+      $.post(url, info, function(res){
+        if(res.success){
+          callback_success(res);
+        }else{
+          callback_failure(res);
+        }
+      }, callback_failure);
+    }
+
     this.getClientDoc = getClientDoc;
+    this.setClientDoc = setClientDoc;
 };
 
 $(function () {
-    window.gapi = new GatewayAPI("tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", function(e){
+    window.gapi = new GatewayAPI(user.company_id, function(e){
     	console.warn("GATEWAY API: " + JSON.stringify(e));
     });
 });

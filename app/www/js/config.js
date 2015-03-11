@@ -7,7 +7,7 @@ var default_config = {
   },
   "database":{
     "name": "tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57",
-    "host": "http://db00.taxigateway.com/"
+    "host": "http://db01.taxigateway.com/"
   },
   "client":{
     "number":"+3548958283"

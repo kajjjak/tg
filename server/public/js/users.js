@@ -101,7 +101,7 @@ function GatewayUsers (dbid) {
 
 	this.init = function(callback_loaded){
 
-		var url = "http://db00.taxigateway.com/taxigateway_test1/_design/users/_view/list";
+		var url = getSystemDatabasePath() + "/_design/users/_view/list";
 
 		$.getJSON(url, function(res){
 			var row;
@@ -126,7 +126,7 @@ function GatewayUsers (dbid) {
 		        	showAlert(result.error);	
 		        }else{
 		        	showAlert("Successfully removed member");
-		        	table.row('.selected').remove().draw( false );
+		        	$('#tblMembers').dataTable().api().row('.selected-row-table').remove().draw( false );
 		        }
 		    },
 		    error: function(e){

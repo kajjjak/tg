@@ -91,14 +91,13 @@
 			info["keywords"] = $("#app_keywords").val();
 			info["icon"] = $("#app_icon").attr("src");
 			$("#btnSave").html("Saving ...");
-			$.post("/api/client/mobile/info", info, function(res){
+			window.gapi.setClientDoc(info, function(res){
 				if(res.success){
 					$("#btnSave").html("Save");
 				}else{
 					showAlert(res.error);
 				}
 			});
-			window.gapi.getClientDoc();
 		}
 
 		function previewFile() {

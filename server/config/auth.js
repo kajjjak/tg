@@ -1,32 +1,54 @@
+//application user:fregieffirdstaryingencen:CJUYrvg7M22CefwKNpuOBrUd@
+
 _cfgv_liveserverhost = {
+  header: {title: "Taxi gateway", description: "Gateway to manage the taxi mobile apps", keyword: "mobile, taxi, app, ios, android", author:"Kjartan Akil Jonsson"},
   dbport: "http://",
   dbportnr: 80,
-  dbhost: "db00.taxigateway.com",
+  dbhost: "db01.taxigateway.com",
   dbname: "taxigateway_test1",
-  dbserver: "http://db00.taxigateway.com", 
-  dbpath: "https://db00.taxigateway.com/taxigateway_test1/",
-  srvportname: "https://",
+  dbserver: "http://db01.taxigateway.com", 
+  dbpath: "http://db01.taxigateway.com/taxigateway_test1/",
+  srvportname: "http://",
   srvport: 8000 || process.env.PORT,
   srvdomain: "taxigateway.com", 
-  srvhost: "https://taxigateway.com",
+  srvhost: "http://taxigateway.com",
   srvfacebook: "https://apps.facebook.com/taxigateway/",
   social_facebook_appid: '382258661957064',
   social_facebook_secret: 'd7fda2dde02362004894cebc10bc1e8e',
   social_facebook_page: 'https://apps.facebook.com/taxigateway' //used after login redirect
 };
 
-_cfgv_testserverhost = {
+/*_cfgv_liveserverhost = {
+  header: {title: "Taxi gateway", description: "Gateway to manage the taxi mobile apps", keyword: "mobile, taxi, app, ios, android", author:"Kjartan Akil Jonsson"},
   dbport: "https://",
   dbportnr: 443,
-  dbhost: "db00.taxigateway.com",
+  dbhost: "taxigateway.cloudant.com/",
   dbname: "taxigateway_test1",
-  dbserver: "http://db00.taxigateway.com", 
-  dbpath: "https://db00.taxigateway.com/taxigateway_test1/",
+  dbserver: "https://taxigateway.cloudant.com/", 
+  dbpath: "https://taxigateway.cloudant.com/taxigateway_test1/",
   srvportname: "https://",
   srvport: 8000 || process.env.PORT,
   srvdomain: "taxigateway.com", 
-  srvhost: "https://taxigateway.com",
+  srvhost: "http://taxigateway.com",
   srvfacebook: "https://apps.facebook.com/taxigateway/",
+  social_facebook_appid: '382258661957064',
+  social_facebook_secret: 'd7fda2dde02362004894cebc10bc1e8e',
+  social_facebook_page: 'https://apps.facebook.com/taxigateway' //used after login redirect
+};*/
+
+_cfgv_testserverhost = {
+  header: {title: "Taxi gateway", description: "Gateway to manage the taxi mobile apps", keyword: "mobile, taxi, app, ios, android", author:"Kjartan Akil Jonsson"},
+  dbport: "http://",
+  dbportnr: 80,
+  dbhost: "db00.taxigateway.com",
+  dbname: "taxigateway_test1",
+  dbserver: "http://db00.taxigateway.com", 
+  dbpath: "http://db00.taxigateway.com/taxigateway_test1/",
+  srvportname: "http://",
+  srvport: 8000 || process.env.PORT,
+  srvdomain: "taxigateway.com", 
+  srvhost: "http://taxigateway.com",
+  srvfacebook: "http://apps.facebook.com/taxigateway/",
   social_facebook_appid: '382258661957064', //test one
   social_facebook_secret: 'd7fda2dde02362004894cebc10bc1e8e', //test one
   social_facebook_page: 'https://apps.facebook.com/taxigateway'  //used after login redirect

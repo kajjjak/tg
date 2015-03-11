@@ -46,5 +46,14 @@
 	<% }else{ %>
 	<script>
 		var user = <%- JSON.stringify(user) %>;
+		var conn = {dbpath: "<%= dbpath %>", dbserver: "<%= dbserver%>"};
+
+		function getCompanyDatabasePath(u){
+			return conn.dbserver + "/" + user.company_id;
+		}
+
+		function getSystemDatabasePath(){
+			return conn.dbpath;
+		}
 	</script>
 	<% } %>	

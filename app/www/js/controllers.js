@@ -572,7 +572,7 @@ function fetchJobAddress(lat, lng){
 
 function _fetchJobAddress(lat, lng, passed_timedid){
   if(passed_timedid != window.timedid){ return; } //then we recently asked for a new location (when moving the map)
-  var url = "http://localhost:8000/api/geocode/reverse/"+lat+"/"+lng+"/mapquest";
+  var url = "http://taxigateway.com/api/geocode/reverse/"+lat+"/"+lng+"/mapquest";
   $.getJSON(url, function(res){
     var address = res.street;
     if(res.street_number){ address = address + " " + res.street_number; }
