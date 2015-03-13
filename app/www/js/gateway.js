@@ -93,6 +93,11 @@
 
     this.addDocument = function(dict){
       Gateway.db.post(dict, function(err, response) {
+        if(err && err.error){
+          //{"status":500,"name":"unknown_error","message":"Database encountered an unknown error","error":true}
+          handleException(err);
+          return;
+        }
         if(gateway.callback_addjob){
           dict.id = response.id;
           gateway.callback_addjob(dict);//{err:err, response:response, doc: dict});

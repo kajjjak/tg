@@ -471,6 +471,7 @@ module.exports = function(app, passport) {
                 author: author,
                 client: {},
                 driver: {},
+                notify: {},
                 address: data.address,
                 client_ts: data.client_ts,
                 server_ts: time_now.getTime(),

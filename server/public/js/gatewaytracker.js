@@ -165,27 +165,28 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		// update the map markers (creating them if they do not exist then applying state)
 		// marker name is id
 		console.info("Map changed: " + JSON.stringify(doc));
+		var marker_id = doc._id || doc.id;
 		if(doc.location){
-			if(!markers[doc._id]){ // missing marker create one
+			if(!markers[marker_id]){ // missing marker create one
 				try{
-					var marker_id = doc._id;
-					markers[doc._id] = L.marker(doc.location, {icon: getStateIcon(doc)}).addTo(window.map);
-					markers[doc._id].id = doc._id;
-					markers[doc._id].on("click", function(e){
+					markers[marker_id] = L.marker(doc.location, {icon: getStateIcon(doc)}).addTo(window.map);
+					markers[marker_id].id = marker_id;
+					markers[marker_id].on("click", function(e){
 						handleMarkerClick(markers[marker_id]);
 					});
 				}catch(e){
-					debugger;
-					console.error("Map changed error " + e);
-					//throw {"error": 12313, "message": "Could not create marker " + doc._id, "details": e};
+					throw {"error": 12313, "message": "Could not create marker " + marker_id, "details": JSON.stringify(e)};
 				}
 			}else{
-				markers[doc._id].setIcon(getStateIcon(doc))
+				markers[marker_id].setIcon(getStateIcon(doc))
 			}
-			markers[doc._id].doc = doc;
+			markers[marker_id].doc = doc;
+			return markers[marker_id];
 		}
 	}
 
+	this.setMapChanged = setMapChanged;
+	
 	this.setFilterMarkers = function(id, b){
 		if(!filter_markers){ filter_markers = {}; }
 		filter_markers[id] = b;

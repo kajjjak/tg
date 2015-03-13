@@ -1,5 +1,12 @@
 
 var lang_en = {
+  "notification": {
+    "arrived": {
+      "vibrate": 100,
+      "title": "Arrived", 
+      "message": "Your driver has arrived"
+    }
+  },
   "page":{
     "map":{
       "title": "Location",
@@ -18,7 +25,8 @@ var lang_en = {
       "title": "Service"
     },
     "jobs":{
-      "title": "Pantanir"
+      "title": "Pantanir",
+      "lbl_pulltorefresh": "Pull down to refresh"
     },    
     "driver": {
       "title": "Driver",
@@ -67,6 +75,13 @@ var lang_en = {
 };
 
 var lang_is = {
+  "notification": {
+    "arrived": {
+      "vibrate": 100,
+      "title": "Komin", 
+      "message": "Er að biða fyrir utan"
+    }
+  },  
   "page":{
     "map":{
       "title": "Staðsettning",
@@ -85,7 +100,8 @@ var lang_is = {
       "title": "Þjónusta"
     },
     "jobs":{
-      "title": "Pantanir"
+      "title": "Pantanir",
+      "lbl_pulltorefresh": "Draga niður til að uppfæra"
     },
     "settings":{
       "title": "Stillingar",
@@ -120,7 +136,7 @@ var lang_is = {
       "state_map":{
         "complete": "Lokið",
         "waiting": "Bið",
-        "active": "Virk"
+        "active": "Vinnslu"
       },
       "feedback_states":{
         "request": "Biðja um bíll",

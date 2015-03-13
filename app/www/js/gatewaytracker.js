@@ -16,61 +16,61 @@
 */
 
 var iconCreate = L.icon({
-    iconUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-create.png',
-    iconRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-2x-create.png',
+    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-create.png',
+    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-create.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
-    shadowRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
+    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconAssign = L.icon({
-    iconUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-assign.png',
-    iconRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-2x-assign.png',
+    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-assign.png',
+    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-assign.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
-    shadowRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
+    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconWaiting = L.icon({
-    iconUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-waiting.png',
-    iconRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-2x-waiting.png',
+    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-waiting.png',
+    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-waiting.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
-    shadowRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
+    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconDriving = L.icon({
-    iconUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-driving.png',
-    iconRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-2x-driving.png',
+    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-driving.png',
+    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-driving.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
-    shadowRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
+    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconComplete = L.icon({
-    iconUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-complete.png',
-    iconRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-icon-2x-complete.png',
+    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-complete.png',
+    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-complete.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
-    shadowRetinaUrl: 'http://db00.ghostburster.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/gui/marker-shadow.png',
+    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
@@ -119,7 +119,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 	}
 
 	this._fetchState = function(options){
-		var url = "http://db00.taxigateway.com/" + this.dbid + "" + (options.path_view || "/_design/list/_view/jobs");
+		var url = getCompanyDatabasePath() + (options.path_view || "/_design/list/_view/jobs");
 		$.getJSON(url, function(res){
 			jobs = res.rows;
 			for(var i in jobs){
@@ -139,16 +139,18 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 	};
 
 	this._track = function(){
-		this.dbinst = new PouchDB('http://db00.taxigateway.com/'+this.dbid);
+		var self = this;
+		this.dbinst = new PouchDB(getCompanyDatabasePath());
 		this._changes = this.dbinst.changes({
 		  since: 'now',
 		  include_docs: true,
-		  doc_ids: this.getFiltered(),//options.doc_ids,
 		  live: true
 		}).on('change', function(change) {
 			// we get 
 			// {"seq":4,"id":"a11b32e4b11b4d3272f5d9df62003ac9","changes":[{"rev":"3-a6e46ba86c10a7c19abf0860174cb322"}],"doc":{"_id":"a11b32e4b11b4d3272f5d9df62003ac9","_rev":"3-a6e46ba86c10a7c19abf0860174cb322","doctype":"job","location":[-64,-21.12312313],"time":1424219775643,"client_alias":null}}
 			//console.info("Change " + JSON.stringify(change));
+			var filter = self.getFiltered();
+			if ($.inArray(change.id, filter) == -1){ return; }
 			try{
 				setMapChanged(change.doc);
 			}catch(e){
@@ -173,23 +175,23 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		// update the map markers (creating them if they do not exist then applying state)
 		// marker name is id
 		console.info("Map changed: " + JSON.stringify(doc));
+		var marker_id = doc._id || doc.id;
 		if(doc.location){
-			if(!markers[doc._id]){ // missing marker create one
+			if(!markers[marker_id]){ // missing marker create one
 				try{
-					var marker_id = doc._id;
-					markers[doc._id] = L.marker(doc.location, {icon: getStateIcon(doc)}).addTo(window.map);
-					markers[doc._id].id = doc._id;
-					markers[doc._id].on("click", function(e){
+					markers[marker_id] = L.marker(doc.location, {icon: getStateIcon(doc)}).addTo(window.map);
+					markers[marker_id].id = marker_id;
+					markers[marker_id].on("click", function(e){
 						handleMarkerClick(markers[marker_id]);
 					});
 				}catch(e){
-					throw {"error": 12313, "message": "Could not create marker " + doc._id, "details": JSON.stringify(e)};
+					throw {"error": 12313, "message": "Could not create marker " + marker_id, "details": JSON.stringify(e)};
 				}
 			}else{
-				markers[doc._id].setIcon(getStateIcon(doc))
+				markers[marker_id].setIcon(getStateIcon(doc))
 			}
-			markers[doc._id].doc = doc;
-			return markers[doc._id];
+			markers[marker_id].doc = doc;
+			return markers[marker_id];
 		}
 	}
 	this.setMapChanged = setMapChanged;

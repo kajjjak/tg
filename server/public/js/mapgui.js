@@ -196,6 +196,7 @@ function setJobState(nr, data){
 		};
 		gapi.setJobState("create", function(res){
 			console.info("Create new job result " + JSON.stringify(res));
+			if(window.vt){ window.vt.setMapChanged(res.job); }
 			setJobState(2);
 			setJobToolbarState(res.job);
 		}, undefined, data);

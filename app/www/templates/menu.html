@@ -18,16 +18,20 @@
     </ion-header-bar>
     <ion-content class="slide_menu">
       <ion-list>
-        <ion-item id="lang.page.menu.row_map" nav-clear menu-close class="slide_menu_item" href="#/app/home">
+        <ion-item id="lang.page.menu.row_map" nav-clear menu-close class="slide_menu_item item-icon-left" href="#/app/home">
+          <i class="icon ion-map"></i>
           {{lang.page.menu.row_map}}
         </ion-item>
-        <ion-item id="lang.page.menu.row_jobs" nav-clear menu-close class="slide_menu_item" href="#/app/jobs">
+        <ion-item id="lang.page.menu.row_jobs" nav-clear menu-close class="slide_menu_item item-icon-left" href="#/app/jobs">
+          <i class="icon ion-clipboard"></i>
           {{lang.page.menu.row_jobs}}
         </ion-item>
-        <ion-item id="lang.page.menu.row_call" nav-clear menu-close class="slide_menu_item" ng-click="callRequest()">
+        <ion-item id="lang.page.menu.row_call" nav-clear menu-close class="slide_menu_item item-icon-left" ng-click="callRequest()">
+          <i class="icon ion-ios7-telephone"></i>
           {{lang.page.menu.row_call}}
         </ion-item>
-        <ion-item id="lang.page.menu.row_settings" nav-clear menu-close class="slide_menu_item" href="#/app/settings">
+        <ion-item id="lang.page.menu.row_settings" nav-clear menu-close class="slide_menu_item item-icon-left" href="#/app/settings">
+          <i class="icon ion-gear-a"></i>
           {{lang.page.menu.row_settings}}
         </ion-item>
       </ion-list>

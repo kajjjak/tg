@@ -26,18 +26,9 @@
 
 ###########################
 
-# #https://github.com/kajjjak/python-gcm
-# from gcm import GCM #pip install python-gcm
-# import argparse
-
-# # API Key for your Google OAuth project
-# API_KEY = ''
 
 
-# def send_push_notification(registration_id, message):
-#     gcm = GCM(API_KEY)
-#     resp = gcm.plaintext_request(registration_id=registration_id,
-#                                  data={'message': message})
+
 
 
 # if __name__ == '__main__':
@@ -51,14 +42,24 @@
 import urllib, json
 import time
 import couchdb
+#apple
 from apns import APNs, Frame, Payload
+#google
+#https://github.com/kajjjak/python-gcm
+from gcm import GCM #pip install python-gcm
+import argparse
+# API Key for your Google OAuth project
+GCM_API_KEY = 'AIzaSyBwnZMPecUnvMYPbeFn0sDeo_gRZaCkGyw'
 
-couch_server = couchdb.Server('http://db00.taxigateway.com/')
+dbserver = 'http://db01.taxigateway.com/';
+keydir = '../../pems/'
+couch_server = couchdb.Server(dbserver)
 
-def fetchJobs():
-	url = "http://db00.taxigateway.com/tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57/_design/jobs/_view/active"
-	response = urllib.urlopen(url);
+def fetchJobs(dbname):
+	url = dbserver + dbname + "/_design/jobs/_view/active"
+	response = urllib.urlopen(url)
 	data = json.loads(response.read())
+	print ("Fetched " + str(len(data["rows"])) + " rows from " + dbname)
 	return data["rows"];
 
 def extractNotifications(jobs):
@@ -67,19 +68,45 @@ def extractNotifications(jobs):
 	for row in jobs:
 		job = row["value"];
 		if job["notify"] and job["driver"]:
+			#if (job["driver"]["arrived_ts"]):#
 			if (not job["notify"]["arrived_ts"]) and (job["driver"]["arrived_ts"]):
-				notify_apn.append({"doc_id": job["_id"], "token": job["notification_ios"], "action": "arrived"})
+				if job.has_key("notification_apn"):
+					notify_apn.append({"doc_id": job["_id"], "token": job["notification_apn"], "action": "arrived"})
+				if job.has_key("notification_gcm"):
+					notify_gcm.append({"doc_id": job["_id"], "token": job["notification_gcm"], "action": "arrived"})
 	return {"apn": notify_apn, "gcm": notify_gcm};
 
 
 def getFormatedMessage(message):
 	if(message["action"] == "arrived"):
-		return {"text": "Driver has arrived", "sound_apn": "default", "badge": 1};
+		return {"text": "Driver has arrived", "sound_apn": "arrived", "badge": 1};
 
-def sendNotifications2APN(messages):
-	couch_database = couch_server["tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57"];
 
-	apns = APNs(use_sandbox=True, enhanced=True, cert_file="cert.pem", key_file="key.unencrypted.pem")
+def sendNotifications2GCMDevice(registration_id, message):
+    gcm = GCM(GCM_API_KEY)
+    resp = gcm.plaintext_request(registration_id=registration_id,
+                                 data={'message': message})
+
+def sendNotifications2GCM(messages, dbname):
+	couch_database = couch_server[dbname];
+	#create the notification package
+	print ("Sending GCM package " + str(len(messages)))
+	for message in messages:
+		fmessage = getFormatedMessage(message)
+		sendNotifications2GCMDevice(message["token"], fmessage["text"])
+
+	#update the documents
+	print ("Updating documents " + str(len(messages)))
+	for message in messages:
+		doc = couch_database[message["doc_id"]];
+		if(message["action"] == "arrived"):
+			doc["notify"]["arrived_ts"] = time.time();
+			couch_database.save(doc)
+
+def sendNotifications2APN(messages, dbname):
+	couch_database = couch_server[dbname];
+
+	apns = APNs(use_sandbox=True, enhanced=True, cert_file=keydir+"cert.pem", key_file=keydir+"key.unencrypted.pem")
 	frame = Frame()
 
 	identifier = 1
@@ -104,6 +131,13 @@ def sendNotifications2APN(messages):
 	#send the notifications
 	apns.gateway_server.send_notification_multiple(frame)
 
-messages = extractNotifications(fetchJobs())
-sendNotifications2APN(messages["apn"])
+client_databases = ["tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57"];
+
+for cdb in client_databases:
+	messages = extractNotifications(fetchJobs(cdb))
+	sendNotifications2APN(messages["apn"], cdb)
+	sendNotifications2GCM(messages["gcm"], cdb)
+
+#code = "APA91bHFlobdvabmD_IsiC6UeCwH6bJ7mpHY10HV7bhkZGUgp7PfxTHdU0E7B_x1NL46iN8nCV7keSqmVI-XGzid5KDOjyLC6M_GT5jvroEL0UxNKc-1QW7nWVUzQbYLcoK4z5XQQ646pXFLV8gmcMCpciV9o05rBc1kzxG1BeOR7DeS3C7i9U4"
+#sendNotifications2GCM(code, "hello world")
 

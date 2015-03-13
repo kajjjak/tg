@@ -4,11 +4,18 @@
 */
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $state, $ionicHistory, $ionicPlatform, $ionicModal, $timeout, $cordovaGeolocation, $cordovaDatePicker, $cordovaPush, $cordovaDevice) {
+.controller('AppCtrl', function($scope, $state, $ionicHistory, $ionicPlatform, $ionicModal, $timeout, $cordovaGeolocation, $cordovaDatePicker, $cordovaPush, $cordovaDevice, $cordovaMedia, $cordovaVibration, $cordovaDialogs) {
   // Form data for the login modal
   $scope.loginData = {};
 
   window.lang = $scope.lang = lang_support[getSelectedLanguage()];
+
+
+  $scope.$on('$ionicView.enter', function(trans, e){
+    if(e.stateName == "app.home"){
+      showUserVisualLocation();
+    }
+  });
 
   // Create the login modal that we will use later
   $ionicModal.fromTemplateUrl('templates/login.html', {
@@ -190,17 +197,7 @@ angular.module('starter.controllers', [])
         var lng = position.coords.longitude;
         var dist = position.coords.accuracy || 100;
         gateway.setUserLocation([lat, lng]);
-        if(!window.map){ return ; }
-        if(!window.user_location_marker){
-          window.user_location_marker = L.circle([lat, lng], dist, {
-            color: 'blue',
-            fillColor: 'blue',
-            fillOpacity: 0.2
-          }).addTo(window.map);
-        }else{
-          window.user_location_marker.setLatLng([lat, lng]);
-          window.user_location_marker.setRadius(dist);
-        }
+        showUserVisualLocation([lat, lng], dist);
     });
 
   }
@@ -213,7 +210,7 @@ angular.module('starter.controllers', [])
         var config = null;
         if (ionic.Platform.isAndroid()) {
             config = {
-                "senderID": "YOUR_GCM_PROJECT_ID" // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
+                "senderID": "449629838087" // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
             };
         }
         else if (ionic.Platform.isIOS()) {
@@ -231,7 +228,7 @@ angular.module('starter.controllers', [])
             // ** NOTE: Android regid result comes back in the pushNotificationReceived, only iOS returned here
             if (ionic.Platform.isIOS()) {
                 $scope.regId = result;
-                storeDeviceToken("ios");
+                storeDeviceToken("apn");
             }
         }, function (err) {
             console.log("Register error " + err)
@@ -259,7 +256,7 @@ angular.module('starter.controllers', [])
         console.log("In foreground " + notification.foreground  + " Coldstart " + notification.coldstart);
         if (notification.event == "registered") {
             $scope.regId = notification.regid;
-            storeDeviceToken("android");
+            storeDeviceToken("gcm");
         }
         else if (notification.event == "message") {
             $cordovaDialogs.alert(notification.message, "Push Notification Received");
@@ -277,17 +274,18 @@ angular.module('starter.controllers', [])
         // The app was already open but we'll still show the alert and sound the tone received this way. If you didn't check
         // for foreground here it would make a sound twice, once when received in background and upon opening it from clicking
         // the notification when this code runs (weird).
-        if (notification.foreground == "1") {
-            // Play custom audio if a sound specified.
-            if (notification.sound) {
-                var mediaSrc = $cordovaMedia.newMedia(notification.sound);
-                mediaSrc.promise.then($cordovaMedia.play(mediaSrc.media));
-            }
+        
+        var alert_dialog = null;
+        if (notification.sound) {
+          alert_dialog = window.lang.notification[notification.sound] || {"title": "Alert", "message": "Notification was receaved"};
+        }
 
-            if (notification.body && notification.messageFrom) {
-                $cordovaDialogs.alert(notification.body, notification.messageFrom);
+        if (notification.foreground == "1") {
+
+            if (alert_dialog) {
+              if (alert_dialog.vibrate){$cordovaVibration.vibrate(alert_dialog.vibrate);}            
+              $cordovaDialogs.alert(alert_dialog.message, alert_dialog.title);
             }
-            else $cordovaDialogs.alert(notification.alert, "Push Notification Received");
 
             if (notification.badge) {
                 $cordovaPush.setBadgeNumber(notification.badge).then(function (result) {
@@ -296,15 +294,20 @@ angular.module('starter.controllers', [])
                     console.log("Set badge error " + err)
                 });
             }
+
+            // Play custom audio if a sound specified.
+            if (notification.sound) {
+                var mediaSrc = $cordovaMedia.newMedia("sound/" + notification.sound + ".mp3");
+                mediaSrc.play();
+            }
         }
         // Otherwise it was received in the background and reopened from the push notification. Badge is automatically cleared
         // in this case. You probably wouldn't be displaying anything at this point, this is here to show that you can process
         // the data in this situation.
         else {
-            if (notification.body && notification.messageFrom) {
-                $cordovaDialogs.alert(notification.body, "(RECEIVED WHEN APP IN BACKGROUND) " + notification.messageFrom);
+            if (alert_dialog) {
+                $cordovaDialogs.alert(alert_dialog.message, alert_dialog.title);
             }
-            else $cordovaDialogs.alert(notification.alert, "(RECEIVED WHEN APP IN BACKGROUND) Push Notification Received");
         }
     }
 
@@ -338,6 +341,7 @@ angular.module('starter.controllers', [])
 
   //document.addEventListener("deviceready", function () {
   $ionicPlatform.ready(function() {
+
     gateway.init($cordovaDevice.getUUID());
     gateway.setCallbackChange(guiCallbackGatewayProperty, setCurrentGatewayJob);
     try{
@@ -353,22 +357,43 @@ angular.module('starter.controllers', [])
         }, {"path_view": "/_design/jobs/_view/user?keys=[\"" + gateway.getUserIdentifier() + "\"]"});
       window.vt.init();
     }, 1000);
-  }); //, false);
+ 
+    document.addEventListener("resume", function() {
+      //https://blog.nraboy.com/2014/09/handling-apache-cordova-events-ionicframework/
+      if(window.vt){
+        window.vt.stop();
+        window.vt.start();
+      }
+    }, false);
+
+  });
 
 
 })
 
 .controller('JobsCtrl', function($scope) {
-  $scope.jobs = getNiceJobFormat(window.vt.getJobs());
+
+  $scope.doRefreshJobs = function() {
+    if(window.vt){
+      window.vt.stop();
+      window.vt.start({
+        callback_updated: function(){
+          //TODO UPDATE VIEW
+          $scope.jobs = getNiceJobFormat(window.vt.getJobs());
+          $scope.$broadcast('scroll.refreshComplete');
+          $scope.$apply()
+        }
+      });
+    }else{
+      $scope.$broadcast('scroll.refreshComplete');
+      $scope.$apply()      
+    }
+  };
+
   if(window.vt){
-    window.vt.stop();
-    window.vt.start({
-      callback_updated: function(){
-        //TODO UPDATE VIEW
-        $scope.jobs = getNiceJobFormat(window.vt.getJobs());
-      }
-    });
+    $scope.jobs = getNiceJobFormat(window.vt.getJobs());
   }
+
 })
 
 .controller('ServiceCtrl', function($scope) {
@@ -385,6 +410,7 @@ angular.module('starter.controllers', [])
 })
 
 .controller('RequestCtrl', function($scope) {
+  $scope.vehicle = window.config.service.vehicles[gateway.getJobData().vehicles || 2];
   guiShowFeedbackState();
 })
 
@@ -434,7 +460,7 @@ angular.module('starter.controllers', [])
   window.map.on('move', setCenterMarker);
   window.map.on('zoomend ', setCenterMarker);
   window.map.on('moveend ', setDraggedEnd);
-  
+
 }]);
 
 /// gui functions
@@ -484,7 +510,7 @@ function guiShowFeedbackStateItem(txt, checked){
 
 function guiShowFeedbackState (doc, fetched_server){
   if(fetched_server){ return; }
-  $("#request_action").addClass("button-calm").html(lang.page.request.btn_confirm);
+  $("#request_action").addClass("button-calm").html(window.lang.page.request.btn_confirm);
   doc = doc || JSON.parse(localStorage.getItem("request_state") || '{"driver":{}, "client":{}}');
   //if(!doc.address){ doc.address = getJobAddress() || {"formated": window.lang.page.request.lbl_address}; }
   var address = getJobAddress() || {"formated": window.lang.page.request.lbl_address};
@@ -541,7 +567,9 @@ function guiNewFeedbackState(doc){
   doc = doc || {};
   localStorage.removeItem("request_state");
   window.vt.clearFilterMarkers();
+  window.vt.setFilterMarkers(undefined, true); //show nothing
   window.vt.start();
+  pan2UserVisualLocation();
 }
 
 function getNiceJobFormat(jobs){
@@ -551,6 +579,7 @@ function getNiceJobFormat(jobs){
     d = new Date(jobs[i].value.pickup_time || jobs[i].value.datetime);
     jobs[i].value.pickuptime_str = d.toLocaleString();
     jobs[i].value.state_str = lang.page.request.state_map[guiHasFeedbackState(jobs[i].value) || "waiting"];
+    jobs[i].value.address_label = jobs[i].value.address.formated;
   }
   return jobs;
 }
@@ -590,3 +619,32 @@ function handleException(e){
   console.log(e);
 }
 
+function showUserVisualLocation(loc, dist){
+  if(!window.map){ return ; }
+  loc = loc || gateway.getUserLocation();
+  dist = dist || 100;
+  if(window.user_location_marker){
+    try{ //it exists but something is wrong
+      dist = window.user_location_marker.getRadius() || 100;
+      window.user_location_marker.addTo(window.map);
+    }catch(e){ window.user_location_marker = undefined; }
+  }else{ //first location lset move our marker there
+    pan2UserVisualLocation();
+  }
+  if(!window.user_location_marker){
+    window.user_location_marker = L.circle(loc, dist, {
+      color: 'blue',
+      fillColor: 'blue',
+      fillOpacity: 0.2
+    }).addTo(window.map);
+  }
+  window.user_location_marker.setLatLng(loc);
+  if(dist){window.user_location_marker.setRadius(dist);}
+}
+
+function pan2UserVisualLocation(){
+  setTimeout(function(){
+    window.map.panTo(window.user_location_marker.getLatLng());
+  }, 2000);
+
+}

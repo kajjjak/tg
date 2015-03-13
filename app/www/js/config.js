@@ -35,3 +35,8 @@ var default_config = {
 
 
 window.config = default_config;
+
+
+function getCompanyDatabasePath(){
+  return window.config.database.host + window.config.database.name;
+}
