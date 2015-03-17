@@ -4,7 +4,7 @@
 */
 angular.module('starter.controllers', [])
 
-.controller('AppCtrl', function($scope, $state, $ionicHistory, $ionicPlatform, $ionicModal, $timeout, $cordovaGeolocation, $cordovaDatePicker, $cordovaPush, $cordovaDevice, $cordovaMedia, $cordovaVibration, $cordovaDialogs) {
+.controller('AppCtrl', function($scope, $window, $state, $ionicHistory, $ionicPlatform, $ionicModal, $timeout, $cordovaGeolocation, $cordovaDatePicker, $cordovaPush, $cordovaDevice, $cordovaMedia, $cordovaVibration, $cordovaDialogs) {
   // Form data for the login modal
   $scope.loginData = {};
 
@@ -58,6 +58,12 @@ angular.module('starter.controllers', [])
         alert("Username not found, check spelling or contact manager");
       }else{
         $scope.closeLogin();
+        //--- FIXME: start - do something more gracefull
+        $state.go('app.home', {}, {location: 'replace'});
+        setTimeout(function(){
+          $window.location.reload(true);
+        }, 500);
+        //--- FIXME: ends - do something more gracefull
       }
     });
   };
@@ -101,12 +107,12 @@ angular.module('starter.controllers', [])
     data.client = {};
     data.driver = {};
     data.notify = {};
-    data.client.alias = new Date().getTime();
     data.client.id = gateway.getUserIdentifier();
     data.client.assigned_id = null;
     data.driver.assigned_id = null;
     data.driver.assigned_ts = null;
     data.driver.accepted_ts = null;
+    data.driver.id = gateway.getDriverAccess().account;
     data.notify.accepted_ts = null;
     data.client.accepted_ts = null;
     data.driver.arrives_ts = null;
@@ -130,7 +136,10 @@ angular.module('starter.controllers', [])
 
   $scope.setSelectedJob = function(doc_job){
     //http://stackoverflow.com/questions/25464306/angularjs-ng-click-to-go-to-another-page-with-ionic-framework
-    var job = doc_job.value;
+    var job = doc_job;
+    if(doc_job.value){
+      job = doc_job.value;
+    } 
     setCurrentGatewayJob(job);
     //$state.go('app.home', {}, {"location": true, "inherit": false, "reload": true});
     $state.go('app.home');
@@ -179,9 +188,6 @@ angular.module('starter.controllers', [])
   $scope.watchUserLocation = function(){
     console.log("Registering geolocation plugin");
     var watchOptions = {
-      frequency : 1000,
-      timeout : 3000,
-      enableHighAccuracy: true //false // may cause errors if true
     };
 
     var watch = $cordovaGeolocation.watchPosition(watchOptions);
@@ -195,9 +201,9 @@ angular.module('starter.controllers', [])
         console.log("Geo location success: " + JSON.stringify(position));
         var lat  = position.coords.latitude;
         var lng = position.coords.longitude;
-        var dist = position.coords.accuracy || 100;
-        gateway.setUserLocation([lat, lng]);
+        var dist = position.coords.accuracy;
         showUserVisualLocation([lat, lng], dist);
+        gateway.setUserLocation([lat, lng]);
     });
 
   }
@@ -237,7 +243,7 @@ angular.module('starter.controllers', [])
 
     // Notification Received
     $scope.$on('$cordovaPush:notificationReceived', function (event, notification) {
-        console.log(JSON.stringify([notification]));
+        console.log("Notification receaved: " + JSON.stringify([notification]));
         if (ionic.Platform.isAndroid()) {
             handleAndroid(notification);
         }
@@ -297,7 +303,7 @@ angular.module('starter.controllers', [])
 
             // Play custom audio if a sound specified.
             if (notification.sound) {
-                var mediaSrc = $cordovaMedia.newMedia("sound/" + notification.sound + ".mp3");
+                var mediaSrc = $cordovaMedia.newMedia("media/" + notification.sound + ".mp3");
                 mediaSrc.play();
             }
         }
@@ -354,8 +360,12 @@ angular.module('starter.controllers', [])
       window.vt = new GatewayTracker(config.database.name, window.map, guiShowFeedbackState, function(e){
           alert(JSON.stringify(e));
         }, function(marker){
-        }, {"path_view": "/_design/jobs/_view/user?keys=[\"" + gateway.getUserIdentifier() + "\"]"});
+        }, {"filter_rules_all": true, "path_view": "/_design/jobs/_view/user"}); //?keys=[%22" + gateway.getUserIdentifier() + "%22]"});
+      window.vt.setFilterUser(gateway.getUserIdentifier(), true);
+      window.vt.setFilterUser(gateway.getDriverAccess().account, true);
       window.vt.init();
+      //set the last know job
+      $scope.setSelectedJob(getCurrentJobDetails() || null);
     }, 1000);
  
     document.addEventListener("resume", function() {
@@ -367,8 +377,6 @@ angular.module('starter.controllers', [])
     }, false);
 
   });
-
-
 })
 
 .controller('JobsCtrl', function($scope) {
@@ -381,12 +389,12 @@ angular.module('starter.controllers', [])
           //TODO UPDATE VIEW
           $scope.jobs = getNiceJobFormat(window.vt.getJobs());
           $scope.$broadcast('scroll.refreshComplete');
-          $scope.$apply()
+          $scope.$apply();
         }
       });
     }else{
       $scope.$broadcast('scroll.refreshComplete');
-      $scope.$apply()      
+      $scope.$apply(); 
     }
   };
 
@@ -399,19 +407,23 @@ angular.module('starter.controllers', [])
 .controller('ServiceCtrl', function($scope) {
   $scope.vechicles = config.service.vehicles;
   $scope.services = config.service.options;  
-  $scope.vechicles[(window.gateway.getJobData().vehicles || 1) + ""].selected = true;
+  $scope.vechicles[(window.gateway.getJobData().vehicles || window.config.service.defaults.vehicles) + ""].selected = true;
 })
 
 .controller('DriverCtrl', function($scope) {
+  var driver = window.gateway.getDriverAccess();
+  $scope.login_state = lang.page.driver.lbl_notloggedin;
+  if(driver.username){
+    $scope.login_state = lang.page.driver.lbl_hasloggedin + "" + driver.name;
+  }
   $scope.vechicles = config.service.vehicles;
   $scope.services = config.service.options;  
   $scope.vechicles[(window.gateway.getUserSettings().vehicles || 1) + ""].selected = true;
-
 })
 
 .controller('RequestCtrl', function($scope) {
-  $scope.vehicle = window.config.service.vehicles[gateway.getJobData().vehicles || 2];
-  guiShowFeedbackState();
+  $scope.vehicle = window.config.service.vehicles[gateway.getJobData().vehicles || window.config.service.defaults.vehicles];
+  $scope.job = guiShowFeedbackState();
 })
 
 .controller('SettingsCtrl', function($scope, $state, $window) {
@@ -431,35 +443,41 @@ angular.module('starter.controllers', [])
 })
 
 .controller("MapCtrl", [ '$scope', function($scope) {
-  
-  window.map = L.map('map').setView(window.config.map.position, window.config.map.zoom);
-  
-  // add an OpenStreetMap tile layer
-  L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-  }).addTo(map);
-  
-  //create our marker
-  window.marker = L.marker(map.getCenter()).addTo(map);   
-
+  //FIXME: need to review this code, creation of map and marker each time map is viewed
   var setCenterMarker = function(){
     var latlng = map.getCenter();
-    if(!window.vt.getFiltered()){
+    if(!getCurrentJobDetails().location){ //if((window.vt) && (window.vt.getFiltered().length == 0)){
       window.marker.setLatLng (latlng);
     }
     return latlng;
   };
 
   var setDraggedEnd = function(){
-    if(!window.vt.getFiltered()){
+    if(!getCurrentJobDetails().location){ //if(window.vt.getFiltered("markers").length == 0){
       var latlng = window.marker.getLatLng();
       fetchJobAddress(latlng.lat, latlng.lng);
     }
   }
 
-  window.map.on('move', setCenterMarker);
-  window.map.on('zoomend ', setCenterMarker);
-  window.map.on('moveend ', setDraggedEnd);
+  var view_position = gateway.getUserLocation(); //window.config.map.position;
+  if(window.marker){
+    view_position = window.marker.getLatLng();
+  }
+  if(1){
+    window.map = L.map('map');
+    // add an OpenStreetMap tile layer
+    L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    window.map.setView(view_position, window.config.map.zoom);
+    
+    window.marker = L.marker(map.getCenter()).addTo(map);   
+
+    window.map.on('move', setCenterMarker);
+    window.map.on('zoomend ', setCenterMarker);
+    window.map.on('moveend ', setDraggedEnd);
+  }
 
 }]);
 
@@ -501,17 +519,42 @@ function guiCallbackGatewayProperty(attr, val){
   }
 }
 
-function guiShowFeedbackStateItem(txt, checked){
+function guiCheckFeedbackStateBox(self, state){
+  //if checked do not allow once again and return
+  if(!self.checked){self.checked = true; return; }
+  self.checked = true; 
+  var job_id = getCurrentJobDetails()._id;
+  if(job_id){
+    gateway.setJobState(state, function(d){
+      console.info(d);
+    }, job_id, {});
+  }else{
+    console.warn("guiCheckFeedbackStateBox had no job id selected")
+  }
+}
+
+function guiShowFeedbackStateItem(state, checked, active_job){
   //return '<li class="item">' + txt + '</li>';
-  var chkd ='<label class="checkbox"><input type="checkbox" disabled></label>';
-  if(checked){chkd ='<label class="checkbox"><input type="checkbox" checked disabled></label>';}
+  var driver_access = gateway.hasDriverAccess();
+  var txt = window.lang.page.request.feedback_states[state];
+  var checkbox_enabled = "disabled";
+  if(driver_access && active_job){
+    checkbox_enabled = " onclick='guiCheckFeedbackStateBox(this, \""+state+"\")'";
+  }
+  var chkd ='<label class="checkbox"><input type="checkbox" '+checkbox_enabled+'></label>';
+  if(checked){chkd ='<label class="checkbox"><input type="checkbox" checked '+checkbox_enabled+'></label>';}
   return '<li class="item item-checkbox">' + chkd + txt + '</li>';
 }
 
+function getCurrentJobDetails(){
+  return JSON.parse(localStorage.getItem("request_state") || '{"doctype": "job", "driver":{}, "client":{}}');
+}
+
 function guiShowFeedbackState (doc, fetched_server){
+  var request_action_button = window.lang.page.request.btn_confirm;
   if(fetched_server){ return; }
-  $("#request_action").addClass("button-calm").html(window.lang.page.request.btn_confirm);
-  doc = doc || JSON.parse(localStorage.getItem("request_state") || '{"driver":{}, "client":{}}');
+  doc = doc || getCurrentJobDetails();
+  if(doc.doctype != "job"){ return; }
   //if(!doc.address){ doc.address = getJobAddress() || {"formated": window.lang.page.request.lbl_address}; }
   var address = getJobAddress() || {"formated": window.lang.page.request.lbl_address};
   var address_html = address.formated;
@@ -519,26 +562,33 @@ function guiShowFeedbackState (doc, fetched_server){
   var completed_job = false; 
   try{completed_job = (doc.driver.complete_ts || doc.client.complete_ts); }catch(e){}
   var html = "";
+  var active_job = vt.isJobActive(doc);
   if(doc.pickup_time || doc.datetime){
     if(!doc.address){ doc.address = {"formated": "unknown"}; }
     address_html = doc.address.formated;
-    html = html + guiShowFeedbackStateItem(window.lang.page.request.feedback_states.request, true);
-    html = html + guiShowFeedbackStateItem(window.lang.page.request.feedback_states.assigned, (doc.driver.assigned_ts && doc.driver.assigned_id));
-    html = html + guiShowFeedbackStateItem(window.lang.page.request.feedback_states.arrived, (doc.driver.arrived_ts));
-    html = html + guiShowFeedbackStateItem(window.lang.page.request.feedback_states.complete, completed_job);
+    html = html + guiShowFeedbackStateItem("request", true, active_job);
+    html = html + guiShowFeedbackStateItem("assigned", (doc.driver.assigned_ts && doc.driver.assigned_id), active_job);
+    html = html + guiShowFeedbackStateItem("arrived", (doc.driver.arrived_ts), active_job);
+    html = html + guiShowFeedbackStateItem("complete", completed_job, active_job);
     html = html + '<center><button id="btn_update_feedbackstate" class="button button-clear button-stable" onclick="guiUpdateJob()">' + lang.page.request.lbl_updated + ' ' + update_time + '</button></center>'; //add button
-    $("#request_action").addClass("button-dark").html(window.lang.page.request.btn_cancel);
+    request_action_button = window.lang.page.request.btn_cancel;
     var mrkr = window.vt.setMapChanged(doc);
     mrkr.addTo(window.map);
     mrkr.update();
+    if((completed_job || doc.client.canceled_ts)){
+      request_action_button = lang.page.request.btn_complete;
+      $("#request_action").removeClass("button-dark").addClass("button-calm");
+    }else{
+      $("#request_action").removeClass("button-calm").addClass("button-dark");
+    }    
   }
   try{$("#request_service").html(window.config.service.vehicles[(window.gateway.getJobData().vehicles || 1) + ""].title)}catch(e){}
+  var state_feedback = '<ul class="list">'+html+'</ul>';
+  $("#request_action").html(request_action_button);
   $("#state_address").html(address_html);
-  $("#state_feedback").html('<ul class="list">'+html+'</ul>');
+  $("#state_feedback").html(state_feedback);
   localStorage.setItem("request_state", JSON.stringify(doc));
-  if(completed_job || doc.driver.canceled_ts || doc.client.canceled_ts){
-    $("#request_action").removeClass("button-dark").addClass("button-calm").html(lang.page.request.btn_complete);
-  }
+  return {"request_action_button": request_action_button, "state_feedback": state_feedback, "address": address_html }
   /*
   if(completed_job || doc.driver.canceled_ts || doc.client.canceled_ts){
     guiHideFeedbackState(doc);
@@ -547,7 +597,7 @@ function guiShowFeedbackState (doc, fetched_server){
 }
 
 function guiHasFeedbackState(doc){
-  doc = doc || JSON.parse(localStorage.getItem("request_state") || '{"driver":{}, "client":{}}');
+  doc = doc || getCurrentJobDetails();
   if(doc.pickup_time || doc.datetime){
     var completed_job = (doc.driver.complete_ts || doc.client.complete_ts);
     if(completed_job || doc.driver.canceled_ts || doc.client.canceled_ts){
@@ -567,21 +617,25 @@ function guiNewFeedbackState(doc){
   doc = doc || {};
   localStorage.removeItem("request_state");
   window.vt.clearFilterMarkers();
-  window.vt.setFilterMarkers(undefined, true); //show nothing
   window.vt.start();
   pan2UserVisualLocation();
 }
 
-function getNiceJobFormat(jobs){
-  var d;
-  jobs.sort(function(a, b){return (b.value.pickup_time || b.value.datetime)-(a.value.pickup_time || a.value.datetime)});
+function getNiceJobFormat(dict_jobs){
+  var d, fjobs = [];
+  var jobs = [];
+  for(var i in dict_jobs){ jobs.push(dict_jobs[i]); }
+  jobs.sort(function(a, b){return (b.pickup_time || b.datetime)-(a.pickup_time || a.datetime)});
   for(var i in jobs){
-    d = new Date(jobs[i].value.pickup_time || jobs[i].value.datetime);
-    jobs[i].value.pickuptime_str = d.toLocaleString();
-    jobs[i].value.state_str = lang.page.request.state_map[guiHasFeedbackState(jobs[i].value) || "waiting"];
-    jobs[i].value.address_label = jobs[i].value.address.formated;
+    if(jobs[i].doctype == "job"){
+      d = new Date(jobs[i].pickup_time || jobs[i].datetime);
+      jobs[i].pickuptime_str = d.toLocaleString();
+      jobs[i].state_str = lang.page.request.state_map[guiHasFeedbackState(jobs[i]) || "waiting"];
+      jobs[i].address_label = jobs[i].address.formated;
+      fjobs.push(jobs[i]);
+    }
   }
-  return jobs;
+  return fjobs;
 }
 
 function guiUpdateJob(){
@@ -622,17 +676,17 @@ function handleException(e){
 function showUserVisualLocation(loc, dist){
   if(!window.map){ return ; }
   loc = loc || gateway.getUserLocation();
-  dist = dist || 100;
   if(window.user_location_marker){
     try{ //it exists but something is wrong
-      dist = window.user_location_marker.getRadius() || 100;
+      dist = dist || window.user_location_marker.getRadius() || 100;
       window.user_location_marker.addTo(window.map);
     }catch(e){ window.user_location_marker = undefined; }
-  }else{ //first location lset move our marker there
+  }
+  if(!gateway.getUserLocation(true)){ //first location lset move our marker there
     pan2UserVisualLocation();
   }
   if(!window.user_location_marker){
-    window.user_location_marker = L.circle(loc, dist, {
+    window.user_location_marker = L.circle(loc, dist || 100, {
       color: 'blue',
       fillColor: 'blue',
       fillOpacity: 0.2
@@ -648,3 +702,7 @@ function pan2UserVisualLocation(){
   }, 2000);
 
 }
+
+
+
+

@@ -428,6 +428,9 @@ module.exports = function(app, passport) {
 
 
     app.delete('/api/client/:company_id/job', isLoggedInAPI, function(req, res) { //
+        if(req.user.role.admin < 100){
+            throw "Administrator rights required";
+        }        
         var company_id = req.params.company_id;
         var path = "/" + company_id + "/_design/list/_view/jobs";
         getJSON({
@@ -438,7 +441,6 @@ module.exports = function(app, passport) {
             headers:{'Content-Type': 'application/json'}
         }, function(status, body) {
             var row, rows = body["rows"];
-            throw "disabled function -- kajjjak";
             bulkRemove(company_id, rows, function(e){
                 res.send(e);
             });
@@ -450,7 +452,7 @@ module.exports = function(app, passport) {
     // JOBS states
 
     app.post('/api/client/:company_id/job', function(req, res) { //
-        var job_id = getGuid();
+        var job_id = "job-" + getGuid();
         try {
             var data, company_id = req.params.company_id;
 
@@ -495,19 +497,68 @@ module.exports = function(app, passport) {
         }
     });
 
+    function setJobState(res, company_id, job_id, state, state_params, user){
+        var data = handleJobState(state, user, state_params);
+        setCompanyDocument(company_id, job_id, data, function(d){
+            if(state == "assigned"){ //should be ontarget
+                console.info("---" + JSON.stringify(state_params.driver_id));
+                //try
+                /*
+                setCompanyDocument(company_id, user._id, {"job_id": job_id, "client_id": d.client.id}, function(){
+                    res.send({success:true, result: d, job: data});
+                }, function(e){
+                    res.send({"error": e, "code": "1501"});
+                });
+                */
+                res.send({success:true, result: d, job: data});
+            }else{
+                res.send({success:true, result: d, job: data});
+            }
+        }, function(e){
+            res.send({"error": e});
+        });        
+    }
+
     app.post('/api/client/:company_id/job/:job_id/:state', function(req, res) { //
         var job_id = req.params.job_id; //req.user._id || body.auth.user_id;
         var company_id = req.params.company_id;
-        data = handleJobState(req.params.state, req.user, req.body);
-        setCompanyDocument(company_id, job_id, data, function(d){
-            res.send({success:true, result: d, job: data});
-        }, function(e){
-            res.send({"error": e});
-        });
+        var access_passkey = req.body.access_passkey;
+        if(access_passkey){
+            getAccessByPassKey(res, access_passkey, function(user){
+                console.info("User " + JSON.stringify(user));
+                setJobState(res, company_id, job_id, req.params.state, req.body, user);
+            }); 
+        }else{
+            setJobState(res, company_id, job_id, req.params.state, req.body, req.user);
+        }
 
     });
 
-    // client membmers
+    //----- client app api
+
+    function getAccessByPassKey(res, access, callback_accessgranted){
+        getDocument(access.user_id, function(doc){
+            try{
+                console.info(doc)
+                if(!doc.access_keys[access.passkey]){ throw "1433"; }
+                callback_accessgranted(doc);
+            }catch(e){
+               res.send({"error": "Access denied", "details": e}); 
+            }
+        }, function(e){
+            
+        });
+    }
+
+    app.get('/api/client/user/:user_id/state/:state_id/:passkey', function(req, res) {
+        ///does nothing
+        var user_id = req.params.user_id;
+        var passkey = req.params.passkey;
+        var state_id = req.params.state_id;
+        getAccessByPassKey(res, {"user_id": user_id, "passkey": passkey}, function(doc){
+            res.send({"sucess": "Access granted"}); 
+        });
+    });
 
     app.post('/api/client/:company_id/sync/:device_id', function(req, res) {
         // will synchronize the user settings with the online device settings
@@ -516,17 +567,29 @@ module.exports = function(app, passport) {
         var data = req.body;
         console.info("Syncing device " + device_id);
         // find user in main database
+        var passkey = getGuid();
         getUserById(req.body.username, function(users){
             // check that this user has correct keyword to link to
             if(users.length){ //select the first one
-                var user = users[0];
-                data.name = user.value.name;
+                var user = users[0].value;
+                data.name = user.name;
                 data.doctype = "driver";
-                data.account = user.value._id;
-                data.passkey = undefined;
+                data.account = user._id;
+                //validate the password
+                //TODO: if (user.auth.local.password != crypto.createHash('md5').update(req.body.password).digest('hex')){ ... }
                 // create a document in company id with doctype="driver" using device_id as doc._id and body as params
                 setCompanyDocument(company_id, device_id, data, function(d){
-                    res.send({success:true, result: d, user: data});
+                    if(!user.access_keys){user.access_keys = {};}
+                    user.access_keys[passkey] = {"created": new Date().getTime(), "device": device_id}
+                    console.info(JSON.stringify(user))
+                    setDocument(user._id, user,
+                        function(result){
+                            data.passkey = passkey;
+                            data.user_id = user._id;
+                            res.send(data);
+                        },
+                        function(e){res.send({"error": e});    
+                    });
                 }, function(e){
                     res.send({"error": e});
                 });
@@ -536,7 +599,10 @@ module.exports = function(app, passport) {
         });
     });
 
+    //----- client membmers
+
     app.post('/api/client/user/:user_id/password', isLoggedInAPI, function(req, res) {
+        //changes password
         var company_id = req.user.company_id;
         var user_id = req.params.user_id;
         console.info("Changing user password " + user_id);
@@ -631,7 +697,34 @@ module.exports = function(app, passport) {
                 res.send({"error": e});
             });
         });
-    });    
+    });   
+
+
+    app.get('/billing/paypal/payment/ipn', function(req, res) {
+        var parts = req.url.split("?");
+        var params = parts[1];
+        var path = "/cgi-bin/webscr?cmd=_notify-validate&" + params;
+        var doc_id = "pay-" + crypto.createHash('md5').update(path).digest('hex');
+        setDocument(doc_id, {path:path, doctype: "payment", type: "paypal", data: url.parse(req.url, true)}, function(result){
+            res.send("");
+        }, function(e){
+            console.log("Error storing payment from paypal: " + path);
+        });
+        /*
+        getJSON({
+            port: 443, 
+            host: "www.paypal.com",
+            path: path,
+            method:"POST",
+            headers:{'Content-Type': 'application/json'}
+        }, function(status, body) {
+             res.send({"status": status, "body": body, "path": });
+        }, function(err){
+            
+        });
+        */
+    
+    }); 
 
 // =============================================================================
 // AUTHORIZE (ALREADY LOGGED IN / APPLICATION SPECIFIC =============
@@ -846,12 +939,15 @@ function handleJobState(state_id, user, state_data){
             state.client.canceled_ts = time_now;
             state.client.canceled_dt = state_data;
         }        
-    }else if(user.role.router){
+    }else if(user.role.router){ //also do this since a user can both be a driver and a router and we filter out 
         console.info("******************** router " + state_id + "  " + JSON.stringify(state_data));
+        if(state_data.location){
+            state.location = state_data.location;
+        }
         if(state_id == "assigned"){
             state.driver.assigned_ts = time_now;
-            state.driver.assigned_id = state_data.driver_id; //let driver and client know about each other
-            state.client.assigned_id = state_data.client_id; //let driver and client know about each other
+            state.driver.assigned_id = state_data.driver_id || user._id; 
+            state.client.assigned_id = state_data.client_id || user._id; 
         }
         if(state_id == "driver_accepted"){
             state.driver.accepted_ts = time_now;
@@ -883,8 +979,14 @@ function handleJobState(state_id, user, state_data){
             state.client.canceled_ts = time_now;
             state.client.canceled_dt = state_data;
         } 
-    }else if(user.role.driver){
-        console.info("******************** driver " + state_id);
+    }
+    if(user.role.driver){
+        console.info("******************** driver " + state_id + " -- " + user._id + " -- " + JSON.stringify(state_data));
+        if(state_id == "assigned"){
+            state.driver.assigned_ts = time_now;
+            state.driver.assigned_id = state_data.driver_id || user._id; 
+            state.client.assigned_id = state_data.client_id || user._id; 
+        }
         if(state_id == "arrived"){
             state.driver.arrived_ts = time_now;
         }        

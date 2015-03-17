@@ -16,77 +16,88 @@
 */
 
 var iconCreate = L.icon({
-    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-create.png',
-    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-create.png',
+    iconUrl: getMediaSourceURL() + 'marker-icon-create.png',
+    iconRetinaUrl: getMediaSourceURL() + 'marker-icon-2x-create.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
-    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowUrl: getMediaSourceURL() + 'marker-shadow.png',
+    shadowRetinaUrl: getMediaSourceURL() + 'marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconAssign = L.icon({
-    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-assign.png',
-    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-assign.png',
+    iconUrl: getMediaSourceURL() + 'marker-icon-assign.png',
+    iconRetinaUrl: getMediaSourceURL() + 'marker-icon-2x-assign.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
-    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowUrl: getMediaSourceURL() + 'marker-shadow.png',
+    shadowRetinaUrl: getMediaSourceURL() + 'marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconWaiting = L.icon({
-    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-waiting.png',
-    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-waiting.png',
+    iconUrl: getMediaSourceURL() + 'marker-icon-waiting.png',
+    iconRetinaUrl: getMediaSourceURL() + 'marker-icon-2x-waiting.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
-    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowUrl: getMediaSourceURL() + 'marker-shadow.png',
+    shadowRetinaUrl: getMediaSourceURL() + 'marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconDriving = L.icon({
-    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-driving.png',
-    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-driving.png',
+    iconUrl: getMediaSourceURL() + 'marker-icon-driving.png',
+    iconRetinaUrl: getMediaSourceURL() + 'marker-icon-2x-driving.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
-    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowUrl: getMediaSourceURL() + 'marker-shadow.png',
+    shadowRetinaUrl: getMediaSourceURL() + 'marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconComplete = L.icon({
-    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-complete.png',
-    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-complete.png',
+    iconUrl: getMediaSourceURL() + 'marker-icon-complete.png',
+    iconRetinaUrl: getMediaSourceURL() + 'marker-icon-2x-complete.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
-    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowUrl: getMediaSourceURL() + 'marker-shadow.png',
+    shadowRetinaUrl: getMediaSourceURL() + 'marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
 var iconCanceled = L.icon({
-    iconUrl: getCompanyDatabasePath() + '/gui/marker-icon-canceled.png',
-    iconRetinaUrl: getCompanyDatabasePath() + '/gui/marker-icon-2x-canceled.png',
+    iconUrl: getMediaSourceURL() + 'marker-icon-canceled.png',
+    iconRetinaUrl: getMediaSourceURL() + 'marker-icon-2x-canceled.png',
     iconSize: [25, 41],
     iconAnchor: [13, 41],
     popupAnchor: [-3, -76],
-    shadowUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
-    shadowRetinaUrl: getCompanyDatabasePath() + '/gui/marker-shadow.png',
+    shadowUrl: getMediaSourceURL() + 'marker-shadow.png',
+    shadowRetinaUrl: getMediaSourceURL() + 'marker-shadow.png',
     shadowSize: [41, 41],
     shadowAnchor: [13, 41]
 });
 
+var iconDriver = L.icon({
+    iconUrl: getMediaSourceURL() + 'marker-icon-driver.png',
+    iconRetinaUrl: getMediaSourceURL() + 'marker-icon-2x-driver.png',
+    iconSize: [25, 41],
+    iconAnchor: [13, 41],
+    popupAnchor: [-3, -76],
+    shadowUrl: getMediaSourceURL() + 'marker-shadow-driver.png',
+    shadowRetinaUrl: getMediaSourceURL() + 'marker-shadow-driver.png',
+    shadowSize: [46, 41],
+    shadowAnchor: [10, 41]
+});
 
 function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback_location, options) {
 	// updates defined map and its markers
@@ -95,17 +106,23 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
     var callback_changes = callback_changes;
     var callback_onerror = callback_onerror;
     var callback_location = callback_location;
+    var callback_updated = null;
 	var markers = {};
-	var options = options || {};
-	var filter_markers = null;
+	var options = options || {	};
+	var filter_markers = {};
+	var filter_users = {};
 
 	this.getMarkers = function(){
 		return markers;		
 	}
 
-	this.start = function(){
+	this.start = function(opts){
+		$.extend(options, opts || {update: false});
 		// fetch current state
-		this._fetchState();
+		if(options.callback_updated){
+			callback_updated = options.callback_updated;
+		}
+		this._fetchState(options);
 		// get changes
 		this._track();
 	}
@@ -115,7 +132,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 	}
 
 	this._fetchState = function(){
-		var url = getCompanyDatabasePath() + (options.path_view || "/_design/list/_view/jobs");
+		var url = getCompanyDatabasePath() + (options.path_view || "/_design/jobs/_view/active");
 		$.getJSON(url, function(res){
 			var rows = res.rows;
 			for(var i in rows){
@@ -127,6 +144,9 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 				}
 
 			}
+			if(callback_updated){
+				callback_updated();
+			}										
 		});
 	};
 
@@ -167,6 +187,12 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		console.info("Map changed: " + JSON.stringify(doc));
 		var marker_id = doc._id || doc.id;
 		if(doc.location){
+			/*
+			if(!doc.driver){ doc.driver = {};}
+			if(doc.driver.id){ 
+				console.info("WHOOHOHOOOOO got driver id "+doc.driver.arrives_id+", new we need to save it and restart the tracker !!!!!! ");
+			}
+			*/
 			if(!markers[marker_id]){ // missing marker create one
 				try{
 					markers[marker_id] = L.marker(doc.location, {icon: getStateIcon(doc)}).addTo(window.map);
@@ -178,18 +204,39 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 					throw {"error": 12313, "message": "Could not create marker " + marker_id, "details": JSON.stringify(e)};
 				}
 			}else{
-				markers[marker_id].setIcon(getStateIcon(doc))
+				markers[marker_id].setIcon(getStateIcon(doc));
+				markers[marker_id].setLatLng(doc.location);
 			}
 			markers[marker_id].doc = doc;
+			if(doc.doctype == "driver"){
+				var driver_timeoutmax = 10;
+				var driver_sinceupdate = ((new Date().getTime()) - doc.client_ts)/(1000*60);
+				var driver_opacity = Math.max(0, (1 - (driver_sinceupdate/driver_timeoutmax)));
+				console.info("Minutes since driver update " + driver_sinceupdate);
+				markers[marker_id].setOpacity(driver_opacity);
+			}
 			return markers[marker_id];
 		}
 	}
 
 	this.setMapChanged = setMapChanged;
-	
-	this.setFilterMarkers = function(id, b){
+
+	this.setFilterUser = function(id, b, restart){
+		if(!filter_users){ filter_users = {}; }
+		filter_users[id] = b;
+		if(restart){
+			this.stop();
+			this.start();
+		}				
+	}
+
+	this.setFilterMarkers = function(id, b, restart){
 		if(!filter_markers){ filter_markers = {}; }
 		filter_markers[id] = b;
+		if(restart){
+			this.stop();
+			this.start();
+		}
 	}
 
 	this.clearFilterMarkers = function(){
@@ -197,13 +244,13 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 	}
 
 	function isFiltered (doc){
-		if(!filter_markers){ return true; }
-		return filter_markers[doc._id];
+		return true;
 	}
 
 	function getFiltered(){
-		if(filter_markers){
-			return Object.keys(filter_markers);
+		var filter = Object.keys(filter_markers)
+		if(filter.length){
+			return filter;
 		}
 		return undefined;
 	}
@@ -212,6 +259,9 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		var selected_icon = "assign"; //red
 		if(!doc.driver){ doc.driver = {};}
 		if(!doc.client){ doc.client = {};}
+		if(doc.doctype == "driver"){
+			selected_icon = "driver"; //driver icon
+		}
 		if(doc.driver.assigned_ts && doc.driver.assigned_id){
 			selected_icon = "waiting"; //orange
 		}
@@ -226,7 +276,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 			selected_icon = "canceled"; //black, remove
 			setMarkerHidden(doc, 30000);
 		}
-		var icons={"assign": iconAssign, "waiting": iconWaiting, "driving": iconDriving, "completed": iconComplete, "canceled": iconCanceled};
+		var icons={"assign": iconAssign, "waiting": iconWaiting, "driving": iconDriving, "completed": iconComplete, "canceled": iconCanceled, "driver": iconDriver};
 		return icons[selected_icon];
 	}
 

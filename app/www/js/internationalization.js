@@ -5,6 +5,11 @@ var lang_en = {
       "vibrate": 100,
       "title": "Arrived", 
       "message": "Your driver has arrived"
+    },
+    "canceled": {
+      "vibrate": 800,
+      "title": "Canceled job", 
+      "message": "Review your jobs, a job was canceled"      
     }
   },
   "page":{
@@ -25,12 +30,15 @@ var lang_en = {
       "title": "Service"
     },
     "jobs":{
-      "title": "Pantanir",
+      "title": "Jobs",
+      "lbl_releasetorefresh": "Release to update",
       "lbl_pulltorefresh": "Pull down to refresh"
     },    
     "driver": {
       "title": "Driver",
-      "btn_login": "Link"
+      "btn_login": "Link",
+      "lbl_hasloggedin": "Logged in as ",
+      "lbl_notloggedin": "Please sync using credentials given by your station"
     },     
     "settings":{
       "title": "Settings",
@@ -80,13 +88,19 @@ var lang_is = {
       "vibrate": 100,
       "title": "Komin", 
       "message": "Er að biða fyrir utan"
+    },
+    "canceled": {
+      "vibrate": 800,
+      "title": "Hætt við", 
+      "message": "Farið yfir vinnu listinn. Einn viðskiptamaður hætti við"      
     }
+
   },  
   "page":{
     "map":{
       "title": "Staðsettning",
       "instruction": "færið kortið til",
-      "btn_continue": "Næsta",
+      "btn_continue": "Panta",
       "lbl_fetchingaddress": "sækir staðsetting ..."
     },
     "menu":{
@@ -101,6 +115,7 @@ var lang_is = {
     },
     "jobs":{
       "title": "Pantanir",
+      "lbl_releasetorefresh": "Sleppið til að sækja",
       "lbl_pulltorefresh": "Draga niður til að uppfæra"
     },
     "settings":{
@@ -109,7 +124,9 @@ var lang_is = {
     },
     "driver": {
       "title": "Bílstjóri",
-      "btn_login": "Tengja"
+      "btn_login": "Tengja",
+      "lbl_hasloggedin": "Auðkenndur sem ",
+      "lbl_notloggedin": "Innskráning"
     }, 
     "revoke":{
       "title": "Hætta við",

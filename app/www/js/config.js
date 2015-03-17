@@ -2,13 +2,16 @@
 
 var default_config = {
   "map":{
-    "position": [64.1353379999, -21.8952100],
-    "zoom": 13
+    "position": [64.1353379, -21.89521],
+    "zoom": 16
   },
   "database":{
     "name": "tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57",
     "host": "http://db01.taxigateway.com/"
   },
+  "serverapi":{
+    "host": "http://localhost:8000/" //"http://db01.taxigateway.com/"
+  },  
   "client":{
     "number":"+3548958283"
   },
@@ -23,12 +26,20 @@ var default_config = {
     },
     "options": {
       "1": { "type": "services", "title": "Baby chair", "summary": "If available a chair will be provided", "id": 1 }
+    },
+    "defaults":{
+      "vehicles": "2"
     }
   },
   "language": "is",
   "internationalization": {
     "en":{"id":"en", "title": "English"},
     "is":{"id":"is", "title": "Íslensku"},
+  },
+  "setup":{
+    "driver":{
+      "position": false
+    }
   }
 };
 
@@ -39,4 +50,12 @@ window.config = default_config;
 
 function getCompanyDatabasePath(){
   return window.config.database.host + window.config.database.name;
+}
+
+function getServerAPIPath(){
+  return window.config.serverapi.host;
+}
+
+function getMediaSourceURL(){
+  return "media/";
 }

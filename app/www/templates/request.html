@@ -19,13 +19,17 @@
       </a>
     </div>
     <div class="card">
-      <div id="state_address" class="item item-text-wrap" style="text-align:center;"></div>
+      <div id="state_address" class="item item-text-wrap" style="text-align:center;">
+        {{job.address || ""}}  
+      </div>
     </div>
-    <div id="state_feedback"></div>
+    <div id="state_feedback">
+      {{job.state_feedback || ""}}
+    </div>
   </ion-content>
   <ion-footer-bar>
     <div class="button-bar">
-      <button id="request_action" class="button button-calm" ng-click="confirmRequest()">{{lang.page.request.btn_confirm}}</button>
+      <button id="request_action" class="button button-calm" ng-click="confirmRequest()">{{job.request_action_button || lang.page.request.btn_confirm}}</button>
     </div>
   </ion-footer-bar>
 </ion-view>

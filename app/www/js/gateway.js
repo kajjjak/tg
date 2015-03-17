@@ -64,10 +64,17 @@
 
     this.setUserLocation = function(pos){
       localStorage.setItem("location", JSON.stringify(pos));
+      if(window.config.setup.driver.position && this.hasDriverAccess()){
+        this.setUserDocument({"doctype":"driver","location":{"lat": pos[0], "lng":pos[1]}})
+      } 
     };
 
-    this.getUserLocation = function(){
-      return JSON.parse((localStorage.getItem("location") || "null")) || window.config.map.position;
+    this.getUserLocation = function(force_gps){
+      if(force_gps){
+        return JSON.parse((localStorage.getItem("location") || "null"));
+      }else{
+        return JSON.parse((localStorage.getItem("location") || "null")) || window.config.map.position;
+      }
     };
     
     // couch db interface begins
@@ -130,17 +137,56 @@
       window.location.href="/#/app/request"; //refresh view
     };
 
+    function setAccountAccessKey(data){
+      localStorage.setItem("access_passkey", JSON.stringify(data));
+    }
+
+    function getAccountAccessKey(){
+      return JSON.parse(localStorage.getItem("access_passkey") || "{}");
+    }
+
+    this.hasDriverAccess = function(){
+      return Object.keys(getAccountAccessKey()).length ? true : false;
+    }
+
+    this.getDriverAccess = function(){
+      return getAccountAccessKey();
+    }
+
     this.sync = function(username, passkey, callback_result){
       var company_id = window.config.database.name;
       var device_id = this.getUserIdentifier();
       var data = {"username": username, "passkey": passkey};
-      var url = "http://taxigateway.com/api/client/" + company_id + "/sync/" + device_id;
+      var url = getServerAPIPath() + "api/client/" + company_id + "/sync/" + device_id;
       $.post(url, data, function(result){
+        console.info("Sync result " + JSON.stringify(result));
+        if(result.error){
+          setAccountAccessKey({});
+        }else{
+          setAccountAccessKey(result);
+        }
         callback_result(result);
       });
     };
 
-
+    this.setJobState = function(state, callback_success, job_id, data){
+      //gateway.setJobState("arrived", function(d){console.info(d);}, "", {})
+      //if job_id is not set then we use the last one selected
+      data = data || {};
+      data.access_passkey = getAccountAccessKey();//{"user_id": "e3d56304c5288ccd6dd6c4a0bb8c3d57", "passkey": "7e4a4da8-e7de-8d3d-c4b3-174d7e0d2a9a"}
+      var url = getServerAPIPath() + "api/client/"+window.config.database.name+"/job/"+job_id+"/"+state;
+      var call_success = callback_success;
+      $.post(url, data, function(result){
+        if(result.error){
+            handleError(result.error);
+        }else{
+            call_success(result);
+        }
+      }).fail(function(e){
+        debugger;
+      });
+    };
   };
+
   window.gateway = new Gateway();
 }(window));

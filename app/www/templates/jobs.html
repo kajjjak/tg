@@ -6,22 +6,22 @@
   </ion-nav-buttons>
 
   <ion-content ng-controller="JobsCtrl">
-    <ion-refresher pulling-text="Pull to refresh" on-refresh="doRefreshJobs()"></ion-refresher>
+    <ion-refresher pulling-text="{{lang.page.jobs.lbl_releasetorefresh}}" on-refresh="doRefreshJobs()"></ion-refresher>
     <ion-list>
       <ion-item class="item item-icon-right" ng-repeat="job in jobs" ng-click="setSelectedJob(job)">
         <span class="item-note">
-          {{job.value.state_str}}
+          {{job.state_str}}
         </span>        
-        <h2>{{job.value.address_label}}</h2>
-        <p>{{job.value.pickuptime_str}}</p>
+        <h2>{{job.address_label}}</h2>
+        <p>{{job.pickuptime_str}}</p>
       </ion-item>
     </ion-list> 
     <!--div class="list">
       <label class="item item-radio" ng-repeat="job in jobs" ng-click="setSelectedJob(job)">
         <input type="radio" name="group">
         <div class="item-content">
-          <h2>{{job.value.pickuptime_str}}</h2>
-          <p>{{job.value.state_str}}</p>
+          <h2>{{job.pickuptime_str}}</h2>
+          <p>{{job.state_str}}</p>
         </div>
         <i class="radio-icon ion-checkmark"></i>
       </label>

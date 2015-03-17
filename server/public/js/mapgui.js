@@ -43,6 +43,13 @@ function setJobToolbarState(state){
 	setJobLabelDetails(job_marker.doc);
 }
 
+function relocateJob(){
+	var job_marker = getJobSelected();
+	var job_location = job_marker.getLatLng();
+	gapi.setJobState("assigned", function(res){console.info(JSON.stringify(res));}, job_marker.doc._id, {location:{"lat":job_location.lat, "lng":job_location.lng}})
+	job_marker.dragging.disable();
+}
+
 function showJobState(self){
 	//$("#maptoolbar_create").attr("disabled", "disabled");
 	if(self.id == "maptoolbar_create") {
@@ -129,6 +136,17 @@ function showModalCancel(type){
 	$('#mdlJobCancel').modal('show');	
 }
 
+function relocateMarker(mrkr){
+	window.job_newlocation = mrkr;
+	window.job_newlocation.dragging.enable();
+	window.job_newlocation.bindPopup("<center><div class='job_address'>Drag me to street number</div><button class='btn btn-primary' onclick='setJobState(3)'>Save</button><button class='btn btn-warning' onclick='setJobState(2)'>Cancel</button></center>");
+	window.job_newlocation.on('dragend', function(){
+		var latlng = window.job_newlocation.getLatLng();
+		window.job_newlocation.openPopup();
+		fetchJobAddress(latlng.lat, latlng.lng);
+	});	
+}
+
 function setJobState(nr, data){
 	var find_address = {		
 		street: $("#job_street").val(),
@@ -163,6 +181,8 @@ function setJobState(nr, data){
 					draggable: true,
 					riseOnHover: true
 				}
+				relocateMarker(L.marker(job_latlng, options).addTo(map));
+				/*
 				window.job_newlocation = L.marker(job_latlng, options).addTo(map);
 				window.job_newlocation.bindPopup("<center><div class='job_address'>Drag me to street number</div><button class='btn btn-primary' onclick='setJobState(3)'>Save</button><button class='btn btn-warning' onclick='setJobState(2)'>Cancel</button></center>");
 				window.job_newlocation.on('dragend', function(){
@@ -170,6 +190,7 @@ function setJobState(nr, data){
 					window.job_newlocation.openPopup();
 					fetchJobAddress(latlng.lat, latlng.lng);
 				});
+				*/
 			}
 			if(address){ window.job_newlocation.setLatLng(address.latlng || job_latlng); }
 			window.job_newlocation.pickup_time = getPickupTime();
@@ -187,14 +208,17 @@ function setJobState(nr, data){
 	}
 	if(nr == 3){  // confirm new job marker (sending to server), then remove the edit marker from map
 		var latlng = window.job_newlocation.getLatLng();
-		var data = {
-			"client_ts": new Date().getTime(), 
-			"pickup_time": window.job_newlocation.pickup_time.toDate().getTime(), 
-			"vehicles": window.job_newlocation.pickup_vehicle,
-			"address": getPickupAddress(window.job_newlocation.pickup_address),
-			"location": [latlng.lat, latlng.lng]
-		};
-		gapi.setJobState("create", function(res){
+		var job_state = "assigned";
+		var data = {};
+		if(window.job_newlocation.pickup_time){data["pickup_time"] = window.job_newlocation.pickup_time.toDate().getTime();}
+		if(window.job_newlocation.pickup_vehicle){data["vehicles"] = window.job_newlocation.pickup_vehicle;}
+		if(window.job_newlocation.pickup_address){data["address"] = getPickupAddress(window.job_newlocation.pickup_address);}
+		data["location"] = [latlng.lat, latlng.lng];
+		if(!window.job_newlocation.doc){
+			data["client_ts"] = new Date().getTime();
+			job_state = "create";
+		}
+		gapi.setJobState(job_state, function(res){
 			console.info("Create new job result " + JSON.stringify(res));
 			if(window.vt){ window.vt.setMapChanged(res.job); }
 			setJobState(2);
@@ -279,4 +303,11 @@ $(function(){
 	    setJobToolbarState(marker.doc);
 	  });
 	window.vt.start();
+
+	//fade out driver by its last update location every minute
+	setInterval(function(){
+		var mrkrs = vt.getMarkers();
+		for(var i in mrkrs){ if(mrkrs[i].doc.doctype == "driver"){ vt.setMapChanged(mrkrs[i].doc); }}
+	}, 60000);
 });
+
