@@ -10,7 +10,7 @@ var default_config = {
     "host": "http://db01.taxigateway.com/"
   },
   "serverapi":{
-    "host": "http://localhost:8000/" //"http://db01.taxigateway.com/"
+    "host": "http://taxigateway.com/" // "http://localhost:8000/" //"http://db01.taxigateway.com/"
   },  
   "client":{
     "number":"+3548958283"

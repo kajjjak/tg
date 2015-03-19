@@ -1,6 +1,16 @@
 
 var lang_en = {
   "notification": {
+    "assigned": {
+      "vibrate": 100,
+      "title": "Assigned", 
+      "message": "Check job list"
+    },
+    "accepted": {
+      "vibrate": 100,
+      "title": "On our way", 
+      "message": "We are on our way to pick you up"
+    },    
     "arrived": {
       "vibrate": 100,
       "title": "Arrived", 
@@ -74,7 +84,8 @@ var lang_en = {
       },
       "feedback_states":{
         "request": "Requesting driver",
-        "assigned": "We are on our way",
+        "assigned": "Driver has been assigned",
+        "accepted": "We are on our way",
         "arrived": "Driver has arrived",
         "complete": "Drop off"
       }       
@@ -84,6 +95,16 @@ var lang_en = {
 
 var lang_is = {
   "notification": {
+    "assigned": {
+      "vibrate": 100,
+      "title": "Nýtt verkefni", 
+      "message": "Skoðið pantanir"
+    },    
+    "accepted": {
+      "vibrate": 100,
+      "title": "Á leiðinni", 
+      "message": "Erum á leiðinni til þín"
+    },
     "arrived": {
       "vibrate": 100,
       "title": "Komin", 
@@ -126,7 +147,7 @@ var lang_is = {
       "title": "Bílstjóri",
       "btn_login": "Tengja",
       "lbl_hasloggedin": "Auðkenndur sem ",
-      "lbl_notloggedin": "Innskráning"
+      "lbl_notloggedin": "Vinsamlegast tengist þjón"
     }, 
     "revoke":{
       "title": "Hætta við",
@@ -157,7 +178,8 @@ var lang_is = {
       },
       "feedback_states":{
         "request": "Biðja um bíll",
-        "assigned": "Erum á leiðinni",
+        "assigned": "Pöntun mótekinn",
+        "accepted": "Erum á leiðinni",
         "arrived": "Erum komin fyrir utan",
         "complete": "Áfangastaður"
       }

@@ -700,12 +700,18 @@ module.exports = function(app, passport) {
     });   
 
 
-    app.get('/billing/paypal/payment/ipn', function(req, res) {
+    app.post('/billing/paypal/payment/ipn', function(req, res) {
         var parts = req.url.split("?");
         var params = parts[1];
         var path = "/cgi-bin/webscr?cmd=_notify-validate&" + params;
-        var doc_id = "pay-" + crypto.createHash('md5').update(path).digest('hex');
-        setDocument(doc_id, {path:path, doctype: "payment", type: "paypal", data: url.parse(req.url, true)}, function(result){
+        var doc_id = "pay-" + crypto.createHash('md5').update(JSON.stringify([req.url, req.body])).digest('hex');
+        setDocument(doc_id, {
+            "path":path, 
+            "doctype": "payment", 
+            "service": "paypal", 
+            "url": req.url, 
+            "data": req.body
+        }, function(result){
             res.send("");
         }, function(e){
             console.log("Error storing payment from paypal: " + path);
@@ -920,11 +926,16 @@ function handleJobState(state_id, user, state_data){
     state_data = state_data || {};
     var state = {"driver": {}, "client":{}};
     var time_now = new Date().getTime();
+    if(state_data.driver_notification_apn){state.driver.apn = state_data.driver_notification_apn;}
+    if(state_data.driver_notification_gcm){state.driver.gcm = state_data.driver_notification_gcm;}
+    if(state_data.client_notification_apn){state.client.apn = state_data.client_notification_apn;}
+    if(state_data.client_notification_gcm){state.client.gcm = state_data.client_notification_gcm;}
+    if(state_data.driver_name){state.driver.name = state_data.driver_name;} 
     if(!user){ //this is a client else we have either a driver or a router
         console.info("******************** user " + state_id);
-        if(state_id == "accept"){
+/*        if(state_id == "accept"){
             state.client.accepted_ts = time_now;
-        }
+        }*/
         if(state_id == "arrived"){
             state.client.arrived_ts = time_now;
         }        
@@ -987,9 +998,12 @@ function handleJobState(state_id, user, state_data){
             state.driver.assigned_id = state_data.driver_id || user._id; 
             state.client.assigned_id = state_data.client_id || user._id; 
         }
+        if(state_id == "accepted"){
+            state.driver.accepted_ts = time_now;
+        }        
         if(state_id == "arrived"){
             state.driver.arrived_ts = time_now;
-        }        
+        }
         if(state_id == "payment"){
             state.driver.payment_ts = time_now;
             state.driver.payment_dt = state_data;

@@ -57,10 +57,12 @@
       }
     };
 
-    this.getJobData = function(){
+    function getJobData(){
       var data = JSON.parse(localStorage.getItem("cache") || "{}");
       return data;
     };
+
+    this.getJobData = getJobData;
 
     this.setUserLocation = function(pos){
       localStorage.setItem("location", JSON.stringify(pos));
@@ -157,7 +159,10 @@
       var company_id = window.config.database.name;
       var device_id = this.getUserIdentifier();
       var data = {"username": username, "passkey": passkey};
+      data.notification_apn = getJobData().notification_apn;
+      data.notification_gcm = getJobData().notification_gcm;      
       var url = getServerAPIPath() + "api/client/" + company_id + "/sync/" + device_id;
+      localStorage.removeItem("access_passkey");
       $.post(url, data, function(result){
         console.info("Sync result " + JSON.stringify(result));
         if(result.error){
@@ -176,6 +181,15 @@
       data.access_passkey = getAccountAccessKey();//{"user_id": "e3d56304c5288ccd6dd6c4a0bb8c3d57", "passkey": "7e4a4da8-e7de-8d3d-c4b3-174d7e0d2a9a"}
       var url = getServerAPIPath() + "api/client/"+window.config.database.name+"/job/"+job_id+"/"+state;
       var call_success = callback_success;
+      if(getAccountAccessKey().account){ // if this is a driver
+        //always append the drivers/client device token id if available (so we can send him notifications)
+        data.driver_notification_apn = this.getJobData().notification_apn;
+        data.driver_notification_gcm = this.getJobData().notification_gcm;
+        data.driver_name = gateway.getDriverAccess().name;
+      }else{
+        data.client_notification_apn = this.getJobData().notification_apn;
+        data.client_notification_gcm = this.getJobData().notification_gcm;        
+      }
       $.post(url, data, function(result){
         if(result.error){
             handleError(result.error);

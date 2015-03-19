@@ -56,7 +56,7 @@ plan.remote(function(remote) {
   remote.log('Reload application when manually loggin in and running command bellow');
   remote.log('TODO: ssh deploy@'+'188.166.25.221');
   remote.log('TODO: ~/upgrade.sh ~/' + tmpDir + ' ~/' + appName);
-  //remote.sudo('~/upgrade.sh ~/' + tmpDir + ' ~/' + appName, {user: username});
+  remote.sudo('~/upgrade.sh ~/' + tmpDir + ' ~/' + appName, {user: username});
   // cd dir > npm install > cd .. > ln -snf taxigateway-server-1425946660543/ taxigateway-server > cd taxigateway-server > forever app.js
   //remote.sudo('ln -snf /home/deploy/' + tmpDir + ' /home/deploy/'+appName, {user: username});
   //remote.exec('forever stop /home/deploy/'+appName+'/'+startFile, {failsafe: true});

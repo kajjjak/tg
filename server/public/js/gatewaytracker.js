@@ -222,6 +222,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 	this.setMapChanged = setMapChanged;
 
 	this.setFilterUser = function(id, b, restart){
+		if(!id){ return; }
 		if(!filter_users){ filter_users = {}; }
 		filter_users[id] = b;
 		if(restart){
@@ -230,7 +231,12 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		}				
 	}
 
+	this.clearFilterUser = function(){
+		filter_users = {};
+	}
+
 	this.setFilterMarkers = function(id, b, restart){
+		if(!id){ return; }
 		if(!filter_markers){ filter_markers = {}; }
 		filter_markers[id] = b;
 		if(restart){

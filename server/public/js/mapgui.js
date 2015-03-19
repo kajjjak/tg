@@ -20,10 +20,16 @@ function getJobVehiclesName(vehicles_id, vehicles){
 
 function setJobLabelDetails(job){
 	window.gapi.getAppConfig(function(res){
-		var vehicles = res.service.vehicles;
-		var pickup_type = getJobVehiclesName(job.vehicles, vehicles);
-		var pickup_time = new Date(job.pickup_time || job.datetime).toLocaleString();
-		$(".selected-job-details").html("<b>"+pickup_time+"</b> vehicle type " + pickup_type + " at <b>" + (job.address.formated || job.address.street) + "</b>");
+		if(job.doctype == "job"){
+			var vehicles = res.service.vehicles;
+			var pickup_type = getJobVehiclesName(job.vehicles, vehicles);
+			var pickup_time = new Date(job.pickup_time || job.datetime).toLocaleString();
+			var pickup_driver = "";
+			try{ if(job.driver.name){pickup_driver = job.driver.name;} }catch(e){}
+			$(".selected-job-details").html("<b>"+pickup_time+"</b> vehicle type " + pickup_type + " at <b>" + (job.address.formated || job.address.street) + "</b> " + pickup_driver);
+		}else{
+			//TODO: display driver information driver
+		}
 	});
 }
 
@@ -73,7 +79,10 @@ function showJobState(self){
 
 				for(var i in drivers){
 					driver = drivers[i].value;
-					tbl = tbl + "<tr id='" + driver.account + "'><td>" + driver.name + "</td><td>" + getJobVehiclesName(driver.vehicles, vehicles) + "</td></tr>";
+					if(driver.name){
+						//token_apn='"+driver.notification_apn || ""+"' token_gcm='"+driver.notification_gcm || ""+"' 
+						tbl = tbl + "<tr id='" + driver.account + "'><td>" + driver.name + "</td><td>" + getJobVehiclesName(driver.vehicles, vehicles) + "</td></tr>";
+					}
 				}
 				$('#lstJobAssignDrivers').html('<table class="table table-striped">'+tbl+'</table>');
 				$('#lstJobAssignDrivers tr').click(function(sel) {
@@ -81,7 +90,8 @@ function showJobState(self){
 				});
 
 				$('#lstJobAssignDrivers tbody').on( 'click', 'tr', function () {
-					memberlist.$('.selected-row-table').removeClass('selected-row-table');
+					//memberlist.$('.selected-row-table').removeClass('selected-row-table');
+					$('#lstJobAssignDrivers .selected-row-table').removeClass('selected-row-table');
 				    $(this).addClass('selected-row-table');
 				    console.info( 'You clicked on '+this.id+'\'s row' );        
 				} );				
@@ -229,9 +239,29 @@ function setJobState(nr, data){
 	if(nr == 4){  // set driver assigned (and if time is set send "driver_arrives" as well as "assign")
 		var job = getJobSelected().doc || {"client": {"id": null}};
 		var data = {"client_id": job.client.id || null, "driver_id": window.driver_selected};
-		gapi.setJobState("assigned", function(res){
-			console.info("Assigning driver/client to client/driver " + JSON.stringify(res));
-		}, window.job_selected, data);		
+		//additionaly we need to find the device tokens
+		gapi.getDriverList(function(drivers){
+			var driver;
+			for(var i in drivers){
+				driver = drivers[i].value;
+				if (driver.account == window.driver_selected){
+					//found it, lets extract the tokens
+					data.driver_notification_apn = driver.notification_apn;
+					data.driver_notification_gcm = driver.notification_gcm;
+					data.driver_name = driver.name;
+				}
+			}
+			gapi.setJobState("assigned", function(res){
+				console.info("Assigning driver/client to client/driver " + JSON.stringify(res));
+			}, window.job_selected, data);		
+
+
+		});
+	}
+	if(nr == 50){  // the driver has arrived
+		gapi.setJobState("driver_accepted", function(res){
+			console.info("Notified that driver has accepted " + JSON.stringify(res));
+		}, window.job_selected, data);
 	}
 	if(nr == 5){  // the driver has arrived
 		gapi.setJobState("driver_arrived", function(res){

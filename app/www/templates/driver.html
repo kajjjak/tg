@@ -13,17 +13,17 @@
       </label>
     </div>   
 
-    <button class="button button-block button-stable" ng-click="login()">
-      {{lang.page.driver.btn_login}}
-    </button>
-
     <div class="card">
       <div class="item item-text-wrap">
         <center>
-          <p>{{login_state}}</p>
+          <p id="driver_login_state">{{login_state}}</p>
         </center>
       </div>
     </div>
+
+    <button class="button button-block button-stable" ng-click="login()">
+      {{lang.page.driver.btn_login}}
+    </button>
 
     <!--ul class="list">
       <li class="item item-toggle" ng-repeat="service in services" ng-click="setRequestProperty(service)">

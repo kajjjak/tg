@@ -54,16 +54,20 @@ angular.module('starter.controllers', [])
     console.log('Doing login', $scope.loginData);
 
     gateway.sync($scope.loginData.username, $scope.loginData.password, function(result){
+      $("#driver_login_state").html(lang.page.driver.lbl_notloggedin);
       if(result.error == "1443"){
         alert("Username not found, check spelling or contact manager");
       }else{
         $scope.closeLogin();
         //--- FIXME: start - do something more gracefull
-        $state.go('app.home', {}, {location: 'replace'});
-        setTimeout(function(){
-          $window.location.reload(true);
-        }, 500);
-        //--- FIXME: ends - do something more gracefull
+        try{
+          $("#driver_login_state").html(lang.page.driver.lbl_hasloggedin + "" + result.name);
+          window.vt.clearFilterUser();
+          window.vt.setFilterUser(gateway.getUserIdentifier(), true);
+          window.vt.setFilterUser(gateway.getDriverAccess().account, true);          
+        }catch(e){
+          alert("Something went wrong. Please login again");
+        }
       }
     });
   };
@@ -107,28 +111,36 @@ angular.module('starter.controllers', [])
     data.client = {};
     data.driver = {};
     data.notify = {};
-    data.client.id = gateway.getUserIdentifier();
+    data.client.id = gateway.getDriverAccess().account || gateway.getUserIdentifier();
     data.client.assigned_id = null;
     data.driver.assigned_id = null;
     data.driver.assigned_ts = null;
-    data.driver.accepted_ts = null;
     data.driver.id = gateway.getDriverAccess().account;
-    data.notify.accepted_ts = null;
-    data.client.accepted_ts = null;
-    data.driver.arrives_ts = null;
+    data.notify.accepted_ts = null; //means that the driver is on his way
+    data.driver.accepted_ts = null; //means that the driver is on his way
+    data.driver.arrives_ts = null; //optinally we can notify on time
     data.driver.arrived_ts = null;
     data.notify.arrived_ts = null;
     data.client.arrived_ts = null;
     data.driver.complete_ts = null;
     data.client.complete_ts = null;
-    data.client.payment_ts = null;
-    data.driver.payment_ts = null;
+    //data.client.payment_ts = null;
+    //data.driver.payment_ts = null;
     data.driver.canceled_ts = null;
     data.notify.canceled_ts = null;
     data.client.canceled_ts = null;
     data.destination = null;
     data.price = null;
     data.route = null;
+    if(data.driver.id){
+      data.driver.gcm = data.notification_gcm;
+      data.driver.apn = data.notification_apn;
+      data.driver.lang = getSelectedLanguage();
+    }else{
+      data.client.gcm = data.notification_gcm;
+      data.client.apn = data.notification_apn;      
+      data.client.lang = getSelectedLanguage();
+    }
     //saves the request to server
     gateway.addDocument(data);
     //open communication window    
@@ -290,7 +302,9 @@ angular.module('starter.controllers', [])
 
             if (alert_dialog) {
               if (alert_dialog.vibrate){$cordovaVibration.vibrate(alert_dialog.vibrate);}            
-              $cordovaDialogs.alert(alert_dialog.message, alert_dialog.title);
+              $cordovaDialogs.alert(alert_dialog.message, alert_dialog.title).then(function() {
+                guiShowFeedbackStateUpdateView(notification.sound || "arrived"); //make sure we update the view
+              });
             }
 
             if (notification.badge) {
@@ -312,7 +326,9 @@ angular.module('starter.controllers', [])
         // the data in this situation.
         else {
             if (alert_dialog) {
-                $cordovaDialogs.alert(alert_dialog.message, alert_dialog.title);
+                $cordovaDialogs.alert(alert_dialog.message, alert_dialog.title).then(function() {
+                  guiShowFeedbackStateUpdateView(notification.sound || "arrived"); //make sure we update the view
+                });
             }
         }
     }
@@ -496,11 +512,14 @@ function guiGetTimeString(mstime){
 
 function setCurrentGatewayJob(doc){
   console.info("Selected job " + JSON.stringify(doc));
-  guiShowFeedbackState(doc);
-  window.vt.stop();
-  window.vt.clearFilterMarkers();
-  window.vt.setFilterMarkers(doc._id, true);
-  window.vt.start();
+  if(window.vt){
+    window.vt.addJob(doc);
+    guiShowFeedbackState(doc);
+    window.vt.stop();
+    window.vt.clearFilterMarkers();
+    window.vt.setFilterMarkers(doc._id, true);
+    window.vt.start();
+  }
 }
 
 function guiCallbackGatewayProperty(attr, val){
@@ -550,6 +569,20 @@ function getCurrentJobDetails(){
   return JSON.parse(localStorage.getItem("request_state") || '{"doctype": "job", "driver":{}, "client":{}}');
 }
 
+function guiShowFeedbackStateUpdateView(state_name){
+  var time_now = new Date().getTime();
+  var job = getCurrentJobDetails();
+  if(state_name == "arrived"){
+    if(!job.driver.assigned_ts){  //fake it if not updated (due to block from dialog or idle phone)
+      job.driver.assigned_ts = time_now; 
+    } 
+    if(!job.driver.arrived_ts){ 
+      job.driver.arrived_ts = time_now; 
+    }
+  } 
+  guiShowFeedbackState(job);
+}
+
 function guiShowFeedbackState (doc, fetched_server){
   var request_action_button = window.lang.page.request.btn_confirm;
   if(fetched_server){ return; }
@@ -567,7 +600,8 @@ function guiShowFeedbackState (doc, fetched_server){
     if(!doc.address){ doc.address = {"formated": "unknown"}; }
     address_html = doc.address.formated;
     html = html + guiShowFeedbackStateItem("request", true, active_job);
-    html = html + guiShowFeedbackStateItem("assigned", (doc.driver.assigned_ts && doc.driver.assigned_id), active_job);
+    html = html + guiShowFeedbackStateItem("assigned", (doc.driver.assigned_ts), active_job);
+    html = html + guiShowFeedbackStateItem("accepted", (doc.driver.accepted_ts || doc.driver.arrived_ts), active_job);
     html = html + guiShowFeedbackStateItem("arrived", (doc.driver.arrived_ts), active_job);
     html = html + guiShowFeedbackStateItem("complete", completed_job, active_job);
     html = html + '<center><button id="btn_update_feedbackstate" class="button button-clear button-stable" onclick="guiUpdateJob()">' + lang.page.request.lbl_updated + ' ' + update_time + '</button></center>'; //add button
@@ -622,19 +656,27 @@ function guiNewFeedbackState(doc){
 }
 
 function getNiceJobFormat(dict_jobs){
-  var d, fjobs = [];
+  var d, job_state, fjobs = [];
   var jobs = [];
+  var job_states = {"waiting": 1, "active":2, "complete": 3}
   for(var i in dict_jobs){ jobs.push(dict_jobs[i]); }
-  jobs.sort(function(a, b){return (b.pickup_time || b.datetime)-(a.pickup_time || a.datetime)});
   for(var i in jobs){
     if(jobs[i].doctype == "job"){
       d = new Date(jobs[i].pickup_time || jobs[i].datetime);
+      job_state = guiHasFeedbackState(jobs[i]);
       jobs[i].pickuptime_str = d.toLocaleString();
-      jobs[i].state_str = lang.page.request.state_map[guiHasFeedbackState(jobs[i]) || "waiting"];
+      jobs[i]._sort_date = d;
+      jobs[i].state_str = lang.page.request.state_map[job_state || "waiting"];
+      jobs[i].state_id = job_states[job_state || "waiting"];
       jobs[i].address_label = jobs[i].address.formated;
       fjobs.push(jobs[i]);
     }
   }
+  fjobs.sort(function(a, b){
+    if(b.state_id > a.state_id){return -1};
+    if(b.state_id < a.state_id){ return 1};
+    return b._sort_date-a._sort_date;
+  });
   return fjobs;
 }
 
@@ -650,7 +692,7 @@ function getSelectedLanguage(){
 function fetchJobAddress(lat, lng){
   window.timedid = new Date().getTime();
   $(".job_address").html(lang.page.map.lbl_fetchingaddress);
-  setTimeout("_fetchJobAddress("+lat+", "+lng+", "+timedid+")", 2000);
+  setTimeout("_fetchJobAddress("+lat+", "+lng+", "+timedid+")", 1000);
 }
 
 function _fetchJobAddress(lat, lng, passed_timedid){
