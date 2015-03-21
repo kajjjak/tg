@@ -186,9 +186,11 @@
         data.driver_notification_apn = this.getJobData().notification_apn;
         data.driver_notification_gcm = this.getJobData().notification_gcm;
         data.driver_name = gateway.getDriverAccess().name;
+        data.driver_language = getSelectedLanguage();
       }else{
         data.client_notification_apn = this.getJobData().notification_apn;
         data.client_notification_gcm = this.getJobData().notification_gcm;        
+        data.client_language = getSelectedLanguage();
       }
       $.post(url, data, function(result){
         if(result.error){

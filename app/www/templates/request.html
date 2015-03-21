@@ -1,4 +1,4 @@
-<ion-view view-title="{{lang.page.request.title}}">
+<ion-view view-title="{{lang.page.request.title}}" class="page-request">
   <ion-content>
     <div class="list">
 
@@ -6,7 +6,7 @@
         <i class="icon ion-clock"></i>
         {{lang.page.request.row_time.label}}
         <span id="request_time" class="item-note">
-          {{lang.page.request.row_time.value}}
+          {{job.pickup_time || lang.page.request.row_time.value}}
         </span>        
       </a>
 
@@ -29,7 +29,7 @@
   </ion-content>
   <ion-footer-bar>
     <div class="button-bar">
-      <button id="request_action" class="button button-calm" ng-click="confirmRequest()">{{job.request_action_button || lang.page.request.btn_confirm}}</button>
+      <button id="request_action" class="button button-calm style_page_map_btn_continue_confirm" ng-click="confirmRequest()">{{job.request_action_button || lang.page.request.btn_confirm}}</button>
     </div>
   </ion-footer-bar>
 </ion-view>

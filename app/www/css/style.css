@@ -39,6 +39,7 @@ html, body {
   height:100%;
 }
 
+/* override default ionic style */
 .job_address {
   background-color: rgba(248, 248, 248, 0.8);
   border-color: rgb(187, 187, 187);
@@ -50,4 +51,62 @@ html, body {
   width: 70%;
   margin: 0 auto;
   position: relative;
+}
+
+.bar-footer {
+  bottom: 0;
+  border-top-width: 1px;
+  border-bottom-width: 0;
+  background-position: top;
+  height: 90px;
+}
+
+.has-footer {
+  bottom: 90px;
+}
+
+.item-note {
+  float: right;
+  color: #717171;
+  font-size: 14px;
+}
+
+.style_page_request_icon_feedbackstate_checked{
+  color: gray;
+}
+
+.style_page_request_icon_feedbackstate_unchecked{
+  
+}
+
+.style_page_map_btn_continue{
+  border-color: #306898 !important;
+  background-color: #2981CA !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+}
+
+.style_page_map_btn_continue_confirm{
+  border-color: #306898 !important;
+  background-color: #2981CA !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+}
+
+.style_page_map_btn_continue_cancel{
+  border-color: gray !important;
+  background-color: black !important;
+  color: #fff !important;
+  border-radius: 6px !important;
+}
+
+.style_page_request_popup_btn_call{
+
+}
+
+.style_page_service_btn_confirm{
+  border-color: #306898 !important;
+  background-color: #2981CA !important;
+  color: #fff !important;
+  border-radius: 6px !important;
 }

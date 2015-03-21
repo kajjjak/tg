@@ -1,3 +1,26 @@
+
+function getJSON(url, callback_success, callback_failure){
+	$.getJSON(url, callback_success).fail(function(e) {
+    	if(callback_failure){callback_failure(e);}
+		if(handleNetworkError(e)){return;}
+  	});
+}
+
+function getPOST(url, data, callback_success, callback_failure){
+	$.post(url, data, callback_success).fail(function(e) {
+    	if(callback_failure){callback_failure(e);}
+		if(handleNetworkError(e)){return;}
+  	});
+}
+
+function handleNetworkError(error){
+	if(error.status == 500) {showAlert(error.statusText);}
+	if(error.status == 404) {showAlert("Cannot connect through network");}
+	if(error.status == 403) {showAlert("Session was reset due to security resons. Please <a href='/login'>login again</a> ");}
+	if(error.status == 0) {showAlert("Session was reset due to server maintainance. Please <a href='/login'>login again</a> ");}
+	console.warn(JSON.stringify(error));	
+}
+
 function handleError(error){
 	showAlert(error)
 	console.warn(JSON.stringify(error));
@@ -9,7 +32,7 @@ function showAlert(message){
 	$("#mdlAlertMessage").html(message);
 }
 
-function showEditMemberPassword(id){
+function showEditMemberPassword(id){ 
 	$("#mdlMemberEditPassword").modal('show');
 	$("#txtEditMemberPasswordId").val(id || "");
 }
@@ -23,7 +46,7 @@ function saveEditMemberPassword(){
 	mbmr["password1"] = $("#pwdNew1").val();
 	mbmr["password2"] = $("#pwdNew2").val();
 
-	$.post(url, mbmr, function(res){
+	getPOST(url, mbmr, function(res){
 		if(res.error){
 			if(res.error == 403){ res.error = "You need to login again."; }
 			showAlert(res.error || res.error.message);
@@ -32,7 +55,7 @@ function saveEditMemberPassword(){
 		}
 	});
 }
-
+ 
 function filterByUser(user_id){
 	console.info( 'You clicked on '+user_id+'\'s list row' );
 	if(window.vt){

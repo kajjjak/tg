@@ -10,6 +10,7 @@ angular.module('starter.controllers', [])
 
   window.lang = $scope.lang = lang_support[getSelectedLanguage()];
 
+  window._scpe = $scope;
 
   $scope.$on('$ionicView.enter', function(trans, e){
     if(e.stateName == "app.home"){
@@ -141,6 +142,7 @@ angular.module('starter.controllers', [])
       data.client.apn = data.notification_apn;      
       data.client.lang = getSelectedLanguage();
     }
+    $("#request_action").attr('disabled','disabled');
     //saves the request to server
     gateway.addDocument(data);
     //open communication window    
@@ -198,26 +200,34 @@ angular.module('starter.controllers', [])
   };
 
   $scope.watchUserLocation = function(){
-    console.log("Registering geolocation plugin");
-    var watchOptions = {
-    };
-
-    var watch = $cordovaGeolocation.watchPosition(watchOptions);
-    watch.then(
-      null,
-      function(err) {
-        // error
-        console.log("Geo location failure: " + JSON.stringify(err));
-      },
-      function(position) {
+    setTimeout(function(){
+      console.log("Registering geolocation plugin");
+      var watchOptions = {}; //IOs provides best result with default options
+      var _watchUserLocationSuccess = function(position) {
         console.log("Geo location success: " + JSON.stringify(position));
         var lat  = position.coords.latitude;
         var lng = position.coords.longitude;
         var dist = position.coords.accuracy;
         showUserVisualLocation([lat, lng], dist);
         gateway.setUserLocation([lat, lng]);
-    });
-
+      };
+      var _watchUserLocationFailure = function(err) {
+        // error
+        console.log("Geo location failure: " + JSON.stringify(err));
+      };
+      if (ionic.Platform.isAndroid()) {
+        watchOptions = {
+          maximumAge : 1000*60*60,
+          frequency : 1000,
+          timeout : (1000*61),
+          enableHighAccuracy: true // may cause errors if true
+        };
+        navigator.geolocation.watchPosition(_watchUserLocationSuccess, _watchUserLocationFailure, watchOptions);
+      }else{
+        window.watch = $cordovaGeolocation.watchPosition(watchOptions);
+        window.watch.then(null, _watchUserLocationFailure, _watchUserLocationSuccess, watchOptions);
+      }
+    }, 500);
   }
 
   // REGISTER PUSH NOTIFICATION
@@ -420,10 +430,14 @@ angular.module('starter.controllers', [])
 
 })
 
-.controller('ServiceCtrl', function($scope) {
+.controller('ServiceCtrl', function($scope, $ionicHistory) {
   $scope.vechicles = config.service.vehicles;
   $scope.services = config.service.options;  
   $scope.vechicles[(window.gateway.getJobData().vehicles || window.config.service.defaults.vehicles) + ""].selected = true;
+
+  $scope.goBack = function() {
+    $ionicHistory.goBack();
+  }
 })
 
 .controller('DriverCtrl', function($scope) {
@@ -540,8 +554,9 @@ function guiCallbackGatewayProperty(attr, val){
 
 function guiCheckFeedbackStateBox(self, state){
   //if checked do not allow once again and return
-  if(!self.checked){self.checked = true; return; }
-  self.checked = true; 
+  if($(self).attr("disabled")){ return; }
+  $(self).attr("disabled", "disabled");
+
   var job_id = getCurrentJobDetails()._id;
   if(job_id){
     gateway.setJobState(state, function(d){
@@ -550,19 +565,6 @@ function guiCheckFeedbackStateBox(self, state){
   }else{
     console.warn("guiCheckFeedbackStateBox had no job id selected")
   }
-}
-
-function guiShowFeedbackStateItem(state, checked, active_job){
-  //return '<li class="item">' + txt + '</li>';
-  var driver_access = gateway.hasDriverAccess();
-  var txt = window.lang.page.request.feedback_states[state];
-  var checkbox_enabled = "disabled";
-  if(driver_access && active_job){
-    checkbox_enabled = " onclick='guiCheckFeedbackStateBox(this, \""+state+"\")'";
-  }
-  var chkd ='<label class="checkbox"><input type="checkbox" '+checkbox_enabled+'></label>';
-  if(checked){chkd ='<label class="checkbox"><input type="checkbox" checked '+checkbox_enabled+'></label>';}
-  return '<li class="item item-checkbox">' + chkd + txt + '</li>';
 }
 
 function getCurrentJobDetails(){
@@ -583,25 +585,46 @@ function guiShowFeedbackStateUpdateView(state_name){
   guiShowFeedbackState(job);
 }
 
+function guiShowFeedbackStateItem(state, checked, active_job, arrives_delta){
+  //return '<li class="item">' + txt + '</li>';
+  var driver_access = gateway.hasDriverAccess();
+  var txt = window.lang.page.request.feedback_states[state];
+  var checkbox_enabled = " ";
+  var note = '';
+  if (arrives_delta){
+    note = '<span class="item-note">' + arrives_delta + " " + window.lang.page.request.lbl_arrivesminutes + '</span>';
+  }
+  if(driver_access && active_job){
+    checkbox_enabled = " onclick='guiCheckFeedbackStateBox(this, \""+state+"\")'";
+  }
+  var enabled = ""
+  var chkd ='<i class="icon style_page_request_icon_feedbackstate_unchecked"></i>';
+  if(checked){ enabled="disabled"; chkd ='<i class="icon ion-checkmark-circled style_page_request_icon_feedbackstate_checked"></i>';}
+  return '<a class="item item-icon-left" ' + enabled + ' '+checkbox_enabled+'>' + chkd + txt + note + '</a>';
+}
+
 function guiShowFeedbackState (doc, fetched_server){
   var request_action_button = window.lang.page.request.btn_confirm;
+  $("#request_action").removeAttr('disabled');
   if(fetched_server){ return; }
   doc = doc || getCurrentJobDetails();
   if(doc.doctype != "job"){ return; }
   //if(!doc.address){ doc.address = getJobAddress() || {"formated": window.lang.page.request.lbl_address}; }
   var address = getJobAddress() || {"formated": window.lang.page.request.lbl_address};
   var address_html = address.formated;
-  var update_time = new Date().toLocaleTimeString(config.locale.datetime);
+  var update_time = guiGetTimeString(new Date().getTime());
   var completed_job = false; 
   try{completed_job = (doc.driver.complete_ts || doc.client.complete_ts); }catch(e){}
   var html = "";
   var active_job = vt.isJobActive(doc);
+  var nice_time_format = lang.page.request.row_time.value;
   if(doc.pickup_time || doc.datetime){
+    nice_time_format = guiGetTimeString(doc.pickup_time);
     if(!doc.address){ doc.address = {"formated": "unknown"}; }
     address_html = doc.address.formated;
     html = html + guiShowFeedbackStateItem("request", true, active_job);
     html = html + guiShowFeedbackStateItem("assigned", (doc.driver.assigned_ts), active_job);
-    html = html + guiShowFeedbackStateItem("accepted", (doc.driver.accepted_ts || doc.driver.arrived_ts), active_job);
+    html = html + guiShowFeedbackStateItem("accepted", (doc.driver.accepted_ts || doc.driver.arrived_ts), active_job, doc.driver.arrives_delta);
     html = html + guiShowFeedbackStateItem("arrived", (doc.driver.arrived_ts), active_job);
     html = html + guiShowFeedbackStateItem("complete", completed_job, active_job);
     html = html + '<center><button id="btn_update_feedbackstate" class="button button-clear button-stable" onclick="guiUpdateJob()">' + lang.page.request.lbl_updated + ' ' + update_time + '</button></center>'; //add button
@@ -611,18 +634,19 @@ function guiShowFeedbackState (doc, fetched_server){
     mrkr.update();
     if((completed_job || doc.client.canceled_ts)){
       request_action_button = lang.page.request.btn_complete;
-      $("#request_action").removeClass("button-dark").addClass("button-calm");
+      $("#request_action").removeClass("style_page_map_btn_continue_cancel").addClass("style_page_map_btn_continue_continue");
     }else{
-      $("#request_action").removeClass("button-calm").addClass("button-dark");
+      $("#request_action").removeClass("style_page_map_btn_continue_continue").addClass("style_page_map_btn_continue_cancel");
     }    
   }
   try{$("#request_service").html(window.config.service.vehicles[(window.gateway.getJobData().vehicles || 1) + ""].title)}catch(e){}
-  var state_feedback = '<ul class="list">'+html+'</ul>';
+  var state_feedback = '<div class="list">'+html+'</div>';
+  //$("#request_time").html(nice_time_format); DO NOT NEED TO CALL THIS SINCE IT IS SET WHEN OPENING PAGE AND NOT ALLOWED TO CHANGE
   $("#request_action").html(request_action_button);
   $("#state_address").html(address_html);
   $("#state_feedback").html(state_feedback);
   localStorage.setItem("request_state", JSON.stringify(doc));
-  return {"request_action_button": request_action_button, "state_feedback": state_feedback, "address": address_html }
+  return {"request_action_button": request_action_button, "state_feedback": state_feedback, "address": address_html, "pickup_time": nice_time_format}
   /*
   if(completed_job || doc.driver.canceled_ts || doc.client.canceled_ts){
     guiHideFeedbackState(doc);

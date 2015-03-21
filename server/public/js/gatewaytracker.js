@@ -133,7 +133,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 
 	this._fetchState = function(){
 		var url = getCompanyDatabasePath() + (options.path_view || "/_design/jobs/_view/active");
-		$.getJSON(url, function(res){
+		getJSON(url, function(res){
 			var rows = res.rows;
 			for(var i in rows){
 				if(isFiltered(rows[i].value)){

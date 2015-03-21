@@ -1,13 +1,17 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import urllib, json
 import time
 import couchdb
+import internationalization as language
 #apple
 from apns import APNs, Frame, Payload
 #google
 #https://github.com/kajjjak/python-gcm
-from gcm import GCM #pip install python-gcm
+from gcm import * #pip install python-gcm
+
+
 import argparse
 # API Key for your Google OAuth project
 GCM_API_KEY = 'AIzaSyD6_BAlgs8_YECtbsWThvIVGRIxI5fsuiw'
@@ -58,8 +62,10 @@ def extractNotifications(jobs):
 
 				if not job["client"].has_key("gcm"): job["client"]["gcm"] = None;
 				if not job["client"].has_key("apn"): job["client"]["apn"] = None;
+				if not job["client"].has_key("lang"): job["client"]["lang"] = None;
 				if not job["driver"].has_key("gcm"): job["driver"]["gcm"] = None;
 				if not job["driver"].has_key("apn"): job["driver"]["apn"] = None;
+				if not job["driver"].has_key("lang"): job["driver"]["lang"] = None;
 
 				if job["driver"]["assigned_ts"] and (job["driver"]["assigned_ts"] != job["notify"]["assigned_ts"]):
 					action = "assigned"
@@ -75,12 +81,12 @@ def extractNotifications(jobs):
 					target = job["driver"]
 				
 				#print (str(action) + " - " +str(job["driver"]["canceled_ts"]) + " " + str(job["notify"]["canceled_ts"]))
-
+				print str(job["client"]["lang"])
 				if action:
 					if target["apn"]:
-						notify_apn.append({"doc_id": job["_id"], "token": target["apn"], "action": action})
+						notify_apn.append({"doc_id": job["_id"], "token": target["apn"], "action": action, "lang": target["lang"]})
 					if target["gcm"]:
-						notify_gcm.append({"doc_id": job["_id"], "token": target["gcm"], "action": action})
+						notify_gcm.append({"doc_id": job["_id"], "token": target["gcm"], "action": action, "lang": target["lang"]})
 			except Exception as e:
 				print (">>>>>>>>>>\n " + str(job) + "\n<<<<<<<<<<<<\n " + str(e))
 	return {"apn": notify_apn, "gcm": notify_gcm};
@@ -88,30 +94,32 @@ def extractNotifications(jobs):
 
 def getFormatedMessage(message):
 	if(message["action"] == "assigned"):
-		return {"text": "You have been assigned job", "sound_apn": "assigned", "badge": 1};
+		return {"text": unicode(language.lang[message["lang"]]["notification"][message["action"]]["message_notify"]), "sound_apn": message["action"], "badge": 1};
 	if(message["action"] == "accepted"):
-		return {"text": "Driver is on his way", "sound_apn": "accepted", "badge": 1};
+		return {"text": unicode(language.lang[message["lang"]]["notification"][message["action"]]["message_notify"]), "sound_apn": message["action"], "badge": 1};
 	if(message["action"] == "arrived"):
-		return {"text": "Driver has arrived", "sound_apn": "arrived", "badge": 1};
+		return {"text": unicode(language.lang[message["lang"]]["notification"][message["action"]]["message_notify"]), "sound_apn": message["action"], "badge": 1};
 	if(message["action"] == "canceled"):
-		return {"text": "Client has canceled a job that was assigned to you", "sound_apn": "canceled", "badge": 1};
+		return {"text": unicode(language.lang[message["lang"]]["notification"][message["action"]]["message_notify"]), "sound_apn": message["action"], "badge": 1};
 
 
 def sendNotifications2GCMDevice(registration_id, message):
 	gcm = GCM(GCM_API_KEY)
 	reg_id = registration_id
-	try:
+	if True: #try:
 		canonical_id = gcm.plaintext_request(registration_id=reg_id, data={'message': message})
-		if canonical_id:
-			# Repace reg_id with canonical_id in your database
-			entry = entity.filter(registration_id=reg_id)
-			entry.registration_id = canonical_id
-			entry.save()
-	except GCMNotRegisteredException:
-		# Remove this reg_id from database
-		entity.filter(registration_id=reg_id).delete()
-	except GCMUnavailableException:
-		print "resend required"
+		# if canonical_id:
+		# 	# Repace reg_id with canonical_id in your database
+		# 	entry = entity.filter(registration_id=reg_id)
+		# 	entry.registration_id = canonical_id
+		# 	entry.save()
+	# except GCMNotRegisteredException:
+	# 	# Remove this reg_id from database
+	# 	entity.filter(registration_id=reg_id).delete()
+	# except GCMUnavailableException:
+	# 	print "resend required"
+
+
     # Resent the message    
  #    response = gcm.plaintext_request(registration_id=registration_id, data={'message': message})
 	# # Handling errors

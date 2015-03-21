@@ -30,18 +30,24 @@ function GatewayAPI (dbid, callback_error) {
             //expects {"client_ts": new Date().getTime(), "time": time, "location": location};
             url = url + "/"+job_id+"/"+state;
         }
-		$.post(url, data, function(result){
+        data.author = "router"; 
+		getPOST(url, data, function(result){
             if(result.error){
                 handleError(result.error);
             }else{
                 call_success(result);
             }
-    	}).fail(callback_error);
+    	});
     };
+
+    this.getUser = function(){
+        //should use this for getting user instead of directly using it
+        return window.user || {}; 
+    }
 
     this.getDriverList = function(callback_result){
         var url = getCompanyDatabasePath() + "/_design/list/_view/drivers";
-        $.getJSON(url, function(res){
+        getJSON(url, function(res){
 			if(callback_result){
 				callback_result(res["rows"]);
 			}
@@ -57,14 +63,14 @@ function GatewayAPI (dbid, callback_error) {
     this.setupClientDatabase = function(info, callback_state){
         var st = {"request": true};
         callback_state(st);
-        $.post("/api/company/configure", {}, function(res){
+        getPOST("/api/company/configure", {}, function(res){
             console.info("Created database " + res);
             st["createddb"] = true;
             callback_state(st);
-            $.post("/api/company/configure/dbuser", {}, function(res){
+            getPOST("/api/company/configure/dbuser", {}, function(res){
                 st["createduser"] = true;
                 callback_state(st);
-                $.post("/api/company/information", info, function(res){
+                getPOST("/api/company/information", info, function(res){
                     st["storedinfo"] = true;
                     callback_state(st);
                 });
@@ -75,11 +81,11 @@ function GatewayAPI (dbid, callback_error) {
     this.getAppDetails = function(callback_success){
         getClientDoc(function(info){
             callback_success(info.app_details);
-        });
+        }); 
     };
 
     function setClientDoc(info, callback_result){
-        $.post("/api/client/mobile/info", info, function(res){
+        getPOST("/api/client/mobile/info", info, function(res){
             sessionStorage.removeItem("config");
             getClientDoc();            
             callback_result(res);
@@ -93,7 +99,7 @@ function GatewayAPI (dbid, callback_error) {
             console.info("Using company info cache " + new Date(cache._fetched));
             if(callback_success){callback_success(cache);}
         }else{
-            $.getJSON("/api/client/", function(res){
+            getJSON("/api/client/", function(res){
                 if(res.error){ //error occured, lets notify user
                     callback_error(res.error);
                 }else{
@@ -109,7 +115,7 @@ function GatewayAPI (dbid, callback_error) {
 
     function setCompanyConfig(info, callback_success, callback_failure){
       var url = "/api/company/information"
-      $.post(url, info, function(res){
+      getPOST(url, info, function(res){
         if(res.success){
           callback_success(res);
         }else{
@@ -120,6 +126,11 @@ function GatewayAPI (dbid, callback_error) {
 
     this.getClientDoc = getClientDoc;
     this.setClientDoc = setClientDoc;
+
+    this.getReport = function(options, callback_success){
+        var url = "/api/client/" + this.getUser().company_id + "/report";
+        getJSON(url, callback_success);
+    }
 };
 
 $(function () {

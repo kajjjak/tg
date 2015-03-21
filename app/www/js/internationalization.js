@@ -2,21 +2,25 @@
 var lang_en = {
   "notification": {
     "assigned": {
+      "message_notify": "New job receaved",
       "vibrate": 100,
       "title": "Assigned", 
       "message": "Check job list"
     },
     "accepted": {
+      "message_notify": "On our way",
       "vibrate": 100,
       "title": "On our way", 
       "message": "We are on our way to pick you up"
     },    
     "arrived": {
+      "message_notify": "We have arrived",
       "vibrate": 100,
       "title": "Arrived", 
       "message": "Your driver has arrived"
     },
     "canceled": {
+      "message_notify": "Job has been canceled",
       "vibrate": 800,
       "title": "Canceled job", 
       "message": "Review your jobs, a job was canceled"      
@@ -37,7 +41,8 @@ var lang_en = {
       "row_settings": "Settings"
     },
     "service":{
-      "title": "Service"
+      "title": "Service",
+      "btn_confirm": "Confirm"
     },
     "jobs":{
       "title": "Jobs",
@@ -69,6 +74,7 @@ var lang_en = {
       "lbl_updating": "Updating",
       "lbl_updated": "Updated",
       "lbl_address": "Not selected",
+      "lbl_arrivesminutes": "Minutes",
       "row_time":{
         "label": "Time",
         "value": "Now"
@@ -96,32 +102,35 @@ var lang_en = {
 var lang_is = {
   "notification": {
     "assigned": {
+      "message_notify": "Nýtt verkefni",
       "vibrate": 100,
       "title": "Nýtt verkefni", 
       "message": "Skoðið pantanir"
     },    
     "accepted": {
+      "message_notify": "Erum lagðir af stað",
       "vibrate": 100,
       "title": "Á leiðinni", 
       "message": "Erum á leiðinni til þín"
     },
     "arrived": {
+      "message_notify": "Erum kominn",
       "vibrate": 100,
       "title": "Komin", 
       "message": "Er að biða fyrir utan"
     },
     "canceled": {
+      "message_notify": "Hætt var við pöntun",
       "vibrate": 800,
       "title": "Hætt við", 
       "message": "Farið yfir vinnu listinn. Einn viðskiptamaður hætti við"      
     }
-
   },  
   "page":{
     "map":{
       "title": "Staðsettning",
       "instruction": "færið kortið til",
-      "btn_continue": "Panta",
+      "btn_continue": "Næsta",
       "lbl_fetchingaddress": "sækir staðsetting ..."
     },
     "menu":{
@@ -132,7 +141,8 @@ var lang_is = {
       "row_settings": "Stillingar"
     },
     "service":{
-      "title": "Þjónusta"
+      "title": "Þjónusta",
+      "btn_confirm": "Samþykkja"
     },
     "jobs":{
       "title": "Pantanir",
@@ -163,6 +173,7 @@ var lang_is = {
       "lbl_updating": "Er að uppfæra",
       "lbl_updated": "Uppfært",
       "lbl_address": "Ekkert valið",
+      "lbl_arrivesminutes": "Mínútur",
       "row_time":{
         "label": "Tími",
         "value": "Núna"
@@ -186,6 +197,7 @@ var lang_is = {
     }
   }
 };
+
 window.lang_support = {};
 window.lang_support["en"] = lang_en;
 window.lang_support["is"] = lang_is;

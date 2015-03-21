@@ -85,7 +85,7 @@ function saveEditMember(){
 	mbmr["created"] = new Date().getTime();
 	mbmr["group"] = $("#txtEditMemberRole").val();
 
-	$.post(url, mbmr, function(res){
+	getPOST(url, mbmr, function(res){
 		if(res.error){
 			if(res.error == 403){ res.error = "You need to login again."; }
 			showAlert(res.error || res.error.message);
@@ -103,7 +103,7 @@ function GatewayUsers (dbid) {
 
 		var url = getSystemDatabasePath() + "/_design/users/_view/list";
 
-		$.getJSON(url, function(res){
+		getJSON(url, function(res){
 			var row;
 			for (var i in res.rows){
 				users[res.rows[i].value._id] = res.rows[i].value;
@@ -130,6 +130,7 @@ function GatewayUsers (dbid) {
 		        }
 		    },
 		    error: function(e){
+		    	if(handleNetworkError(e)){return;}
 		    	showAlert("Could not remove member. The request failed.");
 		    }
 		});

@@ -85,7 +85,10 @@ module.exports = function(app, passport) {
         //res.render('index.ejs');
         res.sendfile('public/about.html');
     });
-
+    app.get('/faq.html', function(req, res) {
+        //res.render('index.ejs');
+        res.sendfile('public/faq.html');
+    });
 	app.get('/authenticate', function(req, res) {
 		res.render('authenticate.ejs');
 	});
@@ -123,38 +126,46 @@ module.exports = function(app, passport) {
 
     app.get('/index.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('dashboard.ejs', params);
+        res.render('page_dashboard.ejs', params);
     });
 
     app.get('/pickups.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('map.ejs', params);
-    });
-
-    app.get('/users.html', isLoggedIn, function(req, res) {
-        var params = getCommonVars(req);
-        res.render('users.ejs', params);
+        res.render('page_map.ejs', params);
     });
 
     app.get('/setup.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('setup.ejs', params);
+        res.render('page_setup.ejs', params);
     });
 
     app.get('/payments.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('billing.ejs', params);
+        res.render('page_billing.ejs', params);
     });
 
     app.get('/mobilesetup.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('mobilesetup.ejs', params);            
+        res.render('page_mobilesetup.ejs', params);            
+    });
+
+    // STATISTICS SECTION =========================
+    
+    app.get('/areastats.html'/*, isLoggedIn*/, function(req, res) {
+        var params = getCommonVars(req);
+        res.render('page_areastats.ejs', params);
     });
 
     // PROFILE SECTION =========================
+    
+    app.get('/users.html', isLoggedIn, function(req, res) {
+        var params = getCommonVars(req);
+        res.render('page_users.ejs', params);
+    });
+
     app.get('/profile', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('profile.ejs', params);
+        res.render('page_profile.ejs', params);
     });
 
 	// LOGOUT ==============================
@@ -259,7 +270,7 @@ module.exports = function(app, passport) {
 	// application specific responses
 
     function buildReportUsage(rows){
-        var row, report = {"usage": {}};
+        var row, report = {"usage": {}, "location":{"pickup":[]}};
         for(var i in rows){
             row = rows[i].value;
             //get date
@@ -282,6 +293,9 @@ module.exports = function(app, passport) {
                 if(row.client.canceled_ts || row.driver.canceled_ts){
                     report["usage"][monthdate]["canceled"] = report["usage"][monthdate]["canceled"] + 1;                
                 }
+            }
+            if(row.location){
+                report["location"]["pickup"].push([row.location["lat"], row.location["lng"]]);
             }
         }
         return report;
@@ -455,11 +469,14 @@ module.exports = function(app, passport) {
         var job_id = "job-" + getGuid();
         try {
             var data, company_id = req.params.company_id;
-
             try{
                 var data = validateJobData(req.body);
             }catch(e){
                 res.send({"error": e});
+                return;
+            }
+            if((!req.user) && (req.body.author == "router")){
+                res.send(403);
                 return;
             }
             author = "client";
@@ -467,19 +484,16 @@ module.exports = function(app, passport) {
             if(user.role.driver){ author = "driver";}
             var time_now = new Date();
             var job_start = {
-                doctype: "job",
+                doctype: "job", 
                 location: data.location,
                 pickup_time: data.pickup_time,
                 author: author,
-                client: {},
-                driver: {},
+                client: data.client || {},
+                driver: data.driver || {},
                 notify: {},
                 address: data.address,
                 client_ts: data.client_ts,
-                server_ts: time_now.getTime(),
-                destination: null,
-                price: null,
-                route: null            
+                server_ts: time_now.getTime()
             };
             getCompanyDocument(company_id, job_id, function(){
                 res.send({"error": "job exists"});
@@ -499,6 +513,7 @@ module.exports = function(app, passport) {
 
     function setJobState(res, company_id, job_id, state, state_params, user){
         var data = handleJobState(state, user, state_params);
+        if(company_id != user.company_id){ throw "User can only edit their own company state"; }
         setCompanyDocument(company_id, job_id, data, function(d){
             if(state == "assigned"){ //should be ontarget
                 console.info("---" + JSON.stringify(state_params.driver_id));
@@ -529,7 +544,11 @@ module.exports = function(app, passport) {
                 setJobState(res, company_id, job_id, req.params.state, req.body, user);
             }); 
         }else{
-            setJobState(res, company_id, job_id, req.params.state, req.body, req.user);
+            if((!req.user) && (req.body.author == "router")){
+                res.send(403);
+            }else{
+                setJobState(res, company_id, job_id, req.params.state, req.body, req.user);
+            }
         }
 
     });
@@ -854,8 +873,7 @@ function isLoggedIn(req, res, next) {
 function isLoggedInAPI(req, res, next) {
 	if (req.isAuthenticated())
 		return next();
-
-	res.send({error: 403, "message": "autentication required for player"});
+    res.status(403).send({error: 403, "message": "autentication required for player"});
 }
 
 function isFloat(n) {
@@ -920,36 +938,42 @@ function handleJobState(state_id, user, state_data){
             driver_payment_ts: null,
 
             driver_canceled_ts: null,
-            notify_canceled_ts: null,
+            notify_canceled_ts: null, 
             client_canceled_ts: null,    
     */
     state_data = state_data || {};
-    var state = {"driver": {}, "client":{}};
+    var state = {"driver": {}, "client":{}}; 
     var time_now = new Date().getTime();
     if(state_data.driver_notification_apn){state.driver.apn = state_data.driver_notification_apn;}
     if(state_data.driver_notification_gcm){state.driver.gcm = state_data.driver_notification_gcm;}
     if(state_data.client_notification_apn){state.client.apn = state_data.client_notification_apn;}
     if(state_data.client_notification_gcm){state.client.gcm = state_data.client_notification_gcm;}
+    if(state_data.driver_language){state.driver.lang = state_data.driver_language;}
+    if(state_data.client_language){state.client.lang = state_data.client_language;}
     if(state_data.driver_name){state.driver.name = state_data.driver_name;} 
     if(!user){ //this is a client else we have either a driver or a router
-        console.info("******************** user " + state_id);
+        console.info("******************** user " + state_id); 
 /*        if(state_id == "accept"){
             state.client.accepted_ts = time_now;
-        }*/
+        }
         if(state_id == "arrived"){
             state.client.arrived_ts = time_now;
-        }        
+        }
+*/
         if(state_id == "payment"){
             state.client.payment_ts = time_now;
             state.client.payment_dt = state_data;
         }        
+/*
         if(state_id == "complete"){
             state.client.complete_ts = time_now;
         }        
+*/
         if(state_id == "canceled"){
             state.client.canceled_ts = time_now;
             state.client.canceled_dt = state_data;
-        }        
+        } 
+        return state;       
     }else if(user.role.router){ //also do this since a user can both be a driver and a router and we filter out 
         console.info("******************** router " + state_id + "  " + JSON.stringify(state_data));
         if(state_data.location){
@@ -962,10 +986,9 @@ function handleJobState(state_id, user, state_data){
         }
         if(state_id == "driver_accepted"){
             state.driver.accepted_ts = time_now;
+            try{state_data.arrives_delta = parseInt(state_data.arrives_delta)}catch(e){state_data.arrives_delta=0;}
+            state.driver.arrives_delta = state_data.arrives_delta;  //used for push notification and letting client know when to expect driver
         }
-        if(state_id == "driver_arrives"){ //used for push notification and letting client know when to expect driver
-            state.driver.arrives_ts = state_data.time;
-        }       
         if(state_id == "driver_arrived"){ //used for push notification and letting client know when to expect driver
             state.driver.arrived_ts = time_now;
         }       

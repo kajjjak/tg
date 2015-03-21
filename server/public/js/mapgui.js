@@ -149,7 +149,7 @@ function showModalCancel(type){
 function relocateMarker(mrkr){
 	window.job_newlocation = mrkr;
 	window.job_newlocation.dragging.enable();
-	window.job_newlocation.bindPopup("<center><div class='job_address'>Drag me to street number</div><button class='btn btn-primary' onclick='setJobState(3)'>Save</button><button class='btn btn-warning' onclick='setJobState(2)'>Cancel</button></center>");
+	window.job_newlocation.bindPopup("<center><div class='job_address'>Drag me to street number</div><button id='btn_job_address' class='btn btn-primary' onclick='setJobState(3)' disabled>Save</button><button class='btn btn-warning' onclick='setJobState(2)'>Cancel</button></center>");
 	window.job_newlocation.on('dragend', function(){
 		var latlng = window.job_newlocation.getLatLng();
 		window.job_newlocation.openPopup();
@@ -259,6 +259,11 @@ function setJobState(nr, data){
 		});
 	}
 	if(nr == 50){  // the driver has arrived
+		var job_arrives_delta = parseInt($("#job_arrives_delta").val());
+		data = data || {};
+		if(job_arrives_delta != 0){
+			data.arrives_delta = job_arrives_delta;
+		}
 		gapi.setJobState("driver_accepted", function(res){
 			console.info("Notified that driver has accepted " + JSON.stringify(res));
 		}, window.job_selected, data);
@@ -292,7 +297,7 @@ function setJobState(nr, data){
 
 function fetchJobLocation(address, callback_result){
   var url = "/api/geocode/address/mapquest";
-  $.post(url, address, function(res){
+  getPOST(url, address, function(res){
   	if(res.error){
   		callback_result({street: "not found", latlng: map.getCenter()});
   	}else{
@@ -305,13 +310,15 @@ function fetchJobLocation(address, callback_result){
 function fetchJobAddress(lat, lng){
   window.timedid = new Date().getTime();
   $(".job_address").html("finding address ...");
+  $("#btn_job_address").attr('disabled','disabled');
   setTimeout("_fetchJobAddress("+lat+", "+lng+", "+timedid+")", 2000);
 }
 
 function _fetchJobAddress(lat, lng, passed_timedid){
   if(passed_timedid != window.timedid){ return; } //then we recently asked for a new location (when moving the map)
   var url = "/api/geocode/reverse/"+lat+"/"+lng+"/mapquest";
-  $.getJSON(url, function(res){
+  getJSON(url, function(res){
+  	$("#btn_job_address").removeAttr('disabled');
     var address = res.street;
     if(res.street_number){ address = address + " " + res.street_number; }
     if(res.city){ address = address + ", " + res.city; }

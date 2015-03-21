@@ -28,6 +28,17 @@
         <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
     <![endif]-->
 
+    <style>
+        .qa_question{
+            font-size: 15px;
+        }
+        .qa_answer{
+          font-size: 12px;
+          color: gray;
+          margin-left: 20px;
+        }
+    </style>
+
 </head>
 
 <body>
@@ -59,7 +70,7 @@
                     </li>
                     <li>
                         <a href="faq.html">FAQ</a>
-                    </li>                    
+                    </li>
                 </ul>
             </div>
             <!-- /.navbar-collapse -->
@@ -108,12 +119,72 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-5 col-sm-6">
-                    <hr class="section-heading-spacer">
-                    <div class="clearfix"></div>
-                    <h2 class="section-heading">An app for your customers</h2>
-                    <p class="lead">
-                        The app works like the Uber and Lyft but is branded and deployed under your company brand.
-                    </p>
+                    <h1>Frequently asked questions</h1>
+                    <h3>Passengers</h3>
+                    <div>
+                        <dl>
+                          <dt class="qa_question">How does client know when a driver has arrived</dt>
+                          <dd class="qa_answer">
+                            The app will send a notification to the customer when the driver has arrived
+                          </dd>
+                          <dt class="qa_question">How does client know that a driver will arrive after 30 minutes</dt>
+                          <dd class="qa_answer">
+                            A notification is sent to the client when a driver starts the job. If there is a substantial delay. The driver can ask the operator to notify about the time delay (for example 30 minutes). A notification will be sent to the client and displayed in the app.
+                          </dd>
+                          <dt class="qa_question">What languages are supported</dt>
+                          <dd class="qa_answer">
+                            The customers can select any language you want to support.
+                            You will be able to define all the text fields in the app.
+                          </dd>
+                          <dt class="qa_question">How does a customer cancel a taxi</dt>
+                          <dd class="qa_answer">
+                            The customer will be displayed an button to call the operator if they want to make changes to the order. Then the operator can then relay the message to the driver.
+                          </dd>
+                        </dl>            
+                    </div>
+                    <h3>Drivers</h3>
+                    <div>
+                        <dl>
+                          <dt class="qa_question">Does this mean that every taxi driver must have a mobile phone</dt>
+                          <dd class="qa_answer">No. Drivers that does not use mobile phones receave instructions from your operator as usual</dd>
+                          <dt class="qa_question">How does a driver receave a new job</dt>
+                          <dd class="qa_answer">Through operator and/or app notification. If the driver is using the app, an notification will be sent to the driver.</dd>
+                          <dt class="qa_question">How does a driver know if job is canceled</dt>
+                          <dd class="qa_answer">The drivers using the app will receave a notification that there is a change in his schedule and the job will be disabled</dd>
+                        </dl>            
+                    </div>                    
+                    <h3>Operator</h3>
+                    <div>
+                        <dl>
+                          <dt class="qa_question">How can a operator see if a customer wants a taxi</dt>
+                          <dd class="qa_answer">The operator uses administrator interface and can see all the request being created real time on a map.</dd>
+                          <dt class="qa_question">How can a operator delegate a job</dt>
+                          <dd class="qa_answer">The operator simply selects the job that is displayed on the map and chooses the driver. Then he/she may choose to contact the driver</dd>
+                        </dl>            
+                    </div>
+                    <h3>Service</h3>
+                    <div>
+                        <dl>
+                          <dt class="qa_question">How fast will you be able to create the app</dt>
+                          <dd class="qa_answer">When all the information is submited it will take 1-2 weeks to finalize and deploy your app on Google Play (Android) and App Store (Apple devices)</dd>
+                          <dt class="qa_question">Can I use it on iPad and tablets</dt>
+                          <dd class="qa_answer">Yes you can</dd>
+                          <dt class="qa_question">What happens if I miss a payment</dt>
+                          <dd class="qa_answer">If there is an issue we will contact you and work out a solution</dd>
+                          <dt class="qa_question">Can I try the app</dt>
+                          <dd class="qa_answer">You can try it for free one month. It is as simple as creating an account and filling in your app information</dd>
+                          <dt class="qa_question">How fast can you remove the app</dt>
+                          <dd class="qa_answer">Approximatly 24 hours</dd>
+                          <dt class="qa_question">What about Blackberry and Window phones</dt>
+                          <dd class="qa_answer">Currently we are focused on Android devices (34% market share) and Apple devices (55% market share)</dd>
+                          <dt class="qa_question">Why so cheap</dt>
+                          <dd class="qa_answer">We aim to provide all taxi stations the ability to compete with Uber and Lyft</dd>
+                          <!--dt class="qa_question">Can I send offers to clients</dt>
+                          <dd class="qa_answer">Yes, any message you can think of</dd --> 
+                        </dl>            
+                    </div>
+
+
                 </div>
                 <div class="col-lg-5 col-lg-offset-2 col-sm-6">
                     <img class="img-responsive" src="marketting/img/mobileapp.png" alt="">
@@ -126,54 +197,6 @@
     </div>
     <!-- /.content-section-a -->
 
-    <div class="content-section-b">
-
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-5 col-lg-offset-1 col-sm-push-6  col-sm-6">
-                    <hr class="section-heading-spacer">
-                    <div class="clearfix"></div>
-                    <h2 class="section-heading">Keep current infrastructure intact</h2>
-                    <p class="lead">
-                        Customer use your app to request a taxi and you designate the driver just like when you receave regular phone calls.
-
-                    </p>
-                </div>
-                <div class="col-lg-5 col-sm-pull-6  col-sm-6">
-                    <img class="img-responsive" src="marketting/img/router.png" alt="">
-                </div>
-            </div>
-
-        </div>
-        <!-- /.container -->
-
-    </div>
-    <!-- /.content-section-b -->
-
-    <div class="content-section-a">
-
-        <div class="container">
-
-            <div class="row">
-                <div class="col-lg-5 col-sm-6">
-                    <hr class="section-heading-spacer">
-                    <div class="clearfix"></div>
-                    <h2 class="section-heading">Start your free month</h2>
-                    <p class="lead">
-                        Get ahead of competition and design your app now.
-                    </p>
-                </div>
-                <div class="col-lg-5 col-lg-offset-2 col-sm-6">
-                    <img class="img-responsive" src="marketting/img/statistics.png" alt="">
-                </div>
-            </div>
-
-        </div>
-        <!-- /.container -->
-
-    </div>
-    <!-- /.content-section-a -->
 
     <a  name="contact"></a>
     <div class="banner">
@@ -225,7 +248,8 @@
                         </li>
                         <li>
                             <a href="faq.html">FAQ</a>
-                        </li>                        
+                        </li>
+
                     </ul>
                     <p class="copyright text-muted small">Copyright &copy; Taxi Gateway 2015. All Rights Reserved</p>
                 </div>

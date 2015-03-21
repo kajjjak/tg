@@ -193,6 +193,19 @@
 						<p>Waiting for driver to arrive</p>
 					</div>
 					<div class="modal-footer">
+						<select id="job_arrives_delta">
+							<option value="0" selected>Now</option>
+							<option value="5">5 minutes</option>
+							<option value="10">10 minutes</option>
+							<option value="20">20 minutes</option>
+							<option value="30">30 minutes</option>
+							<option value="45">45 minutes</option>
+							<option value="60">1 hour</option>
+							<option value="90">1 1/2 hour</option>
+							<option value="120">2 hours</option>
+							<option value="150">2 1/2 hours</option>
+							<option value="180">3 hours</option>
+						</select>
 						<button type="button" class="btn btn-warning" data-dismiss="modal" onclick="setJobState(50)">On route</button>
 						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(5)">Arrived</button>
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -252,6 +265,8 @@
 
 	<%if (user.role.router) { %>
 
+	<!-- inline scripts related to this page -->
+	
 	<script src="/js/pouchdb-3.3.1.min.js"></script>
 	<script src="/js/gatewayapi.js"></script>
 	<script src="/js/gatewaytracker.js"></script>
