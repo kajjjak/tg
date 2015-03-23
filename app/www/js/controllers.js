@@ -9,7 +9,7 @@ angular.module('starter.controllers', [])
   $scope.loginData = {};
 
   window.lang = $scope.lang = lang_support[getSelectedLanguage()];
-
+  $scope.config = window.config;
   window._scpe = $scope;
 
   $scope.$on('$ionicView.enter', function(trans, e){

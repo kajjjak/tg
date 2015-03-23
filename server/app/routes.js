@@ -413,6 +413,45 @@ module.exports = function(app, passport) {
         });
     });
 
+    app.post('/api/client/mobile/config', isLoggedInAPI, function(req, res) { //
+        var company_id = req.user.company_id;
+        var config = req.body;
+        if(!req.user.role.config){
+            res.send({"error": "Role config required"});
+            return;
+        }
+        config.internationalization = {
+            "en":{"id":"en", "title": "English"},
+            "is":{"id":"is", "title": "Íslensku"}
+        },
+        config.database = {
+            "name": company_id,
+            "host": "http://db01.taxigateway.com/"
+        };
+        config.setup = {driver:{"position": false}}
+        config.changed = new Date().getTime();
+        if(!config.internationalization[config.language]){
+            res.send({"error": "Selected language was not supported"});
+            return;
+        }
+        if(!config.service.vehicles[config.service.defaults.vehicles]){
+            res.send({"error": "Default vehicles not found"});
+            return;
+        }        
+        for (var i in config.support_languages){
+            config.internationalization[i]["enabled"] = true;
+        }
+        if((!config.client.number.length) || (!config.locale.datetime.length) || (!config.map.position.length) || (!config.map.zoom){
+            res.send({"error": "Fields can not be empty"});
+            return;
+        }
+        setDocument(company_id, {"app_config": config}, function(d){
+            res.send({success:true});
+        }, function(e){
+            res.send({"error": e});
+        });
+    });
+
     app.get('/api/client/invite/resend', /*isLoggedInAPI, */function(req, res) { //
         var mailto = 'Kjartan Jónsson <mail@kjartanjonsson.com>';
         var mailfrom = 'kjartan@taxigateway.com';

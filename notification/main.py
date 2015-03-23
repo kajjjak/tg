@@ -14,7 +14,7 @@ from gcm import * #pip install python-gcm
 
 import argparse
 # API Key for your Google OAuth project
-GCM_API_KEY = 'AIzaSyD6_BAlgs8_YECtbsWThvIVGRIxI5fsuiw'
+GCM_API_KEY = 'AIzaSyBwnZMPecUnvMYPbeFn0sDeo_gRZaCkGyw'
 
 dbserver = 'http://db01.taxigateway.com/';
 keydir = '../../pems/'
@@ -107,8 +107,11 @@ def sendNotifications2GCMDevice(registration_id, message):
 	gcm = GCM(GCM_API_KEY)
 	reg_id = registration_id
 	if True: #try:
-		canonical_id = gcm.plaintext_request(registration_id=reg_id, data={'message': message})
-		# if canonical_id:
+		#canonical_id = gcm.plaintext_request(registration_id=reg_id, data={'message': message})
+		reg_ids = [reg_id];
+		print reg_id
+		response = gcm.json_request(registration_ids=reg_ids, data={'message': message}, delay_while_idle=False)
+		print response
 		# 	# Repace reg_id with canonical_id in your database
 		# 	entry = entity.filter(registration_id=reg_id)
 		# 	entry.registration_id = canonical_id
@@ -139,7 +142,7 @@ def sendNotifications2GCMDevice(registration_id, message):
 
 def sendNotifications2GCM(messages, dbname):
 	couch_database = couch_server[dbname];
-	#create the notification package
+	#create the notification package	
 	print ("Sending GCM package " + str(len(messages)))
 	for message in messages:
 		fmessage = getFormatedMessage(message)
@@ -189,20 +192,20 @@ def saveNotificationSent(messages, dbname):
 
 client_databases = ["tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57"];
 
-# for cdb in client_databases:
-# 	messages = extractNotifications(fetchJobs(cdb))
-# 	sendNotifications2APN(messages["apn"], cdb)
-# 	sendNotifications2GCM(messages["gcm"], cdb)
-
-cdb = 'tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57';
-db = couch_server[cdb]
-# the since parameter defaults to 'last_seq' when using continuous feed
-ch = db.changes(feed='continuous', heartbeat='1000', include_docs=True, since='now')
-#http://stackoverflow.com/questions/7840383/couchdb-python-change-notifications
-for line in ch:
-	doc = line['doc']
-	messages = extractNotifications([doc])
+for cdb in client_databases:
+	messages = extractNotifications(fetchJobs(cdb))
 	sendNotifications2APN(messages["apn"], cdb)
 	sendNotifications2GCM(messages["gcm"], cdb)
 
-#sendNotifications2GCMDevice("APA91bGBw-khSaqFn-MBNg2ZZTV_CjmVUUl2fyhPO0l6nHnD20HHo9mQG-Bvlb4M8U3-RcKnagYe4oUdyOX96uDMQPV_eE_irOEzmrhsguRqLi6T_s8LFyHfU7Ti3__1A5mOXC6uAGCT7_uDagRkilJ80TKqZWAAq21O1KrDtck4H8QWaaf0fso", "message")
+# cdb = 'tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57';
+# db = couch_server[cdb]
+# # the since parameter defaults to 'last_seq' when using continuous feed
+# ch = db.changes(feed='continuous', heartbeat='1000', include_docs=True, since='now')
+# # http://stackoverflow.com/questions/7840383/couchdb-python-change-notifications
+# for line in ch:
+# 	doc = line['doc']
+# 	messages = extractNotifications([doc])
+# 	sendNotifications2APN(messages["apn"], cdb)
+# 	sendNotifications2GCM(messages["gcm"], cdb)
+
+#sendNotifications2GCMDevice("APA91bE53GRiuNA4mC_b5dDTkPWHyW8ZTyz_F5hIYMf_qnlr-RbWX8pIBdy2O-CEpNe0lFoKlYWgJxnLoNxB-OHng5QR9ttQKQVz4GQ1hVnEeaG9uYg6U-id-qqOWoKIdIzXyYqmsWVdjINeW4mrUjvIvqApg5kxFUHTApQ_vuLGMaMTwlXFQkU", "message")

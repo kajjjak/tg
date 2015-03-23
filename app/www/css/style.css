@@ -58,11 +58,11 @@ html, body {
   border-top-width: 1px;
   border-bottom-width: 0;
   background-position: top;
-  height: 90px;
+  height: 70px;
 }
 
 .has-footer {
-  bottom: 90px;
+  bottom: 70px;
 }
 
 .item-note {

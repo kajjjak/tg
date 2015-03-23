@@ -1,3 +1,12 @@
+function guiStateButtonsEnabled(b){
+	if(!b){
+		$(".maptoolbar_btn").attr("disabled", "disabled");	
+		$("#maptoolbar_create").removeAttr("disabled");	
+	}else{
+		$(".maptoolbar_btn").removeAttr("disabled");
+	}
+}
+
 function getJobSelected(){
 	var markers = vt.getMarkers();
 	var job = markers[window.job_selected];
@@ -35,6 +44,7 @@ function setJobLabelDetails(job){
 
 function setJobToolbarState(state){
 	//TODO: show the selection visually
+	guiStateButtonsEnabled(true);
 	window.job_selected = state._id || state.id;
 	var job_marker = getJobSelected();
 	var position = job_marker.getLatLng();
@@ -348,3 +358,4 @@ $(function(){
 	}, 60000);
 });
 
+guiStateButtonsEnabled(false);
