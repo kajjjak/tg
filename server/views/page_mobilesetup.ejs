@@ -122,7 +122,7 @@
 				$("#app_name").val(info.name);
 				$("#app_description").val(info.description);
 				$("#app_keywords").val(info.keywords);
-				$("#app_icon").attr(info.icon);
+				if(info.icon){$("#app_icon").attr("src", info.icon);}
 			});
 		});
 

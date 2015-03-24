@@ -428,6 +428,7 @@ module.exports = function(app, passport) {
             "name": company_id,
             "host": "http://db01.taxigateway.com/"
         };
+        config.serverapi = {"host": "http://taxigateway.com/"};
         config.setup = {driver:{"position": false}}
         config.changed = new Date().getTime();
         if(!config.internationalization[config.language]){
@@ -441,7 +442,7 @@ module.exports = function(app, passport) {
         for (var i in config.support_languages){
             config.internationalization[i]["enabled"] = true;
         }
-        if((!config.client.number.length) || (!config.locale.datetime.length) || (!config.map.position.length) || (!config.map.zoom){
+        if((!config.client.number.length) || (!config.locale.datetime.length) || (!config.map.position.length) || (!config.map.zoom)){
             res.send({"error": "Fields can not be empty"});
             return;
         }

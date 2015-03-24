@@ -1,0 +1,1 @@
+Directory for Ionic resource files created during build phase
