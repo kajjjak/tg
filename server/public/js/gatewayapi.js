@@ -54,10 +54,12 @@ function GatewayAPI (dbid, callback_error) {
         });
     };
 
-    this.getAppConfig = function(callback_success){
-        getClientDoc(function(info){
-            callback_success(info.app_config);
-        });
+    this.getAppConfig = function(callback_success, options){
+        options = options || {};
+        if(options.clear_cache){sessionStorage.removeItem("config");}
+        return getClientDoc(function(info){
+            if(callback_success){callback_success(info.app_config);}
+        }).app_config;
     };
 
     this.setupClientDatabase = function(info, callback_state){
@@ -79,7 +81,7 @@ function GatewayAPI (dbid, callback_error) {
     }
 
     this.getAppDetails = function(callback_success){
-        getClientDoc(function(info){
+        return getClientDoc(function(info){
             callback_success(info.app_details);
         }); 
     };
@@ -98,6 +100,7 @@ function GatewayAPI (dbid, callback_error) {
         if(cache){
             console.info("Using company info cache " + new Date(cache._fetched));
             if(callback_success){callback_success(cache);}
+            return cache;
         }else{
             getJSON("/api/client/", function(res){
                 if(res.error){ //error occured, lets notify user
@@ -110,6 +113,7 @@ function GatewayAPI (dbid, callback_error) {
                 }
             });            
         }
+        return {};
     }
 
 

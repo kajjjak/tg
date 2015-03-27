@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+			<%if (!user.role.config) {%><% include partial_noaccess %><% } else { %>
+
+			<h1>Mobile preferences</h1>
+			<p>You can change the text in the app</p>
+			<form class="form-horizontal">
+			  
+			  <div class="form-group">
+			    <label for="languge_editselect" class="col-sm-2 control-label">Edit language</label>
+			    <div class="col-sm-10">
+			      <select id="languge_editselect"  class="form-control"></select>
+			      <p class="help-block">You can change the text in selected language</p>
+			    </div>
+			  </div>
+
+			  <div id="language_fields"></div>
+			  <div class="form-group">
+			    <div class="col-sm-offset-2 col-sm-10">
+			      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileLang()">Save</button>
+			      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+
+			    </div>
+			  </div>
+			</form>
+
+			<% } %>
+
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<script src="/js/gatewayapi.js"></script>
+
+	<script>
+
+		function saveMobileLang(){
+			$("#btnSave").html("Saving ...");
+			iterate(languages[$("#languge_editselect").val()], 'text', function(key, value){
+				return $("#" + key).val();
+			});
+			getPOST("/api/client/mobile/lang", window.languages, function(res){
+				$("#btnSave").html("Saved");
+				if(res.error){
+					handleError(res.error);
+				}
+			});
+		}
+
+	    function createTextInput(id, value){
+	    	var help_block = ""
+	    	var help_label = id;
+	    	if(window.helptext[id]){
+	    		help_block = '<p class="help-block">' + window.helptext[id].help + '</p>';
+	    		help_label = window.helptext[id].label; 
+	    	}
+	    	return '<div class="form-group"><label for="' + id + '" class="col-sm-2 control-label">' + help_label + '</label><div class="col-sm-10"><input type="text" class="form-control" id="' + id + '" placeholder="' + id + '" value="' + value + '">' + help_block +'</div></div>';
+	    }
+
+		function selectLanguage(lang){
+			$("#language_fields").html("");
+			getJSON("/api/client/mobile/lang", function(support){
+				window.helptext = support.description;
+				window.languages = support.languages;
+				iterate(languages[lang], 'text', function(key, value){
+					console.info("Creating input item " + key + " with value " + value);
+					$("#language_fields").append(createTextInput(key, value));
+				});
+			});								
+		}	    
+
+		$(function(){
+			getJSON("/api/client/mobile/config/edit", function(res){
+				var config = res.config;
+				var language_default_div = "";
+				for(var i in config.internationalization){
+					var langsel = "";
+					var lang = config.internationalization[i];
+					if(config.language == lang.id){ langsel = "selected" }
+					language_default_div = language_default_div + "<option value='" + lang.id + "' " + langsel + ">" + lang.title + "</option>";
+				}
+				selectLanguage(config.language);
+				$("#languge_editselect").html(language_default_div).change(function(sel){
+					selectLanguage($(sel.srcElement).val());
+				});
+			});
+		});
+
+
+	</script>
+	
+</body>
+</html>

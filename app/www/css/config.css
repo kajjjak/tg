@@ -1,0 +1,84 @@
+.style-page-map-btn_continue {
+	border-radius: 5px !important;
+	font-size: 18px !important;
+	font-family: sans-serif !important;
+	color: #000 !important;
+	border-width: 1px !important;
+	border-color: #BEA10E !important;
+	border-style: solid !important;
+	font-weight: 800 !important;
+	background-color: #ECB300 !important;
+}
+
+.style-page-map-btn_view {
+	border-radius: 5px !important;
+	font-size: 18px !important;
+	font-family: sans-serif !important;
+	color: #000 !important;
+	border-width: 1px !important;
+	border-color: #BEA10E !important;
+	border-style: solid !important;
+	font-weight: 800 !important;
+	background-color: #ECB300 !important;
+}
+
+.style-page-revoke-btn_close {
+	border-radius: 5px !important;
+	font-size: 18px !important;
+	font-family: sans-serif !important;
+	color: #000 !important;
+	border-width: 1px !important;
+	border-color: #BEA10E !important;
+	border-style: solid !important;
+	font-weight: 800 !important;
+	background-color: #ECB300 !important;
+}
+
+.style-page-request-btn_complete {
+	border-radius: 5px !important;
+	font-size: 18px !important;
+	font-family: sans-serif !important;
+	color: #000 !important;
+	border-width: 1px !important;
+	border-color: #BEA10E !important;
+	border-style: solid !important;
+	font-weight: 800 !important;
+	background-color: #ECB300 !important;
+}
+
+.style-page-request-btn_cancel {
+	border-radius: 5px !important;
+	font-size: 18px !important;
+	font-family: sans-serif !important;
+	color: #000 !important;
+	border-width: 1px !important;
+	border-color: #BEA10E !important;
+	border-style: solid !important;
+	font-weight: 800 !important;
+	background-color: #ECB300 !important;
+}
+
+.style-page-request-btn_confirm {
+	border-radius: 5px !important;
+	font-size: 18px !important;
+	font-family: sans-serif !important;
+	color: #000 !important;
+	border-width: 1px !important;
+	border-color: #BEA10E !important;
+	border-style: solid !important;
+	font-weight: 800 !important;
+	background-color: #ECB300 !important;
+}
+
+.style-page-service-btn_confirm {
+	border-radius: 5px !important;
+	font-size: 18px !important;
+	font-family: sans-serif !important;
+	color: #000 !important;
+	border-width: 1px !important;
+	border-color: #BEA10E !important;
+	border-style: solid !important;
+	font-weight: 800 !important;
+	background-color: #ECB300 !important;
+}
+

@@ -70,3 +70,31 @@ function filterByUser(user_id){
 		}
 	}
 }
+
+
+function fetchJobLocation(address, callback_result){
+  var url = "/api/geocode/address/mapquest";
+  getPOST(url, address, function(res){
+  	if(res.error){
+  		callback_result({street: "not found", latlng: map.getCenter()});
+  	}else{
+  		callback_result(res);
+  	}
+  });
+}
+
+function iterate(obj, stack, fn) {
+	var r = null;
+    for (var property in obj) {
+        if (obj.hasOwnProperty(property)) {
+            if (typeof obj[property] == "object") {
+                iterate(obj[property], stack + '-' + property, fn);
+            } else {
+                r = fn(stack + '-' + property, obj[property]);
+                if(r){
+                	obj[property] = r;
+                }
+            }
+        }
+    }
+}

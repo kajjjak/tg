@@ -1,0 +1,176 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+			<%if (!user.role.config) {%><% include partial_noaccess %><% } else { %>
+
+			<h1>Mobile preferences</h1>
+			<p>The following information is required for your customers to find your mobile application on the mobile platforms</p>
+			<form class="form-horizontal">
+			  <div class="form-group">
+			    <label for="app_name" class="col-sm-2 control-label">Name</label>
+			    <div class="col-sm-10">
+			      <input type="text" class="form-control" id="app_name" placeholder="App name" value="">
+			      <p class="help-block">This will be the application name shown in app store and play store</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_description" class="col-sm-2 control-label">Description</label>
+			    <div class="col-sm-10">
+			      <textarea class="form-control" id="app_description" placeholder="Description of your application"></textarea>
+			      <p class="help-block">This will be the application description shown in app store and play store</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_keywords" class="col-sm-2 control-label">Keywords</label>
+			    <div class="col-sm-10">
+			      <input type="text" class="form-control" id="app_keywords" placeholder="Taxi, Service" value="">
+			      <p class="help-block">One or more search words used to find this application seperated by comma</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <div class="col-sm-offset-2 col-sm-10">
+			      <div class="checkbox">
+			        <label>
+					  <input id="app_icon_file" type="file" onchange="previewFile(1)"><br>
+				 	  <img id="app_icon" src="/assets/img/noimage_icon.png" height="200" alt="Image preview...">			        
+			          <p class="help-block">Application icon that will be used in app store and play store. The icon image's minimum dimensions should be 192x192 px PNG and should have no rounded corners. Note that each platform will apply its own mask and effects to the icons. For example, iOS will automatically apply its custom rounded corners</p>
+			        </label>
+			      </div>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <div class="col-sm-offset-2 col-sm-10">
+			      <div class="checkbox">
+			        <label>
+					  <input id="app_splash_file" type="file" onchange="previewFile(2)"><br>
+				 	  <img id="app_splash" src="/assets/img/noimage_splash.png" height="200" alt="Image preview...">			        
+			          <p class="help-block">Splash screen dimensions vary for each platform, device, and orientation, so a square source image is required to generate each of the various screen sizes. The source image's minimum dimensions should be 2208x2208 px PNG, and the artwork should be centered within the square, because each generated image will be center cropped into landscape and portrait images. The splash screen's artwork should roughly fit within a center square (1200x1200 px). This template provides the recommended size and guidelines about artwork's safe zone.</p>
+			        </label>
+			      </div>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <div class="col-sm-offset-2 col-sm-10">
+			      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileInfo()">Save</button>
+			      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+			    </div>
+			  </div>
+			</form>
+
+			<% } %>
+
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<script src="/js/gatewayapi.js"></script>
+
+	<script>
+		function saveMobileInfo(){
+			var info = {};
+			try{
+				info["name"] = $("#app_name").val();
+				info["description"] = $("#app_description").val();
+				info["keywords"] = $("#app_keywords").val();
+				info["icon"] = "";
+				info["splash"] = "";
+				if($("#app_icon").attr("src").length > 200){ //then this is a new image
+					//validate the width and height
+					var img = document.getElementById('app_icon');
+					if((img.naturalHeight < 192) || (img.naturalWidth < 192)){
+						throw "Icon dimensions not valid, they should at least 192 x 192"
+					}
+
+					info["icon"] = $("#app_icon").attr("src");
+
+				}else{
+					throw "Icon image required"
+				}
+				if($("#app_splash").attr("src").length > 200){ //then this is a new image
+					//validate the width and height
+					var img = document.getElementById('app_splash');
+					if((img.naturalHeight < 1200) || (img.naturalWidth < 1200)){
+						throw "Splash dimensions not valid, they should at least 1200 x 1200"
+					}
+					info["splash"] = $("#app_splash").attr("src");
+				}else{
+					throw "Splash image required"
+				}			
+				$("#btnSave").html("Saving ...");
+				window.gapi.setClientDoc(info, function(res){
+					if(res.success){
+						$("#btnSave").html("Saved");
+					}else{
+						showAlert(res.error);
+					}
+				});
+			}catch(e){
+				showAlert(e);
+			}
+		}
+
+		function previewFile(type_id) {
+			var type_name = "icon";
+			if (type_id == 2){ type_name = "splash"; }
+		  	var preview = document.querySelector('#app_' + type_name);
+		  	var file    = document.querySelector('#app_' + type_name + '_file').files[0];
+		  	var reader  = new FileReader();
+
+			reader.onloadend = function () {
+				preview.src = reader.result;
+			}
+
+			if (file) {
+				if(file.type == "image/png"){
+					reader.readAsDataURL(file);
+				}else{
+					showAlert("Image should be a PNG image");
+				}
+			} else {
+				preview.src = "";
+			}
+		}
+
+
+		$(function(){
+			window.gapi.getAppDetails(function(info){
+				$("#app_name").val(info.name);
+				$("#app_description").val(info.description);
+				$("#app_keywords").val(info.keywords);
+				if(info.icon){$("#app_icon").attr("src", info.icon);}
+				if(info.splash){$("#app_splash").attr("src", info.splash);}
+			});
+		});
+
+
+	</script>
+	
+</body>
+</html>

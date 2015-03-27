@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+			<%if (!user.role.config) {%><% include partial_noaccess %><% } else { %>
+
+			<h1>Mobile preferences</h1>
+			<p>The following information is required for your customers to find your mobile application on the mobile platforms</p>
+			<form class="form-horizontal">
+			  <div class="form-group">
+			    <label for="app_name" class="col-sm-2 control-label">Sound assigned</label>
+			    <div class="col-sm-10">
+			      <select class="form-control" id="sound_notification_assigned"></select>
+			      <p class="help-block">Played when driver gets assignement</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_name" class="col-sm-2 control-label">Sound accepted</label>
+			    <div class="col-sm-10">
+			      <select class="form-control" id="sound_notification_accepted"></select>
+			      <p class="help-block">Played when driver is on his way to the customer</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_name" class="col-sm-2 control-label">Sound arrived</label>
+			    <div class="col-sm-10">
+			      <select class="form-control" id="sound_notification_arrived"></select>
+			      <p class="help-block">Played when driver has arrived</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_name" class="col-sm-2 control-label">Sound canceled</label>
+			    <div class="col-sm-10">
+			      <select class="form-control" id="sound_notification_canceled"></select>
+			      <p class="help-block">Played when customer has canceled taxi</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_description" class="col-sm-2 control-label">Styles</label>
+			    <div class="col-sm-10">
+			      <select id="style_editselect"  class="form-control"></select>
+			      <p class="help-block">This will be the application description shown in app store and play store</p>
+			      <div id="style_fields"></div>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <div class="col-sm-offset-2 col-sm-10">
+			      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileStyle()">Save</button>
+			      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+			    </div>
+			  </div>
+			</form>
+
+			<% } %>
+
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<script src="/js/gatewayapi.js"></script>
+
+	<script>
+		function saveMobileStyle(){
+			//saving sounds
+			window.config.sound.notification.assigned = $("#sound_notification_assigned").val();
+			window.config.sound.notification.accepted = $("#sound_notification_accepted").val();
+			window.config.sound.notification.arrived = $("#sound_notification_arrived").val();
+			window.config.sound.notification.canceled = $("#sound_notification_canceled").val();
+			//saving styles
+			$("#btnSave").html("Saving ...");
+			getPOST("/api/client/mobile/config/edit", {"data": JSON.stringify(window.config)}, function(res){
+				$("#btnSave").html("Saved");
+				if(res.error){
+					handleError(res.error);
+				}
+			});
+		}
+
+		function populateSelection(selid, items, seldefault){
+			for(var i in items){
+				var sel = "";
+				if(seldefault == i){ sel = "selected"; }
+                $("#"+selid).append("<option value='" + i + "' " + sel + ">" + items[i] + "</option>");
+            }
+            return $("#"+selid);
+		}
+		function saveStyledChanges(){
+			console.info("Saving changed style");
+			$(".styledel").each(function(i, obj){
+				console.info("saving " + obj.id + " = " + obj.value);
+				styled_elements[styled_elements_selection]["ref"][obj.id] = obj.value;
+			});
+		}
+		function populateStyleElementItem(type, value){
+			var input, elid = type;
+			if(type == "poop"){
+
+			}else{
+				input = '<input type="text" class="form-control styledel" id="'+elid+'" value="' + value + '" onchange="saveStyledChanges()">';
+			}
+			return '<label for="' + elid + '" class="control-label">' + type + '</label>' + input; 
+		}
+
+		function populateStyleElement(itm){
+			var style_fields = "";
+			$("#style_fields").html("");
+			for(var i in itm){
+				$("#style_fields").append(populateStyleElementItem(i, itm[i]));
+			}
+		}
+
+		function selectStyleElement(elid){
+			window.styled_elements_selection = elid;
+			populateStyleElement(styled_elements[styled_elements_selection]["ref"]);
+		}
+
+		$(function(){
+			//$("#client_number").mask("(999) 999-9999");
+            getJSON("/api/client/mobile/config/edit", function(res){
+                if(res.error){ //error occured, lets notify user
+                    handleError(res);
+                }else{
+                	window.config = res.config;
+                	window.support = res.support;
+                	populateSelection("sound_notification_assigned", window.support.sound.notification, window.config.sound.notification.assigned);
+                	populateSelection("sound_notification_accepted", window.support.sound.notification, window.config.sound.notification.accepted);
+                	populateSelection("sound_notification_arrived", window.support.sound.notification, window.config.sound.notification.arrived);
+                	populateSelection("sound_notification_canceled", window.support.sound.notification, window.config.sound.notification.canceled);
+                }
+                // create the style items
+                window.styled_elements = {};
+                var name, elid;
+                for(var i in config.design){
+                	for(var j in config.design[i]){
+                		name = config.design[i][j]["name"];
+                		elid = i + "-" + j;
+                		styled_elements[elid] = {"ref":config.design[i][j]["style"], "name": name};
+                		$("#style_editselect").append("<option value='" + elid + "' selected>" + name + "</option>");
+                	}
+                }
+                selectStyleElement(elid);
+                $("#style_editselect").change(function(sel){
+                	selectStyleElement(sel.target.value);
+                });
+            });
+		});
+
+
+
+	</script>
+	
+</body>
+</html>

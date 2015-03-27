@@ -247,9 +247,9 @@
 					html = html + "<tr><td>Stored information</td><td>" + (state.storedinfo ? created : pending) + "</td></tr>"
 					html = html + "<table>"
 					if(state.storedinfo){
-						html = html + "<p>Successfully created database. Continue <a href='mobilesetup.html'>configuring application </a>";
+						html = html + "<p>Successfully created database. Continue <a href='/mobileinfo.html'>configuring application </a>";
 						setTimeout(function(){
-							window.location.href="mobilesetup.html";
+							window.location.href="/mobileinfo.html";
 						}, 2000);
 					}
 					showAlert(html);

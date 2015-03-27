@@ -78,35 +78,3 @@ html, body {
 .style_page_request_icon_feedbackstate_unchecked{
   
 }
-
-.style_page_map_btn_continue{
-  border-color: #306898 !important;
-  background-color: #2981CA !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-}
-
-.style_page_map_btn_continue_confirm{
-  border-color: #306898 !important;
-  background-color: #2981CA !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-}
-
-.style_page_map_btn_continue_cancel{
-  border-color: gray !important;
-  background-color: black !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-}
-
-.style_page_request_popup_btn_call{
-
-}
-
-.style_page_service_btn_confirm{
-  border-color: #306898 !important;
-  background-color: #2981CA !important;
-  color: #fff !important;
-  border-radius: 6px !important;
-}

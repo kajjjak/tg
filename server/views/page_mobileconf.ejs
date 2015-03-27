@@ -1,0 +1,303 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+			<%if (!user.role.config) {%><% include partial_noaccess %><% } else { %>
+
+			<h1>Mobile preferences</h1>
+			<p>The following information is required for app configuration settings</p>
+			<form class="form-horizontal">
+			  <div class="form-group">
+			    <label for="client_number" class="col-sm-2 control-label">Phone number</label>
+			    <div class="col-sm-10">
+			      <input type="text" class="form-control" id="client_number" placeholder="Station phone number" value="">
+			      <p class="help-block">This will be the phone number the app will call when user wants to contact the station, ex. (999) 999-9999</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="languge_support" class="col-sm-2 control-label">Supported languages</label>
+			    <div class="col-sm-10">
+			      <div id="languge_support"></div>
+			      <p class="help-block">The languages this app supports</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_description" class="col-sm-2 control-label">Default language</label>
+			    <div class="col-sm-10">
+			      <select class="form-control" id="languge_default"></select>
+			      <p class="help-block">The default language the app will use</p>
+			    </div>
+			  </div>
+			  <div class="form-group">
+			    <label for="app_keywords" class="col-sm-2 control-label">Vehicle service</label>
+			    <div class="col-sm-10">
+			      <table id="tblMobileServiceVehicles" width="100%" class="table table-hover"></table>
+				  <button type="button" class="btn btn-success" id="btnAddService" onclick="addMobileServiceVehicle()">Add service</button>
+			      <p class="help-block">Types of vehicles the station offers its client to select from. At least two are required (please contact developer if this is not satisfactory)</p>
+			    </div>
+			  </div>	  
+			  <div class="form-group">
+			    <div class="col-sm-offset-2 col-sm-10">
+			      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileConfig()">Save</button>
+			      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+			    </div>
+			  </div>
+			</form>
+
+			<% } %>
+
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<div class="modal fade" id="mdlMobileServiceVehicle">
+			<div class="modal-dialog">
+				<div class="modal-content">
+					<div class="modal-header">
+						<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+						<h4 class="modal-title">Service details</h4>
+					</div>
+					<div class="modal-body">
+
+						<form class="form-horizontal">
+							<div class="form-group">
+								<label for="txtMobileServiceVehicleItemOrder" class="col-sm-2 control-label">Order number</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="txtMobileServiceVehicleItemOrder" placeholder="Number that we sort item by" value="">
+									<p class="help-block">This is the order number that is used to sort items</p>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="checkbox">
+									<label>
+										<input id="chkMobileServiceVehicleItemVisible" type="checkbox"> Hide item in app
+									</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="checkbox">
+									<label>
+										<input id="chkMobileServiceVehicleItemDefault" type="checkbox"> Default item in app
+									</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<table id="tblMobileServiceVehicleItem" width="100%" class="table table-hover"></table>						    
+							</div>
+						</form>
+
+					</div>
+					<div class="modal-footer">
+						<input id="txtEditMemberPasswordId" type="hidden" />
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-primary" onclick="saveMobileServiceVehicle()">Save</button>
+					</div>
+				</div><!-- /.modal-content -->
+			</div><!-- /.modal-dialog -->
+		</div><!-- /.modal -->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<script src="assets/js/jquery.maskedinput.min.js"></script>
+	<script src="/js/gatewayapi.js"></script>
+
+	<script>
+
+		function addMobileServiceVehicle(){
+			showMobileServiceVehicle(parseInt(new Date().getTime()));
+		}
+		function editMobileService(service_id){
+			showMobileServiceVehicle(service_id);	
+		}
+		function validatedMobileServiceVehicle(itm){
+			if(itm.title && itm.summary){ return false; }
+			return true;
+		}
+		function saveMobileServiceVehicle(){
+			var languages = getSelectedLanguages();
+			var service_id = $("#service_vehicle_id").val();
+			var service_item = {
+				"id": parseInt(service_id), 
+				"type": "vehicles", 
+				"title": $("#service_vehicle_title_def").val(), 
+				"summary": $("#service_vehicle_summary_def").val(), 
+				"order": $("#txtMobileServiceVehicleItemOrder").val(),
+				"lang": {}, 
+				"hidden": $("#chkMobileServiceVehicleItemVisible").is(':checked') ? true : false
+			};
+			try{
+				var notvalid = validatedMobileServiceVehicle(service_item);
+				for(var l in languages){
+					service_item["lang"][l] = {"title": $("#service_vehicle_title_"+l).val(), "summary":$("#service_vehicle_summary_"+l).val()}
+					notvalid = notvalid || validatedMobileServiceVehicle(service_item["lang"][l]);
+				}
+				service_item.default = false;
+				if($("#chkMobileServiceVehicleItemDefault").is(':checked')){
+					for(var i in window.config.service.vehicles){
+						window.config.service.vehicles[i].default = false;
+					}
+					service_item.default = true;
+				}
+				try{service_item.order = parseInt(service_item.order);}catch(e){ throw "Order must be a numeric value from -999 to 999"; }
+				if(service_item.default && service_item.hidden){ throw "Default should not be hidden"; }
+				if(notvalid){
+					throw "Please fill all the fields";
+				}else{
+					window.config.service.vehicles[service_id] = service_item;
+					setMobileServiceVehicle(window.config.service.vehicles);
+					$("#mdlMobileServiceVehicle").modal('hide');
+				}
+			}catch(e){ alert(e); }
+
+		}
+		function showMobileServiceVehicle(service_id){
+			$("#mdlMobileServiceVehicle").modal('show');
+			$("#tblMobileServiceVehicleItem").html("<tr><th>Language</th><th>Title</th><th>Description</th></tr>");
+			var service_type = "vehicles";
+			var service = window.config["service"][service_type][service_id] || {};
+			var languages = getSelectedLanguages();
+			var langedit = "";
+			$("#txtMobileServiceVehicleItemOrder").val(service.order || (Object.keys(window.config["service"][service_type]).length + 1));
+			if(!service.lang){ service.lang = {}; }
+			$("#chkMobileServiceVehicleItemVisible").removeAttr("checked");
+			$("#chkMobileServiceVehicleItemDefault").removeAttr("checked");
+			if(service.hidden){$("#chkMobileServiceVehicleItemVisible").attr("checked", "checked");}
+			if(service.default){$("#chkMobileServiceVehicleItemDefault").attr("checked", "checked");}
+			langedit = langedit + '<tr><td><i>Default</i></td><td><input id="service_vehicle_title_def" type="text" class="form-control" value="' + (service.title || "") + '"></td><td><input id="service_vehicle_summary_def" type="text" class="form-control" value="' + (service.summary || "") + '"></td></tr>';
+			for(var l in languages){
+				if(!service.lang[l]){ service.lang[l] = {"title": "", "summary": ""}; }
+				langedit = langedit + '<tr><td>' + languages[l]["title"] + '</td><td><input id="service_vehicle_title_'+l+'" type="text" class="form-control" value="' + service.lang[l]["title"] + '"></td><td><input id="service_vehicle_summary_'+l+'" type="text" class="form-control" value="' + service.lang[l]["summary"] + '"></td></tr>';
+			}
+			$("#tblMobileServiceVehicleItem").append(langedit + "<input id='service_vehicle_id' type='hidden' value='" + service_id + "'/>");			
+
+		}
+
+		function getVehiclesByOrder(vehicles_dict){
+			var arr = [];
+			for(var v in vehicles_dict){ arr.push(vehicles_dict[v]); }
+			arr.sort(function(a,b){ return a.order - b.order; });
+			return arr;
+		}
+
+		function setMobileServiceVehicle(vehicles){
+			$("#tblMobileServiceVehicles").html("<tr><th>Order</th><th>Title</th><th>Description</th><th>Default</th><th>Visible</th><th>Actions</th></tr>");
+			var tlb_id, tlb_order, tbl_title, tbl_descr, tbl_html = "";
+			var vehicles_ordered = getVehiclesByOrder(window.config.service.vehicles);
+			for(var i in vehicles_ordered){
+				tbl_id = vehicles_ordered[i]["id"];
+				tbl_order = vehicles_ordered[i]["order"];
+				tbl_title = vehicles_ordered[i]["title"];
+				tbl_descr = vehicles_ordered[i]["summary"];
+				tbl_default = vehicles_ordered[i]["default"];
+				tbl_visible = vehicles_ordered[i]["hidden"] ? "Hidden" : "Showing";
+				tbl_html = tbl_html + '<tr><td>'+tbl_order+'</td><td>'+tbl_title+'</td><td>'+tbl_descr+'</td><td>'+tbl_default+'</td><td>'+tbl_visible+'</td><td><button type="button" class="btn btn-warning" onclick="editMobileService(\'' + tbl_id + '\')">Edit</button></td></tr>';
+			}
+			$("#tblMobileServiceVehicles").append(tbl_html);
+		}	
+
+		function getCheckbox(group, lang_id, lang_title, selected){
+			var sel = "";
+			if(selected){ sel = "checked" }
+			return '<div class="checkbox"><label><input id="' + lang_id + '" class="' + group + '" type="checkbox" ' + sel + '> ' + lang_title + '</label></div>'
+		}
+
+		function getSelectedLanguages(){
+			var langs = {}; 
+			$(".language_support").each(function(i, obj){
+				if($(obj).attr("checked")){
+					langs[obj.id] = window.support.internationalization[obj.id];
+				}
+			});
+			return langs;
+		}
+
+		function saveMobileConfig(){
+			window.config["client"] = {"number": $("#client_number").val()}
+			window.config["language"] = $("#languge_default").val();
+			window.config["internationalization"] = getSelectedLanguages();
+			if(!window.config["internationalization"][window.config["language"]]){
+				showAlert("Default language not part of the language selection. Choose default language that is in your language selection as default language.");
+				return;
+			}
+			window.config["locale"] = window.config["internationalization"][window.config["language"]]["locale"];
+			//validate the vehicle service content making sure that all languges has values
+			var notvalid = false;
+			var seldefault = "";
+			for(var v in window.config.service.vehicles){
+				for(var l in window.config["internationalization"]){
+					notvalid = notvalid || validatedMobileServiceVehicle(((window.config.service.vehicles[v]["lang"] || {})[l]) || {});
+				}
+				if(window.config.service.vehicles[v].default){
+					window.config.service.defaults["vehicles"] = v;
+				}
+			}
+			if(notvalid){
+				showAlert("Validate service languges by opening each service item and making sure that all languges are supported")
+			}else{
+				$("#btnSave").html("Saving ... ");
+				getPOST("/api/client/mobile/config/edit", {"data": JSON.stringify(window.config)}, function(res){
+					if(res.error){
+						handleError(res.error);
+					}
+					$("#btnSave").html("Saved");
+				});
+			}
+		}
+
+		$(function(){
+			//$("#client_number").mask("(999) 999-9999");
+            getJSON("/api/client/mobile/config/edit", function(res){
+                if(res.error){ //error occured, lets notify user
+                    handleError(res);
+                }else{
+                	window.config = res.config;
+                	window.support = res.support;
+					$("#client_number").val(config.client.number);
+					var language_support_div = "";
+					var language_default_div = "";
+					for(var i in support.internationalization){
+						var lang = support.internationalization[i];
+						language_support_div = language_support_div + getCheckbox("language_support", lang.id, lang.title, config.internationalization[lang.id]);
+						// language selection
+						var langsel = "";
+						if(config.language == lang.id){ langsel = "selected" }
+						language_default_div = language_default_div + "<option value='" + lang.id + "' " + langsel + ">" + lang.title + "</option>";
+					}
+					$("#languge_support").html(language_support_div);
+					$("#languge_default").html(language_default_div);
+
+					// populate vehicle service
+					setMobileServiceVehicle(window.config.service.vehicles);
+                }
+            });
+		});
+
+
+	</script>
+	
+</body>
+</html>

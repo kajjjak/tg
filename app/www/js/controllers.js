@@ -9,6 +9,7 @@ angular.module('starter.controllers', [])
   $scope.loginData = {};
 
   window.lang = $scope.lang = lang_support[getSelectedLanguage()];
+  window.style = $scope.style = {"page": window.config.design};
   $scope.config = window.config;
   window._scpe = $scope;
 
@@ -474,6 +475,10 @@ angular.module('starter.controllers', [])
 
 .controller("MapCtrl", [ '$scope', function($scope) {
   //FIXME: need to review this code, creation of map and marker each time map is viewed
+
+  $scope.style_page_map_btn_continue_class = undefined; //this is overriden in template
+  $scope.lang_page_map_btn_continue = undefined; //this is overriden in template
+
   var setCenterMarker = function(){
     var latlng = map.getCenter();
     if(!getCurrentJobDetails().location){ //if((window.vt) && (window.vt.getFiltered().length == 0)){
@@ -487,6 +492,10 @@ angular.module('starter.controllers', [])
       var latlng = window.marker.getLatLng();
       fetchJobAddress(latlng.lat, latlng.lng);
     }
+  }
+  if(getCurrentJobDetails().location){
+    $scope.style_page_map_btn_main = $scope.style.page.map.btn_view.class;
+    $scope.lang_page_map_btn_main = $scope.lang.page.map.btn_view;      
   }
 
   var view_position = gateway.getUserLocation(); //window.config.map.position;
@@ -604,7 +613,8 @@ function guiShowFeedbackStateItem(state, checked, active_job, arrives_delta){
 }
 
 function guiShowFeedbackState (doc, fetched_server){
-  var request_action_button = window.lang.page.request.btn_confirm;
+  var request_action_button_text = window.lang.page.request.btn_confirm;
+  var request_action_button_style = window.style.page.request.btn_confirm.class;
   $("#request_action").removeAttr('disabled');
   if(fetched_server){ return; }
   doc = doc || getCurrentJobDetails();
@@ -628,12 +638,14 @@ function guiShowFeedbackState (doc, fetched_server){
     html = html + guiShowFeedbackStateItem("arrived", (doc.driver.arrived_ts), active_job);
     html = html + guiShowFeedbackStateItem("complete", completed_job, active_job);
     html = html + '<center><button id="btn_update_feedbackstate" class="button button-clear button-stable" onclick="guiUpdateJob()">' + lang.page.request.lbl_updated + ' ' + update_time + '</button></center>'; //add button
-    request_action_button = window.lang.page.request.btn_cancel;
+    request_action_button_text = window.lang.page.request.btn_cancel;
+    request_action_button_style = window.style.page.request.btn_cancel.class;
     var mrkr = window.vt.setMapChanged(doc);
     mrkr.addTo(window.map);
     mrkr.update();
     if((completed_job || doc.client.canceled_ts)){
-      request_action_button = lang.page.request.btn_complete;
+      request_action_button_text = lang.page.request.btn_complete;
+      request_action_button_style = window.style.page.request.btn_complete.class;
       $("#request_action").removeClass("style_page_map_btn_continue_cancel").addClass("style_page_map_btn_continue_continue");
     }else{
       $("#request_action").removeClass("style_page_map_btn_continue_continue").addClass("style_page_map_btn_continue_cancel");
@@ -642,11 +654,12 @@ function guiShowFeedbackState (doc, fetched_server){
   try{$("#request_service").html(window.config.service.vehicles[(window.gateway.getJobData().vehicles || 1) + ""].title)}catch(e){}
   var state_feedback = '<div class="list">'+html+'</div>';
   //$("#request_time").html(nice_time_format); DO NOT NEED TO CALL THIS SINCE IT IS SET WHEN OPENING PAGE AND NOT ALLOWED TO CHANGE
-  $("#request_action").html(request_action_button);
+  $("#request_action").html(request_action_button_text);
+  $("#request_action").addClass(request_action_button_style);
   $("#state_address").html(address_html);
   $("#state_feedback").html(state_feedback);
   localStorage.setItem("request_state", JSON.stringify(doc));
-  return {"request_action_button": request_action_button, "state_feedback": state_feedback, "address": address_html, "pickup_time": nice_time_format}
+  return {"request_action_button_text": request_action_button_text, "request_action_button_style": request_action_button_style, "state_feedback": state_feedback, "address": address_html, "pickup_time": nice_time_format}
   /*
   if(completed_job || doc.driver.canceled_ts || doc.client.canceled_ts){
     guiHideFeedbackState(doc);
@@ -692,7 +705,10 @@ function getNiceJobFormat(dict_jobs){
       jobs[i]._sort_date = d;
       jobs[i].state_str = lang.page.request.state_map[job_state || "waiting"];
       jobs[i].state_id = job_states[job_state || "waiting"];
-      jobs[i].address_label = jobs[i].address.formated;
+      jobs[i].address_label = undefined;
+      if(jobs[i].address){
+        jobs[i].address_label = jobs[i].address.formated;
+      }
       fjobs.push(jobs[i]);
     }
   }

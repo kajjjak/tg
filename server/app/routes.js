@@ -119,7 +119,7 @@ module.exports = function(app, passport) {
 
     function getCommonVars(req){
         var params = global._cfgv
-        params["user"] = req.user; //{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user,
+        params["user"] = req.user; //{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user;
         params["app_social_facebook_appid"] = global._cfgv.social_facebook_appid;
         return params;
     }
@@ -132,7 +132,7 @@ module.exports = function(app, passport) {
     app.get('/pickups.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
         res.render('page_map.ejs', params);
-    });
+    }); 
 
     app.get('/setup.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
@@ -144,9 +144,29 @@ module.exports = function(app, passport) {
         res.render('page_billing.ejs', params);
     });
 
-    app.get('/mobilesetup.html', isLoggedIn, function(req, res) {
+    app.get('/mobileinfo.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('page_mobilesetup.ejs', params);            
+        res.render('page_mobileinfo.ejs', params);            
+    });
+
+    app.get('/mobileconf.html', isLoggedIn, function(req, res) {
+        var params = getCommonVars(req);
+        res.render('page_mobileconf.ejs', params);            
+    });
+
+    app.get('/mobilelang.html', isLoggedIn, function(req, res) {
+        var params = getCommonVars(req);
+        res.render('page_mobilelang.ejs', params);            
+    });
+
+    app.get('/mobilestyle.html', isLoggedIn, function(req, res) {
+        var params = getCommonVars(req);
+        res.render('page_mobilestyle.ejs', params);            
+    });
+
+    app.get('/mobileapply.html', isLoggedIn, function(req, res) {
+        var params = getCommonVars(req);
+        res.render('page_mobileapply.ejs', params);            
     });
 
     // STATISTICS SECTION =========================
@@ -406,20 +426,47 @@ module.exports = function(app, passport) {
             res.send({"error": "Fields can not be empty"});
             return;
         }
-        setDocument(company_id, {"app_details": info}, function(d){
+        setDocument(company_id, {"app_details": info, "changed": new Date().getTime()}, function(d){
             res.send({success:true});
         }, function(e){
             res.send({"error": e});
         });
+    });    
+    app.get('/api/client/mobile/config/edit', isLoggedInAPI, function(req, res) {
+        var params = getCommonVars(req);
+        // fetch defaults
+        getDocument("mobile_configuration", function(doc_config){
+            // fetch company config
+            var doc_def = doc_config.default;
+            getDocument(params.user.company_id + "-edit", function(doc){
+                var doc_usr = doc.app_config;
+                // merge defaults and company config
+                for(var p in doc_def){
+                    if(!doc_usr[p]){doc_usr[p] = doc_def[p];} // this top level attribute does not exists lets add it
+                    else{
+                        if(!doc_usr.changed){
+                            for(var j in doc_def[p]){
+                                if(!doc_usr[p][j]){doc_usr[p][j] = doc_def[p][j];}
+                            }
+                        }
+                    }
+                }
+                res.send({"config": doc_usr, "support": doc_config.support});
+            },function(e){
+                res.send({"config": doc_def, "support": doc_config.support});
+            });
+        });
     });
-
-    app.post('/api/client/mobile/config', isLoggedInAPI, function(req, res) { //
-        var company_id = req.user.company_id;
-        var config = req.body;
-        if(!req.user.role.config){
+    app.post('/api/client/mobile/config/edit', isLoggedInAPI, function(req, res) { //
+        /* TODO: BETTER VALIDATION */
+        var params = getCommonVars(req);
+        var company_id = params.user.company_id;
+        var config = JSON.parse(req.body.data);
+        if(!params.user.role.config){
             res.send({"error": "Role config required"});
             return;
         }
+        /* These are set by default settings in document mobile_configuration so we can add features without having to restart server
         config.internationalization = {
             "en":{"id":"en", "title": "English"},
             "is":{"id":"is", "title": "Íslensku"}
@@ -430,7 +477,10 @@ module.exports = function(app, passport) {
         };
         config.serverapi = {"host": "http://taxigateway.com/"};
         config.setup = {driver:{"position": false}}
+        */
         config.changed = new Date().getTime();
+        //THIS IS SET BY DEVELOPER config.updated = new Date().getTime();
+        //config.deployed = new Date().getTime();
         if(!config.internationalization[config.language]){
             res.send({"error": "Selected language was not supported"});
             return;
@@ -438,22 +488,60 @@ module.exports = function(app, passport) {
         if(!config.service.vehicles[config.service.defaults.vehicles]){
             res.send({"error": "Default vehicles not found"});
             return;
-        }        
-        for (var i in config.support_languages){
-            config.internationalization[i]["enabled"] = true;
         }
         if((!config.client.number.length) || (!config.locale.datetime.length) || (!config.map.position.length) || (!config.map.zoom)){
             res.send({"error": "Fields can not be empty"});
             return;
-        }
-        setDocument(company_id, {"app_config": config}, function(d){
+        }        
+        setDocument(company_id + "-edit", {"app_config": config}, function(d){
             res.send({success:true});
         }, function(e){
             res.send({"error": e});
         });
     });
+    app.get('/api/client/mobile/lang', isLoggedInAPI, function(req, res) {
+        var params = getCommonVars(req);
+        // fetch defaults
+        getDocument("mobile_languages", function(doc_config){
+            // fetch company config
+            var doc_def = doc_config.languages;
+            getDocument(params.user.company_id + "-lang", function(doc){
+                var doc_usr = doc.languages;
+                res.send({"languages": mergeRecursive(doc_usr, doc_def), "description": doc_config.description});
+            },function(e){
+                res.send({"languages": doc_def, "description": doc_config.description});
+            });
+        });
+    });
+    app.post('/api/client/mobile/lang', isLoggedInAPI, function(req, res) {
+        var params = getCommonVars(req);
+        // fetch defaults
+        setDocument(params.user.company_id + "-lang", {"languages": req.body, "changed": new Date().getTime()}, function(result){
+            if(result.error){
+                res.send(result);
+            }else{
+                res.send({"success": true});
+            }
+        });
+    });
+    app.post('/api/client/mobile/version', isLoggedInAPI, function(req, res) {
+        var params = getCommonVars(req);
+        if(req.body.action == "deploy"){
+            getDocument(params.user.company_id + "-edit", function(doc){
+                setDocument(params.user.company_id, {"app_config": doc.app_config}, function(){
+                    res.send({"success": true});
+                },function(e){
+                res.send(e);
+            });
+            },function(e){
+                res.send(e);
+            });
 
-    app.get('/api/client/invite/resend', /*isLoggedInAPI, */function(req, res) { //
+        }else{
+            res.send({"error": "Nothing to do"});
+        }
+    });    
+    app.get('/api/client/invite/resend', isLoggedInAPI, function(req, res) { //
         var mailto = 'Kjartan Jónsson <mail@kjartanjonsson.com>';
         var mailfrom = 'kjartan@taxigateway.com';
         var subject = 'Ok';
@@ -463,7 +551,7 @@ module.exports = function(app, passport) {
         });
     });
 
-    app.get('/api/client/:company_id/report', /*isLoggedInAPI, */function(req, res) { //
+    app.get('/api/client/:company_id/report', isLoggedInAPI, function(req, res) { //
         var company_id = req.params.company_id;
         var path = "/" + company_id + "/_design/jobs/_view/all";
         getJSON({
@@ -590,7 +678,6 @@ module.exports = function(app, passport) {
                 setJobState(res, company_id, job_id, req.params.state, req.body, req.user);
             }
         }
-
     });
 
     //----- client app api
@@ -1455,4 +1542,26 @@ function getGeocodeForward(address, callback_success, callback_failure, options)
 
 
 
+function mergeRecursive(obj1, obj2) {
+    //http://stackoverflow.com/questions/171251/how-can-i-merge-properties-of-two-javascript-objects-dynamically
+  for (var p in obj2) {
+    try {
+      // Property in destination object set; update its value.
+      if ( obj2[p].constructor==Object ) {
+        obj1[p] = MergeRecursive(obj1[p], obj2[p]);
+
+      } else {
+        obj1[p] = obj2[p];
+
+      }
+
+    } catch(e) {
+      // Property in destination object not set; create it and set its value.
+      obj1[p] = obj2[p];
+
+    }
+  }
+
+  return obj1;
+}
 

@@ -18,7 +18,8 @@ function getJobSelected(){
 }
 
 function getJobVehiclesName(vehicles_id, vehicles){
-	var pickup_type = vehicles[1].title; //1 is default
+	var deflt = gapi.getAppConfig().service.defaults.vehicles
+	var pickup_type = vehicles[deflt].title; //1 is default
 	for(var i in vehicles){
 		if(vehicles[i].id == vehicles_id){
 			pickup_type = vehicles[i].title;
@@ -304,18 +305,6 @@ function setJobState(nr, data){
 		}, window.job_selected, data);
 	}
 }
-
-function fetchJobLocation(address, callback_result){
-  var url = "/api/geocode/address/mapquest";
-  getPOST(url, address, function(res){
-  	if(res.error){
-  		callback_result({street: "not found", latlng: map.getCenter()});
-  	}else{
-  		callback_result(res);
-  	}
-  });
-}
-
 
 function fetchJobAddress(lat, lng){
   window.timedid = new Date().getTime();
