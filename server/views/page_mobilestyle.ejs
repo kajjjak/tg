@@ -63,6 +63,13 @@
 							    </div>
 							  </div>
 							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">Sound message</label>
+							    <div class="col-sm-10">
+							      <select class="form-control" id="sound_notification_message"></select>
+							      <p class="help-block">Played when customer receaves a message from company</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
 							    <div class="col-sm-offset-2 col-sm-10">
 							      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileStyle()">Save</button>
 							      <button type="button" class="btn btn-success" id="btnNext" onclick="saveMobileStyle(1)">Next</button>
@@ -145,6 +152,7 @@
 			window.config.sound.notification.accepted = $("#sound_notification_accepted").val();
 			window.config.sound.notification.arrived = $("#sound_notification_arrived").val();
 			window.config.sound.notification.canceled = $("#sound_notification_canceled").val();
+			window.config.sound.notification.message = $("#sound_notification_message").val();
 			//saving styles
 			$("#btnSave").html("Saving ...");
 			$("#btnNext").html("One moment");
@@ -207,6 +215,7 @@
                 	populateSelection("sound_notification_accepted", window.support.sound.notification, window.config.sound.notification.accepted);
                 	populateSelection("sound_notification_arrived", window.support.sound.notification, window.config.sound.notification.arrived);
                 	populateSelection("sound_notification_canceled", window.support.sound.notification, window.config.sound.notification.canceled);
+                	populateSelection("sound_notification_message", window.support.sound.notification, window.config.sound.notification.message);
                 }
                 // create the style items
                 window.styled_elements = {};
