@@ -64,10 +64,20 @@
 
     this.getJobData = getJobData;
 
+    this.runUserLogon = function(){
+      // run when the driver / customer starts the app
+      var doc = this.getUserSettings();
+      doc.client_ts = new Date().getTime();
+      doc.location = this.getUserLocation();
+      if (gateway.getDriverAccess().account){ doc.doctype = "driver"; }
+      else{ doc.doctype = "customer";}
+      this.setUserDocument(doc);
+    }
+
     this.setUserLocation = function(pos){
       localStorage.setItem("location", JSON.stringify(pos));
       if(window.config.setup.driver.position && this.hasDriverAccess()){
-        this.setUserDocument({"doctype":"driver","location":{"lat": pos[0], "lng":pos[1]}})
+        this.setUserDocument({"doctype":"driver","location":{"lat": pos[0], "lng":pos[1]}});
       } 
     };
 

@@ -250,6 +250,7 @@ angular.module('starter.controllers', [])
             }
         }
 
+        console.log("Preparing to register push notifications");
         $cordovaPush.register(config).then(function (result) {
             console.log("Registering push notification success " + result);
 
@@ -403,6 +404,10 @@ angular.module('starter.controllers', [])
       }
     }, false);
 
+    setTimeout(function(){
+      gateway.runUserLogon();
+    }, 2000);
+
   });
 })
 
@@ -432,9 +437,8 @@ angular.module('starter.controllers', [])
 })
 
 .controller('ServiceCtrl', function($scope, $ionicHistory) {
-  $scope.vechicles = config.service.vehicles;
+  $scope.vechicles = getVehicleMenuItems(); 
   $scope.services = config.service.options;  
-  $scope.vechicles[(window.gateway.getJobData().vehicles || window.config.service.defaults.vehicles) + ""].selected = true;
 
   $scope.goBack = function() {
     $ionicHistory.goBack();
@@ -447,13 +451,12 @@ angular.module('starter.controllers', [])
   if(driver.username){
     $scope.login_state = lang.page.driver.lbl_hasloggedin + "" + driver.name;
   }
-  $scope.vechicles = config.service.vehicles;
+  $scope.vechicles = getVehicleMenuItems(); 
   $scope.services = config.service.options;  
-  $scope.vechicles[(window.gateway.getUserSettings().vehicles || 1) + ""].selected = true;
 })
 
 .controller('RequestCtrl', function($scope) {
-  $scope.vehicle = window.config.service.vehicles[gateway.getJobData().vehicles || window.config.service.defaults.vehicles];
+  $scope.vehicle = getVehicleMenuItems(true);
   $scope.job = guiShowFeedbackState();
 })
 
@@ -785,6 +788,19 @@ function pan2UserVisualLocation(){
 
 }
 
-
+function getVehicleMenuItems(selected_item_only){
+  //returns items and one selected as default
+  var selected = window.gateway.getJobData().vehicles || window.config.service.defaults.vehicles;
+  var vehicles = window.config.service.vehicles;
+  for(var i in vehicles){vehicles[i].selected = false;}
+  var sel = vehicles[selected];
+  if(!sel){ sel = vehicles[i]}
+  sel.selected = true;
+  if(selected_item_only){
+    return sel;
+  }else{
+    return vehicles;
+  }
+}
 
 

@@ -848,7 +848,26 @@ module.exports = function(app, passport) {
                 res.send({"error": e});
             });
         });
-    });   
+    });  
+
+
+    app.get('/api/client/user/', isLoggedInAPI, function(req, res) {
+        var company_id = req.user.company_id;
+        var path = "/" + global._cfgv.dbname +  "/_design/users/_view/list?key=%22"+company_id+"%22";
+        console.info("-- " + global._cfgv.dbhost + "" + path)
+        getJSON({
+            port: 80, //http
+            host: global._cfgv.dbhost,
+            path: path,
+            method:"GET",
+            headers:{'Content-Type': 'application/json'}
+        }, function(status, body) {
+            res.send(body["rows"]);
+        }, function(err){
+            res.send({"error": err, "success":false, "path": path, "host": global._cfgv.dbhost});
+        });        
+    });
+    //// ---------- billing ---------- 
 
 
     app.post('/billing/paypal/payment/ipn', function(req, res) {
