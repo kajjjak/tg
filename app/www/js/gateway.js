@@ -67,6 +67,7 @@
     this.runUserLogon = function(){
       // run when the driver / customer starts the app
       var doc = this.getUserSettings();
+      doc = $.extend(doc, this.getJobData());
       doc.client_ts = new Date().getTime();
       doc.location = this.getUserLocation();
       if (gateway.getDriverAccess().account){ doc.doctype = "driver"; }
