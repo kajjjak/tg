@@ -308,6 +308,9 @@ angular.module('starter.controllers', [])
         var alert_dialog = null;
         if (notification.sound) {
           alert_dialog = window.lang.notification[notification.sound] || {"title": "Alert", "message": "Notification was receaved"};
+          if(notification.sound == "message"){
+            alert_dialog["message"] = notification.alert; //override default message with the one sent by company
+          }
         }
 
         if (notification.foreground == "1") {
