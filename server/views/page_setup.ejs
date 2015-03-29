@@ -16,7 +16,7 @@
 			<!-- start: Content -->
 			<div id="content" class="col-sm-11">
 
-			<%if (!user.role.config) {%><% include partial_noaccess %><% } else { %>
+			<%if (user.role && (!user.role.config)) {%><% include partial_noaccess %><% } else { %>
 
 
 
@@ -41,8 +41,8 @@
 									<li data-target="#step5"><span class="badge">5</span></li>
 								</ul>
 								<div class="actions">
-									<button type="button" class="btn btn-prev"> <i class="fa fa-arrow-left"></i> Prev</button>
-									<button type="button" class="btn btn-success btn-next" data-last="Finish" onclick="updateAccount()">Next <i class="fa fa-arrow-right"></i></button>
+									<button type="button" class="btn btn-prev" onclick="updateAccount(-1)"> <i class="fa fa-arrow-left"></i> Prev</button>
+									<button type="button" class="btn btn-success btn-next" data-last="Finish" onclick="updateAccount(1)">Next <i class="fa fa-arrow-right"></i></button>
 								</div>
 							</div>
 							<div class="step-content">
@@ -50,9 +50,9 @@
 									<form class="form-horizontal">
 										<fieldset class="col-sm-12">	
 
-											<h1>Let setup your account</h1>
+											<h1>Setup your account</h1>
 											<p>
-												We need some basic information to get you up and running. Simply fill out the form and press next until all 5 steps have been completed.
+												Basic information to get you up and running. Simply fill out the form and press next until all 5 steps have been completed.
 											</p>
 											
 										</fieldset>
@@ -65,49 +65,49 @@
 											<div class="form-group">
 												<label class="control-label" for="companyName">Name</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="companyName">
+										  			<input type="text" class="form-control company_info" id="companyName">
 												</div>
 									  		</div>
 									  		<div class="form-group">
 												<label class="control-label" for="streetAddress">Street Address</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="streetAddress">
+										  			<input type="text" class="form-control company_info" id="streetAddress">
 												</div>
 									  		</div>
 									  		<div class="form-group">
 												<label class="control-label" for="postalCode">Post Code</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="postalCode">
+										  			<input type="text" class="form-control company_info" id="postalCode">
 												</div>
 									  		</div>
 									  		<div class="form-group">
 												<label class="control-label" for="stateAddress">State</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="stateAddress">
+										  			<input type="text" class="form-control company_info" id="stateAddress">
 												</div>
 									  		</div>
 									  		<div class="form-group">
-												<label class="control-label" for="stateCity">City</label>
+												<label class="control-label" for="cityAddress">City</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="stateCity">
+										  			<input type="text" class="form-control company_info" id="cityAddress">
 												</div>
 									  		</div>
-									  		<div class="form-group">
+											<div class="form-group">
 												<label class="control-label" for="addressCountry">Country</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="addressCountry">
+													<select id="addressCountry" class="form-control company_info"></select>
 												</div>
-									  		</div>
+											</div>									  		
 									  		<div class="form-group">
 												<label class="control-label" for="telephone">Phone number</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="telephone">
+										  			<input type="tel" class="form-control company_info" id="telephone">
 												</div>
 									  		</div>									  		
 									  		<div class="form-group">
 												<label class="control-label" for="website">Website</label>
 												<div class="controls">
-										  			<input type="text" class="form-control" id="website">
+										  			<input type="url" class="form-control company_info" id="website">
 												</div>
 									  		</div>
 										</fieldset>
@@ -121,7 +121,7 @@
 												<label class="control-label" for="firstName">First Name</label>
 												<div class="controls row">
 													<div class="col-sm-4">
-										  				<input type="text" class="form-control" id="firstName">
+										  				<input type="text" class="form-control manager_info" id="firstName">
 													</div>
 										  			<span class="help-block col-sm-8"></span>
 												</div>
@@ -130,7 +130,7 @@
 												<label class="control-label" for="lastName">Last Name</label>
 												<div class="controls row">
 										  			<div class="col-sm-4">
-										  				<input type="text" class="form-control" id="lastName">
+										  				<input type="text" class="form-control manager_info" id="lastName">
 													</div>
 										  			<span class="help-block col-sm-8"></span>
 												</div>
@@ -139,7 +139,7 @@
 												<label class="control-label" for="telephone2">Phone Number</label>
 												<div class="controls row">
 										  			<div class="col-sm-4">
-										  				<input type="text" class="form-control" id="telephone2">
+										  				<input type="tel" class="form-control manager_info" id="telephone2">
 													</div>
 										  			<span class="help-block col-sm-8"></span>
 												</div>
@@ -217,45 +217,105 @@
 	<script src="assets/js/jquery.placeholder.min.js"></script>
 
 	<script src="/assets/js/pages/form-wizard.js"></script>
+	<script src="/assets/data/countries.js"></script>
 	<script src="/js/gatewayapi.js"></script>
 	<script>
-		function updateAccount(){
-			var person = {};
-			var company = {};
-			if($('#confirm').prop('checked')){
-				person["first_name"] = $("#firstName").val();
-				person["last_name"] = $("#lastName").val();
-				person["telephone"] = $("#telephone2").val();
-				company["name"] = $("#companyName").val();
-				company["street"] = $("#streetAddress").val();
-				company["postcode"] = $("#postalCode").val();
-				company["state"] = $("#stateAddress").val();
-				company["city"] = $("#cityAddress").val();
-				company["country"] = $("#addressCountry").val();
-				company["telephone"] = $("#telephone").val();
-				company["website"] = $("#website").val();
-				var info = {"company": company, "contact":person}
-				// send to server
-				window.gapi.setupClientDatabase(info, function(state){
-					// got to app configuration
-					var created = "DONE";
-					var pending = "pending";
-					var html = "<table width='100%'>";
-					html = html + "<tr><td>Requesting init</td><td>" + (state.request ? created : pending) + "</td></tr>"
-					html = html + "<tr><td>Create database</td><td>" + (state.createddb ? created : pending) + "</td></tr>"
-					html = html + "<tr><td>Create user</td><td>" + (state.createduser ? created : pending) + "</td></tr>"
-					html = html + "<tr><td>Stored information</td><td>" + (state.storedinfo ? created : pending) + "</td></tr>"
-					html = html + "<table>"
-					if(state.storedinfo){
-						html = html + "<p>Successfully created database. Continue <a href='/mobileinfo.html'>configuring application </a>";
-						setTimeout(function(){
-							window.location.href="/mobileinfo.html";
-						}, 2000);
+		var wizard_page = 0;		
+		var person = {};
+		var company = {};
+		function updateAccount(dir){
+			var notvalid = false;
+			if(wizard_page >= 0){ wizard_page = wizard_page + dir; }
+			if(wizard_page == 2){ //validate company
+				$(".company_info").each(function(i, obj){
+					if($(obj).val() == ""){
+						$("#" + obj.id).closest(".form-group").addClass("has-error");
+						notvalid = true;
+					}else{
+						$("#" + obj.id).closest(".form-group").removeClass("has-error").addClass("has-success");
 					}
-					showAlert(html);
 				});
+				if(notvalid){
+					showAlert("All fields should be filled out");
+					$(".btn-prev").click();
+				}
+			}
+			if(wizard_page == 3){ //validate person
+				$(".manager_info").each(function(i, obj){
+					if($(obj).val() == ""){
+						$("#" + obj.id).closest(".form-group").addClass("has-error");
+						notvalid = true;
+					}else{
+						$("#" + obj.id).closest(".form-group").removeClass("has-error").addClass("has-success");
+					}
+				});
+				if(notvalid){
+					showAlert("All fields should be filled out");
+					$(".btn-prev").click();
+				}
+			}
+			if(wizard_page == 4){
+				notvalid = $("#accept").is(':checked');
+				if(!notvalid){
+					showAlert("It would be simpler if you agreed with the agreement");
+					$(".btn-prev").click();
+				}				
+			}
+
+			if(wizard_page >= 5){
+				wizard_page = 5;
+				if($('#confirm').is(':checked')){
+					var country = countries_dict[$("#addressCountry").val()];
+					company["name"] = $("#companyName").val();
+					company["street"] = $("#streetAddress").val();
+					company["postcode"] = $("#postalCode").val();
+					company["state"] = $("#stateAddress").val();
+					company["city"] = $("#cityAddress").val();
+					company["country"] = country["name"]["common"];
+					company["telephone"] = $("#telephone").val();
+					company["website"] = $("#website").val();
+					company["stats"] = {"country": country};
+					person["first_name"] = $("#firstName").val();
+					person["last_name"] = $("#lastName").val();
+					person["telephone"] = $("#telephone2").val();
+
+					var info = {"company": company, "contact":person}
+					// send to server
+					window.gapi.setupClientDatabase(info, function(state){
+						// got to app configuration
+						var created = "DONE";
+						var pending = "pending";
+						var html = "<table width='100%'>";
+						html = html + "<tr><td>Requesting init</td><td>" + (state.request ? created : pending) + "</td></tr>"
+						html = html + "<tr><td>Create database</td><td>" + (state.createddb ? created : pending) + "</td></tr>"
+						html = html + "<tr><td>Create user</td><td>" + (state.createduser ? created : pending) + "</td></tr>"
+						html = html + "<tr><td>Stored information</td><td>" + (state.storedinfo ? created : pending) + "</td></tr>"
+						html = html + "<table>"
+						if(state.storedinfo){
+							html = html + "<p>Successfully created database. Continue <a href='/mobileinfo.html'>configuring application </a>";
+							setTimeout(function(){
+								window.location.href="/mobileinfo.html";
+							}, 2000);
+						}
+						showAlert(html);
+					});
+				}else{
+					showAlert("It would be simpler if you would confirm the information");
+				}
 			}
 		}
+
+		$(function(){
+			window.countries_dict = {};
+			var options = "";
+			for(var i in countries){
+				country = countries[i];
+				window.countries_dict[country["cca2"]] = country;
+				options = options + "<option value='" + country["cca2"] + "'>" + country["name"]["common"] + "</option>";
+			}
+			$("#addressCountry").append(options);
+		});
+
 	</script>
 </body>
 </html>

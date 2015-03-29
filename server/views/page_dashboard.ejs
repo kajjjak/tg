@@ -385,5 +385,10 @@
 	<!-- inline scripts related to this page -->
 	<script src="/js/gatewayapi.js"></script>	
 	<script src="/js/dashboard.js"></script>	
+	<script>
+		$(function () {
+			gapi.getClientDoc(); //since the dashboard is the welcome page lets create a cache
+		});
+	</script>
 </body>
 </html>

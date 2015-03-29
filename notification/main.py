@@ -190,7 +190,7 @@ def saveNotificationSent(messages, dbname):
 			couch_database.save(doc)
 
 
-client_databases = ["tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57"];
+client_databases = ["tgc-e6ed05461250df994aa26e7c2d58b82a"];
 
 for cdb in client_databases:
 	messages = extractNotifications(fetchJobs(cdb))

@@ -32,10 +32,11 @@ function getUser(email, password, callback_result){
 function validateMemberData(data){
     data.role = null;
     data.doctype = "user";
-    if(data.group == "driver"){  data.role = {"driver": 1, "router": 0, "config": 0, "member": 0};}
-    if(data.group == "router"){  data.role = {"driver": 0, "router": 1, "config": 1, "member": 1};}
-    if(data.group == "manager"){ data.role = {"driver": 0, "router": 1, "config": 1, "member": 1};}
-    if(data.group == "admin"){ data.role = {"driver": 0, "router": 0, "config": 1, "member": 1};}
+    data.role = {"driver": 0, "router": 0, "config": 0, "member": 0};
+    if(data.group == "driver"){  data.role.driver = 1;}
+    if(data.group == "router"){  data.role.router = 1; data.role.config = 1; data.role.member = 1;}
+    if(data.group == "manager"){ data.role.router = 1; data.role.config = 1; data.role.member = 1; data.role.report = 2; }
+    if(data.group == "admin"){ data.role.driver = 3; data.role.router = 3; data.role.config = 3; data.role.member = 3; data.role.admin = 3; data.role.report = 3; }
     if(!data.role){ throw "Member group was invalid. Must be one of these: driver, router, manager or admin";}
     data.created = parseInt(data.created);
     if(!data.name.length){ throw "Member must have a name"; }
@@ -64,13 +65,11 @@ function addUser (doc_id, doc, done){
     /* set the document defaults */
     var db = nano.db.use(global._cfgv.dbname);
     console.log("creating document id " + doc_id);
-    db.insert(doc, doc_id, function(err, body){
-        doc.created = new Date().getTime();
-        doc.group = "admin";
-        doc.name = doc.email = doc.auth.local.username;
-        doc = validateMemberData(doc)
-        doc.company_id = "tgc-"+doc_id;
-        
+    doc.created = new Date().getTime();
+    doc.group = "admin";
+    doc.name = doc.email = doc.auth.local.username;
+    doc = validateMemberData(doc)
+    db.insert(doc, doc_id, function(err, body){       
         if(err){
             handleException(err);
             setDocument(doc_id, doc, function(d){
@@ -227,7 +226,7 @@ module.exports = function(passport) {
                         return done(null, false, req.flash('loginMessage', 'That email is already taken.'));
                     }else{
                         //create the new user
-                        var doc_id = crypto.createHash('md5').update(email).digest('hex');
+                        var doc_id = "usr-" + crypto.createHash('md5').update(email).digest('hex');
                         addUser(doc_id, {
                             auth:{
                                 local: {

@@ -50,8 +50,6 @@
 
 <body>
 		<div class="container">
-		<div class="row">
-
 					
 			<div class="row">
 				<div class="login-box">
@@ -84,7 +82,7 @@
 							<!--label class="remember" for="remember"><input type="checkbox" id="remember" />Remember me</label-->
 
 							<div class="button-login">	
-								<button type="submit" class="btn btn-primary">Signup</button>
+								<button type="submit" onclick="validateSignup()" class="btn btn-primary">Signup</button>
 							</div>
 							<div class="clearfix"></div>
 					</form>
@@ -95,10 +93,9 @@
 					</p>	
 				</div><!--/col-->
 			</div><!--/row-->
-			
-				</div><!--/row-->
-		
-		<div class="modal fade" id="myModal">
+		</div><!--/container-->
+
+		<div class="modal fade" id="mdlAlert">
 			<div class="modal-dialog">
 				<div class="modal-content">
 					<div class="modal-header">
@@ -106,7 +103,7 @@
 						<h4 class="modal-title">Modal title</h4>
 					</div>
 					<div class="modal-body">
-						<p>Here settings can be configured...</p>
+						<p id="mdlAlertMessage"></p>
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -114,10 +111,8 @@
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
-		</div><!-- /.modal -->
-		
-	</div><!--/container-->
-	
+		</div><!-- /.modal -->	
+
 	
 	<!-- start: JavaScript-->
 	<!--[if !IE]>-->
@@ -136,6 +131,27 @@
 
 		<script type="text/javascript">
 			window.jQuery || document.write("<script src='/assets/js/jquery-2.1.0.min.js'>"+"<"+"/script>");
+
+			function showAlert(message){
+				$('#mdlAlert').modal('show');
+				$("#mdlAlertMessage").html(message);
+			}
+
+			function validateSignup(){
+				if($("#password").val() != $("#password2").val()){
+					showAlert("The passwords did not match");
+				}
+				if(!validateEmail()){
+					showAlert("The user name must be a email address that we will send a confirmation to");
+				}
+			}
+
+			//http://stackoverflow.com/questions/46155/validate-email-address-in-javascript
+			function validateEmail(email) {
+			    var re = /^([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)$/i;
+			    return re.test(email);
+			}
+
 		</script>
 
 	<!--<![endif]-->

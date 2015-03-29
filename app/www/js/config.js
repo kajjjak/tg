@@ -1,5 +1,5 @@
 var config = {
-    "changed": 1427474428333,
+    "changed": 1427477389889,
     "client": {
         "number": "+3548958283"
     },
@@ -45,12 +45,12 @@ var config = {
                 "class": "style-page-request-btn_cancel",
                 "name": "Request cancel button",
                 "style": {
-                    "background-color": "#ECB300",
+                    "background-color": "#000",
                     "border-color": "#BEA10E",
                     "border-radius": "5px",
                     "border-style": "solid",
                     "border-width": "1px",
-                    "color": "#000",
+                    "color": "#FFF",
                     "font-family": "sans-serif",
                     "font-size": "18px",
                     "font-weight": "800"
@@ -88,8 +88,8 @@ var config = {
             }
         },
         "revoke": {
-            "btn_close": {
-                "class": "style-page-revoke-btn_close",
+            "btn_call": {
+                "class": "style-page-revoke-btn_call",
                 "name": "Revoke request button",
                 "style": {
                     "background-color": "#ECB300",
@@ -125,14 +125,13 @@ var config = {
     "internationalization": {
         "en": {
             "id": "en",
+            "locale": {
+                "datetime": "en-IS"
+            },
             "title": "English"
-        },
-        "is": {
-            "id": "is",
-            "title": "\u00cdslensku"
         }
     },
-    "language": "is",
+    "language": "en",
     "locale": {
         "datetime": "en-IS"
     },
@@ -148,7 +147,7 @@ var config = {
     },
     "service": {
         "defaults": {
-            "vehicles": "200"
+            "vehicles": "1427477198229"
         },
         "options": {
             "1": {
@@ -161,6 +160,7 @@ var config = {
         "vehicles": {
             "100": {
                 "default": false,
+                "hidden": false,
                 "id": 100,
                 "lang": {
                     "en": {
@@ -173,8 +173,24 @@ var config = {
                 "title": "Regular",
                 "type": "vehicles"
             },
-            "200": {
+            "1427477198229": {
                 "default": true,
+                "hidden": false,
+                "id": 1427477198229,
+                "lang": {
+                    "en": {
+                        "summary": "Test",
+                        "title": "Test"
+                    }
+                },
+                "order": 300,
+                "summary": "Test",
+                "title": "Test",
+                "type": "vehicles"
+            },
+            "200": {
+                "default": false,
+                "hidden": true,
                 "id": 200,
                 "lang": {
                     "en": {

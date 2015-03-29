@@ -100,18 +100,21 @@ function GatewayUsers (dbid) {
 	var users = {};
 
 	this.init = function(callback_loaded){
+		var path = getSystemDatabasePath();
+		var users = {};
+		if(path){
+			var url = path + "/_design/users/_view/list";
 
-		var url = getSystemDatabasePath() + "/_design/users/_view/list";
-
-		getJSON(url, function(res){
-			var row;
-			for (var i in res.rows){
-				users[res.rows[i].value._id] = res.rows[i].value;
-			}
-			if(callback_loaded){
-				callback_loaded(users);
-			}
-		});
+			getJSON(url, function(res){
+				var row;
+				for (var i in res.rows){
+					users[res.rows[i].value._id] = res.rows[i].value;
+				}
+				if(callback_loaded){
+					callback_loaded(users);
+				}
+			});
+		}
 	}
 
 	this.getUsers = function(){ return users; }

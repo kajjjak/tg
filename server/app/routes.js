@@ -120,6 +120,8 @@ module.exports = function(app, passport) {
     function getCommonVars(req){
         var params = global._cfgv
         params["user"] = req.user; //{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user;
+        //if(!params["user"]){ params["user"] = {};}
+        //if(!params["user"]["role"]){ params["user"]["role"] = {};}
         params["app_social_facebook_appid"] = global._cfgv.social_facebook_appid;
         return params;
     }
@@ -528,6 +530,9 @@ module.exports = function(app, passport) {
         var params = getCommonVars(req);
         if(req.body.action == "deploy"){
             getDocument(params.user.company_id + "-edit", function(doc){
+                // final validation
+                doc.app_config.database.name = getCompanyDatabase(req);
+                // save to live version
                 setDocument(params.user.company_id, {"app_config": doc.app_config}, function(){
                     res.send({"success": true});
                 },function(e){
@@ -884,7 +889,7 @@ module.exports = function(app, passport) {
 
     function getCompanyDatabase(req, body){
         body = body || {};
-        return body.company_id || "tgc-" + req.user._id; //since this is the register, lets just use the same name as his login
+        return body.company_id || req.user._id.replace("usr-", "tgc-"); //since this is the register, lets just use the same name as his login
     }
 
 // =============================================================================

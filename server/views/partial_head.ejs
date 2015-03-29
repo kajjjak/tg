@@ -37,19 +37,16 @@
 	<link rel="apple-touch-icon-precomposed" sizes="57x57" href="assets/ico/apple-touch-icon-57-precomposed.png">
 	<link rel="shortcut icon" href="assets/ico/favicon.png">
 	<!-- end: Favicon and Touch Icons -->
-	<% if((user) && (!user.company_id)){ %>
 	<script>
-		if(window.location.href.indexOf("setup") ==  -1){
-			window.location.href = "/setup.html";
-		}
-	</script>
-	<% }else{ %>
-	<script>
-		var user = <%- JSON.stringify(user) %>;
-		var conn = {dbpath: "<%= dbpath %>", dbserver: "<%= dbserver%>"};
+		var user = {};
+		var conn = {};
 
 		function getCompanyDatabasePath(u){
-			return conn.dbserver + "/" + user.company_id;
+			if(!conn.dbserver){ return null; }
+			var codat = gapi.getClientDoc();
+			var server_path = conn.dbserver; 
+			server_path = server_path.replace("http://", "http://"+codat.access.name+":"+codat.access.passw+"@");
+			return server_path + "/" + user.company_id;
 		}
 
 		function getSystemDatabasePath(){
@@ -60,5 +57,17 @@
 			return "/media/"
 		}
 
+	</script>
+
+	<% if((user) && (!user.company_id)){ %>
+	<script>
+		if(window.location.href.indexOf("setup") ==  -1){
+			window.location.href = "/setup.html";
+		}
+	</script>
+	<% }else{ %> 
+	<script>
+		user = <%- JSON.stringify(user) %>;
+		conn = {dbpath: "<%= dbpath %>", dbserver: "<%= dbserver%>"};
 	</script>
 	<% } %>	

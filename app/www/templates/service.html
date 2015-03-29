@@ -3,7 +3,7 @@
 <ion-view view-title="{{lang.page.service.title}}">
   <ion-content>
     <div class="list">
-      <label class="item item-radio" ng-repeat="vehicle in vechicles" ng-click="setRequestProperty(vehicle)">
+      <label class="item item-radio" ng-repeat="vehicle in vechicles" ng-click="setRequestProperty(vehicle)" ng-if="!vehicle.hidden">
         <input type="radio" name="group" ng-checked="vehicle.selected">
         <div class="item-content">
           <h2>{{vehicle.title}}</h2>

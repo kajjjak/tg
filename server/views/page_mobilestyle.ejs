@@ -20,50 +20,103 @@
 
 			<h1>Mobile preferences</h1>
 			<p>The following information is required for your customers to find your mobile application on the mobile platforms</p>
-			<form class="form-horizontal">
-			  <div class="form-group">
-			    <label for="app_name" class="col-sm-2 control-label">Sound assigned</label>
-			    <div class="col-sm-10">
-			      <select class="form-control" id="sound_notification_assigned"></select>
-			      <p class="help-block">Played when driver gets assignement</p>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <label for="app_name" class="col-sm-2 control-label">Sound accepted</label>
-			    <div class="col-sm-10">
-			      <select class="form-control" id="sound_notification_accepted"></select>
-			      <p class="help-block">Played when driver is on his way to the customer</p>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <label for="app_name" class="col-sm-2 control-label">Sound arrived</label>
-			    <div class="col-sm-10">
-			      <select class="form-control" id="sound_notification_arrived"></select>
-			      <p class="help-block">Played when driver has arrived</p>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <label for="app_name" class="col-sm-2 control-label">Sound canceled</label>
-			    <div class="col-sm-10">
-			      <select class="form-control" id="sound_notification_canceled"></select>
-			      <p class="help-block">Played when customer has canceled taxi</p>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <label for="app_description" class="col-sm-2 control-label">Styles</label>
-			    <div class="col-sm-10">
-			      <select id="style_editselect"  class="form-control"></select>
-			      <p class="help-block">This will be the application description shown in app store and play store</p>
-			      <div id="style_fields"></div>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <div class="col-sm-offset-2 col-sm-10">
-			      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileStyle()">Save</button>
-			      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
-			    </div>
-			  </div>
-			</form>
+			<div class="row">		
+				<div class="col-lg-12">			
+					<div class="box">
+						<div class="box-header" data-original-title>
+							<h2><i class="fa fa-bell"></i><span class="break"></span>Sounds</h2>
+							<div class="box-icon">
+								<a href="table.html#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
+								<a href="table.html#" class="btn-close"><i class="fa fa-times"></i></a>
+							</div>
+						</div>
+						<div class="box-content">			
+
+
+							<form class="form-horizontal">
+							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">Sound assigned</label>
+							    <div class="col-sm-10">
+							      <select class="form-control" id="sound_notification_assigned"></select>
+							      <p class="help-block">Played when driver gets assignement</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">Sound accepted</label>
+							    <div class="col-sm-10">
+							      <select class="form-control" id="sound_notification_accepted"></select>
+							      <p class="help-block">Played when driver is on his way to the customer</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">Sound arrived</label>
+							    <div class="col-sm-10">
+							      <select class="form-control" id="sound_notification_arrived"></select>
+							      <p class="help-block">Played when driver has arrived</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">Sound canceled</label>
+							    <div class="col-sm-10">
+							      <select class="form-control" id="sound_notification_canceled"></select>
+							      <p class="help-block">Played when customer has canceled taxi</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileStyle()">Save</button>
+							      <button type="button" class="btn btn-success" id="btnNext" onclick="saveMobileStyle(1)">Next</button>
+							      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+							    </div>
+							  </div>
+							</form>
+
+
+						</div> <!-- /box content -->
+					</div>
+				</div><!--/col-->			
+			</div><!--/row-->
+
+			<div class="row">		
+				<div class="col-lg-12">			
+					<div class="box">
+						<div class="box-header" data-original-title>
+							<h2><i class="fa fa-eye"></i><span class="break"></span>Style</h2>
+							<div class="box-icon">
+								<a href="table.html#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
+								<a href="table.html#" class="btn-close"><i class="fa fa-times"></i></a>
+							</div>
+						</div>
+						<div class="box-content" style="display: none;">			
+
+
+
+
+							<form class="form-horizontal">
+							  <div class="form-group">
+							    <label for="app_description" class="col-sm-2 control-label">Styles</label>
+							    <div class="col-sm-10">
+							      <select id="style_editselect"  class="form-control"></select>
+							      <p class="help-block">This will be the application description shown in app store and play store</p>
+							      <div id="style_fields"></div>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileStyle()">Save</button>
+							      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+							    </div>
+							  </div>
+							</form>
+
+
+
+
+
+						</div> <!-- /box content -->
+					</div>
+				</div><!--/col-->			
+			</div><!--/row-->
 
 			<% } %>
 
@@ -86,7 +139,7 @@
 	<script src="/js/gatewayapi.js"></script>
 
 	<script>
-		function saveMobileStyle(){
+		function saveMobileStyle(next){
 			//saving sounds
 			window.config.sound.notification.assigned = $("#sound_notification_assigned").val();
 			window.config.sound.notification.accepted = $("#sound_notification_accepted").val();
@@ -94,8 +147,10 @@
 			window.config.sound.notification.canceled = $("#sound_notification_canceled").val();
 			//saving styles
 			$("#btnSave").html("Saving ...");
+			$("#btnNext").html("One moment");
 			getPOST("/api/client/mobile/config/edit", {"data": JSON.stringify(window.config)}, function(res){
 				$("#btnSave").html("Saved");
+				if(next){window.location.href = "/mobileapply.html";}
 				if(res.error){
 					handleError(res.error);
 				}

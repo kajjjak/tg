@@ -20,58 +20,84 @@
 
 			<h1>Mobile preferences</h1>
 			<p>The following information is required for your customers to find your mobile application on the mobile platforms</p>
-			<form class="form-horizontal">
-			  <div class="form-group">
-			    <label for="app_name" class="col-sm-2 control-label">Name</label>
-			    <div class="col-sm-10">
-			      <input type="text" class="form-control" id="app_name" placeholder="App name" value="">
-			      <p class="help-block">This will be the application name shown in app store and play store</p>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <label for="app_description" class="col-sm-2 control-label">Description</label>
-			    <div class="col-sm-10">
-			      <textarea class="form-control" id="app_description" placeholder="Description of your application"></textarea>
-			      <p class="help-block">This will be the application description shown in app store and play store</p>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <label for="app_keywords" class="col-sm-2 control-label">Keywords</label>
-			    <div class="col-sm-10">
-			      <input type="text" class="form-control" id="app_keywords" placeholder="Taxi, Service" value="">
-			      <p class="help-block">One or more search words used to find this application seperated by comma</p>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <div class="col-sm-offset-2 col-sm-10">
-			      <div class="checkbox">
-			        <label>
-					  <input id="app_icon_file" type="file" onchange="previewFile(1)"><br>
-				 	  <img id="app_icon" src="/assets/img/noimage_icon.png" height="200" alt="Image preview...">			        
-			          <p class="help-block">Application icon that will be used in app store and play store. The icon image's minimum dimensions should be 192x192 px PNG and should have no rounded corners. Note that each platform will apply its own mask and effects to the icons. For example, iOS will automatically apply its custom rounded corners</p>
-			        </label>
-			      </div>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <div class="col-sm-offset-2 col-sm-10">
-			      <div class="checkbox">
-			        <label>
-					  <input id="app_splash_file" type="file" onchange="previewFile(2)"><br>
-				 	  <img id="app_splash" src="/assets/img/noimage_splash.png" height="200" alt="Image preview...">			        
-			          <p class="help-block">Splash screen dimensions vary for each platform, device, and orientation, so a square source image is required to generate each of the various screen sizes. The source image's minimum dimensions should be 2208x2208 px PNG, and the artwork should be centered within the square, because each generated image will be center cropped into landscape and portrait images. The splash screen's artwork should roughly fit within a center square (1200x1200 px). This template provides the recommended size and guidelines about artwork's safe zone.</p>
-			        </label>
-			      </div>
-			    </div>
-			  </div>
-			  <div class="form-group">
-			    <div class="col-sm-offset-2 col-sm-10">
-			      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileInfo()">Save</button>
-			      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
-			    </div>
-			  </div>
-			</form>
+			<div class="row">		
+				<div class="col-lg-12">			
+					<div class="box">
+						<div class="box-header" data-original-title>
+							<h2><i class="fa fa-info"></i><span class="break"></span>App information</h2>
+							<div class="box-icon">
+								<a href="table.html#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
+								<a href="table.html#" class="btn-close"><i class="fa fa-times"></i></a>
+							</div>
+						</div>
+						<div class="box-content">		
 
+
+
+
+
+							<form class="form-horizontal">
+							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">Name</label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control" id="app_name" placeholder="App name" value="">
+							      <p class="help-block">This will be the application name shown in app store and play store</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="app_description" class="col-sm-2 control-label">Description</label>
+							    <div class="col-sm-10">
+							      <textarea class="form-control" id="app_description" placeholder="Description of your application"></textarea>
+							      <p class="help-block">This will be the application description shown in app store and play store</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <label for="app_keywords" class="col-sm-2 control-label">Keywords</label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control" id="app_keywords" placeholder="Taxi, Service" value="">
+							      <p class="help-block">One or more search words used to find this application seperated by comma</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <div class="checkbox">
+							        <label>
+									  <input id="app_icon_file" type="file" onchange="previewFile(1)"><br>
+								 	  <img id="app_icon" src="/assets/img/noimage_icon.png" height="200" alt="Image preview...">			        
+							          <p class="help-block">Application icon that will be used in app store and play store. The icon image's minimum dimensions should be 192x192 px PNG and should have no rounded corners. Note that each platform will apply its own mask and effects to the icons. For example, iOS will automatically apply its custom rounded corners</p>
+							        </label>
+							      </div>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <div class="checkbox">
+							        <label>
+									  <input id="app_splash_file" type="file" onchange="previewFile(2)"><br>
+								 	  <img id="app_splash" src="/assets/img/noimage_splash.png" height="200" alt="Image preview...">			        
+							          <p class="help-block">Splash screen dimensions vary for each platform, device, and orientation, so a square source image is required to generate each of the various screen sizes. The source image's minimum dimensions should be 2208x2208 px PNG, and the artwork should be centered within the square, because each generated image will be center cropped into landscape and portrait images. The splash screen's artwork should roughly fit within a center square (1200x1200 px). This template provides the recommended size and guidelines about artwork's safe zone.</p>
+							        </label>
+							      </div>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <button type="button" class="btn btn-primary" id="btnSave" onclick="saveMobileInfo()">Save</button>
+							      <button type="button" class="btn btn-success" id="btnNext" onclick="saveMobileInfo(1)">Next</button>
+							      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+							    </div>
+							  </div>
+							</form>
+
+
+
+
+
+
+						</div> <!-- /box content -->
+					</div>
+				</div><!--/col-->			
+			</div><!--/row-->	
 			<% } %>
 
 			</div>
@@ -93,7 +119,7 @@
 	<script src="/js/gatewayapi.js"></script>
 
 	<script>
-		function saveMobileInfo(){
+		function saveMobileInfo(next){
 			var info = {};
 			try{
 				info["name"] = $("#app_name").val();
@@ -124,9 +150,13 @@
 					throw "Splash image required"
 				}			
 				$("#btnSave").html("Saving ...");
+				$("#btnNext").html("One moment");
 				window.gapi.setClientDoc(info, function(res){
 					if(res.success){
 						$("#btnSave").html("Saved");
+
+						if(next){window.location.href = "/mobileconf.html";}
+
 					}else{
 						showAlert(res.error);
 					}

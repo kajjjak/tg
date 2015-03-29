@@ -275,8 +275,10 @@
 	<script>
 
         $(function () {
-
-			window.map = L.map('map').setView(<%= JSON.stringify(user.company.location) %>, 13);
+        	var company_location = [0,0];
+        	var company_zoomlevel = 4;
+        	try{ company_location = gapi.getClientDoc().registration.company.stats.country.latlng; company_zoomlevel = 7; }catch(e){}
+			window.map = L.map('map').setView(company_location, company_zoomlevel);
 			// add an OpenStreetMap tile layer
 			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'

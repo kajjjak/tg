@@ -75,8 +75,10 @@ function filterByUser(user_id){
 function fetchJobLocation(address, callback_result){
   var url = "/api/geocode/address/mapquest";
   getPOST(url, address, function(res){
+  	var latlng = {"lat": 0, "lng": 0};
+  	try{latlng = map.getCenter(); }catch(e){}
   	if(res.error){
-  		callback_result({street: "not found", latlng: map.getCenter()});
+  		callback_result({street: "not found", latlng: latlng});
   	}else{
   		callback_result(res);
   	}
