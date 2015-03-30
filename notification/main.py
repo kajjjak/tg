@@ -31,7 +31,8 @@ def extractNotifications(docs):
 	notify_apn = [];
 	notify_gcm = [];
 	for doc in docs:
-		job = doc["value"]
+		job = doc;
+		if doc.has_key("value"): job = doc["value"]
 		if not job.has_key("doctype"): job["doctype"] = None
 		print job["doctype"]
 		if job["doctype"] == "notify": #if this is a message
@@ -233,21 +234,21 @@ def saveNotificationSent(messages, dbname):
 
 client_databases = ["tgc-e6ed05461250df994aa26e7c2d58b82a"];
 
-for cdb in client_databases:
-	messages = extractNotifications(fetchJobs(cdb))
-	sendNotifications2APN(messages["apn"], cdb)
-	sendNotifications2GCM(messages["gcm"], cdb)
-
-# cdb = 'tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57';
-# db = couch_server[cdb]
-# # the since parameter defaults to 'last_seq' when using continuous feed
-# ch = db.changes(feed='continuous', heartbeat='1000', include_docs=True, since='now')
-# # http://stackoverflow.com/questions/7840383/couchdb-python-change-notifications
-# for line in ch:
-# 	doc = line['doc']
-# 	messages = extractNotifications([doc])
+# for cdb in client_databases:
+# 	messages = extractNotifications(fetchJobs(cdb))
 # 	sendNotifications2APN(messages["apn"], cdb)
 # 	sendNotifications2GCM(messages["gcm"], cdb)
+
+cdb = client_databases[0];
+db = couch_server[cdb]
+# the since parameter defaults to 'last_seq' when using continuous feed
+ch = db.changes(feed='continuous', heartbeat='1000', include_docs=True, since='now')
+# http://stackoverflow.com/questions/7840383/couchdb-python-change-notifications
+for line in ch:
+	doc = line['doc']
+	messages = extractNotifications([doc])
+	sendNotifications2APN(messages["apn"], cdb)
+	sendNotifications2GCM(messages["gcm"], cdb)
 
 
 #canonical ----  APA91bHfyj_2oQQHoUl8o49FwQreGDMK-mzU8xKhnDhI-f_244i71NSy7JSGZ6uqXZRkFyFvuL4eVXzDce6wNhxuV3np70JSEh06xhH05x4KxL6wEwr5zJsjNsnXF9fxXuDqHW8iPiQyS8j4mFJ3kzZ7AU1hHE5RDh0st1aGcS0okA7mtJSplDo

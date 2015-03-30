@@ -360,7 +360,7 @@ module.exports = function(app, passport) {
     app.post('/api/company/configure', isLoggedInAPI, function(req, res) { //
         var body = req.body; 
         var company_id = getCompanyDatabase(req, body)
-        var nano_full = getNano();
+        var nano_full = getNanoSecure();
         nano_full.db.replicate('tgc-template', company_id, {
             create_target: true
         }, function(err, body) {
@@ -724,7 +724,20 @@ module.exports = function(app, passport) {
             }
         }
     });
-
+    app.post('/api/client/:company_id/mobile/doc', function(req, res) {
+        // this is to remove write on specifict docs for client and for future security
+        var params = getCommonVars(req);
+        var company_id = req.params.company_id;
+        var data = req.body;
+        // may not create notify documents
+        if(data.doctype == "notify"){ throw "Not allowed to create notify document. sorry :( "; }
+        if(!data.doc_id){ throw "Document id must be specified "; }
+        setCompanyDocument(company_id, data.doc_id, data, function(d){
+            res.send({success: true});
+        }, function(e){
+            res.send({"error": e});
+        });
+    });
     //----- client app api
 
     function getAccessByPassKey(res, access, callback_accessgranted){
@@ -1252,7 +1265,7 @@ function doubleTimeValue(v){
 
 var nano = require('nano')(global._cfgv.dbserver);;
 
-function getNano(){
+function getNanoSecure(){
     var cfg = {
       host: global._cfgv.dbhost,
       port: "80",
@@ -1276,12 +1289,13 @@ function getNano(){
 }
 
 function setCompanyDocumentForced(dbid, id, obj, success, failure){
+    var nano = getNanoSecure();
     var db = nano.db.use(dbid);
     db.get(id, function(err, doc){
         if(err){
             if(err.message == "no_db_file"){ //the company database was missing
                 //lets create the missing db
-                var nano_full = getNano();
+                var nano_full = getNanoSecure();
                 nano_full.db.create(dbid, function(err, body) {
                   if (!err) {
                     db = nano.db.use(dbid);
@@ -1300,6 +1314,7 @@ function setCompanyDocumentForced(dbid, id, obj, success, failure){
 }
 
 function setCompanyDocument(dbid, id, obj, success, failure){
+    var nano = getNanoSecure();
     var db = nano.db.use(dbid);
     db.get(id, function(err, doc){
         if(err){
@@ -1316,6 +1331,7 @@ function setCompanyDocument(dbid, id, obj, success, failure){
             doc[key] = obj[key] || doc[key];
           }
         }
+        if(!doc.version){ doc.version = global._cfgv.version; }
         try{
             db.insert(doc, id, function(err, changed_doc){
                 if(err){failure(err);}
@@ -1381,6 +1397,7 @@ function setDocument(id, obj, success, failure){
           }
         }
         try{
+            if(!doc.version){ doc.version = global._cfgv.version; }
 	        db.insert(doc, id, function(err, changed_doc){
 	        	if(err){failure(err);}
 	        	else{success(changed_doc);}

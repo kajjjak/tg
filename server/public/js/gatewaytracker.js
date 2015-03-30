@@ -186,7 +186,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		// marker name is id
 		console.info("Map changed: " + JSON.stringify(doc));
 		var marker_id = doc._id || doc.id;
-		if(doc.location){
+		if((doc.location) && (doc.doctype == "driver") || (doc.doctype == "job")){
 			/*
 			if(!doc.driver){ doc.driver = {};}
 			if(doc.driver.id){ 

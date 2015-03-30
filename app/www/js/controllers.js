@@ -145,7 +145,7 @@ angular.module('starter.controllers', [])
     }
     $("#request_action").attr('disabled','disabled');
     //saves the request to server
-    gateway.addDocument(data);
+    gateway.addJob(data);
     //open communication window    
   };
 
@@ -512,7 +512,7 @@ angular.module('starter.controllers', [])
     window.map = L.map('map');
     // add an OpenStreetMap tile layer
     L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        attribution: '<i style="height:10px; white-space: nowrap;overflow: hidden; text-overflow: ellipsis;" &copy; <a href="#" onclick="window.open(\'http://osm.org/copyright\', \'_system\', \'location=yes\'); return false;">OpenStreetMap</a> contributors</i>' //'&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
     window.map.setView(view_position, window.config.map.zoom);
@@ -522,6 +522,14 @@ angular.module('starter.controllers', [])
     window.map.on('move', setCenterMarker);
     window.map.on('zoomend ', setCenterMarker);
     window.map.on('moveend ', setDraggedEnd);
+
+    //hack where we replace link with on click event so that the user will not open in the current view (but in a new window instead)
+    $("a").each(function(i, obj){
+      if(obj.href.indexOf(".com") != -1){
+        $(obj).click(function(){window.open('http://leafletjs.com', '_system', 'location=yes');});
+        obj.href="#";
+      }
+    });    
   }
 
 }]);

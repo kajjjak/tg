@@ -101,6 +101,16 @@
 
     this.setDocument = function(doc_id, dict){
       dict = dict || {};
+      var company_id = window.config.database.name;
+      var url = getServerAPIPath() + "api/client/" + company_id + "/mobile/doc";
+      dict.doc_id = doc_id;
+      $.post(url, dict, function(result){
+        console.info("Saved document result " + JSON.stringify(result));
+        if(result.error){
+          handleException(result.error);
+        }
+      });
+/*      
       Gateway.db.get(doc_id, function(err, old_doc) {
         old_doc = old_doc || {_id: doc_id};
         //merge values
@@ -108,10 +118,15 @@
         Gateway.db.put(old_doc, function(err, response) {
           if(err){handleException(err);}
         });
-      });      
+      });
+*/      
+
     };
 
-    this.addDocument = function(dict){
+    this.addJobData = function(dict){
+      var doc_id = "job-" + CryptoJS.MD5(JSON.stringify(dict));
+      this.setDocument(doc_id, dict);
+/*      
       Gateway.db.post(dict, function(err, response) {
         if(err && err.error){
           //{"status":500,"name":"unknown_error","message":"Database encountered an unknown error","error":true}
@@ -122,11 +137,12 @@
           dict.id = response.id;
           gateway.callback_addjob(dict);//{err:err, response:response, doc: dict});
         }
-        /*
-        console.info("Added document response  " + JSON.stringify({err:err, response:response}));
-        localStorage.setItem("order_id", response.id);
-        guiShowFeedbackState(dict);*/
+        
+        //console.info("Added document response  " + JSON.stringify({err:err, response:response}));
+        //localStorage.setItem("order_id", response.id);
+        //guiShowFeedbackState(dict);
       });
+*/
     };
 
     this.setUserDocument = function(dict){
