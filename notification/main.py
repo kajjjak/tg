@@ -14,7 +14,7 @@ from gcm import * #pip install python-gcm
 
 import argparse
 # API Key for your Google OAuth project
-GCM_API_KEY = 'AIzaSyBwnZMPecUnvMYPbeFn0sDeo_gRZaCkGyw'
+GCM_API_KEY = 'AIzaSyB8XL-_Bx_UwssTqzpeb8g5K2UluwR-3d4' #'AIzaSyBwnZMPecUnvMYPbeFn0sDeo_gRZaCkGyw'
 
 dbserver = 'http://db01.taxigateway.com/';
 keydir = '../../pems/'
@@ -36,6 +36,8 @@ def extractNotifications(docs):
 		print job["doctype"]
 		if job["doctype"] == "notify": #if this is a message
 			if not job["notify"].has_key("receaved_ts"): job["notify"]["receaved_ts"] = None
+			if not job.has_key("message"): continue
+			if not job["message"].has_key("text"): continue
 			if job["notify"]["receaved_ts"] != job["notify"]["published_ts"]:
 				notify_apn.append({"doc_id": job["_id"], "token": job["token"]["apn"], "action": "message", "text": job["message"]["text"]})
 				notify_gcm.append({"doc_id": job["_id"], "token": job["token"]["gcm"], "action": "message", "text": job["message"]["text"]})
@@ -132,15 +134,16 @@ def getFormatedMessage(message):
 
 def sendNotifications2GCMDevice(reg_id, message):
 	gcm = GCM(GCM_API_KEY)
-	if True: #try:
-		#canonical_id = gcm.plaintext_request(registration_id=reg_id, data={'message': message})
+	if True: 
 		if isinstance(reg_id, list):
 			reg_ids = reg_id;
 		else:
 			reg_ids = [reg_id];
 		if(len(reg_ids)):
 			response = gcm.json_request(registration_ids=reg_ids, data={'message': message}, delay_while_idle=False)
-			print response
+			print ("GCM response: " + str(response))
+			#canonical_id = gcm.plaintext_request(registration_id=reg_id, data={'message': message, 'asetas': 'asdfasdfafsfds'}, delay_while_idle=False)
+			#print ("GCM responsess: " + str(canonical_id))
 		# 	# Repace reg_id with canonical_id in your database
 		# 	entry = entity.filter(registration_id=reg_id)
 		# 	entry.registration_id = canonical_id
@@ -246,4 +249,7 @@ for cdb in client_databases:
 # 	sendNotifications2APN(messages["apn"], cdb)
 # 	sendNotifications2GCM(messages["gcm"], cdb)
 
-#sendNotifications2GCMDevice("APA91bE53GRiuNA4mC_b5dDTkPWHyW8ZTyz_F5hIYMf_qnlr-RbWX8pIBdy2O-CEpNe0lFoKlYWgJxnLoNxB-OHng5QR9ttQKQVz4GQ1hVnEeaG9uYg6U-id-qqOWoKIdIzXyYqmsWVdjINeW4mrUjvIvqApg5kxFUHTApQ_vuLGMaMTwlXFQkU", "message")
+
+#canonical ----  APA91bHfyj_2oQQHoUl8o49FwQreGDMK-mzU8xKhnDhI-f_244i71NSy7JSGZ6uqXZRkFyFvuL4eVXzDce6wNhxuV3np70JSEh06xhH05x4KxL6wEwr5zJsjNsnXF9fxXuDqHW8iPiQyS8j4mFJ3kzZ7AU1hHE5RDh0st1aGcS0okA7mtJSplDo
+#sendNotifications2GCMDevice("APA91bF79-90Oacmp3uTb-q1_cQI8jfNjcJ8wvhL8wXPfn05aQRSCXq9zg2yb33Ox6y2SbE85CJHH6ov5fY_sPMB8c1x_-HrFk5M2wuVtaDnbQjs2S36eBQ_VTr-KNz7KRXeZeX41zowWTU6BSKp9fpOuWcz_TkAsg", "MYMESSEGE WITH DEVID")
+#sendNotifications2GCMDevice("APA91bHfyj_2oQQHoUl8o49FwQreGDMK-mzU8xKhnDhI-f_244i71NSy7JSGZ6uqXZRkFyFvuL4eVXzDce6wNhxuV3np70JSEh06xhH05x4KxL6wEwr5zJsjNsnXF9fxXuDqHW8iPiQyS8j4mFJ3kzZ7AU1hHE5RDh0st1aGcS0okA7mtJSplDo", "MYMESSAGE WITH CANONIC")

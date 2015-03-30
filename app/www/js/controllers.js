@@ -239,7 +239,7 @@ angular.module('starter.controllers', [])
         var config = null;
         if (ionic.Platform.isAndroid()) {
             config = {
-                "senderID": "449629838087" // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
+                "senderID": "852062115167" //"449629838087" // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
             };
         }
         else if (ionic.Platform.isIOS()) {

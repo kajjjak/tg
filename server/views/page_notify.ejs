@@ -1,0 +1,99 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+
+
+
+			<%if (!user.role.config) {%><% include partial_noaccess %><% } else { %>
+
+			<h1>Notification</h1>
+			<p>Send notification to your clients and/or drivers</p>
+			<div class="row">		
+				<div class="col-lg-12">			
+					<div class="box">
+						<div class="box-header" data-original-title>
+							<h2><i class="fa fa-info"></i><span class="break"></span>App notification</h2>
+							<div class="box-icon">
+								<a href="table.html#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
+								<a href="table.html#" class="btn-close"><i class="fa fa-times"></i></a>
+							</div>
+						</div>
+						<div class="box-content">		
+
+
+
+
+
+							<form class="form-horizontal">
+							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">Message</label>
+							    <div class="col-sm-10">
+							      <input type="text" class="form-control" id="notify_message_text" placeholder="Text message to send" value="">
+							      <p class="help-block">The message that will be sent as notification</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <button type="button" class="btn btn-primary" id="btnSave" onclick="btnSendNotificationMessage()">Send</button>
+							      <button type="button" class="btn btn-default" id="btnCancel" onclick="window.location.reload()">Discard</button>
+							    </div>
+							  </div>
+							</form>
+
+
+
+
+
+
+						</div> <!-- /box content -->
+					</div>
+				</div><!--/col-->			
+			</div><!--/row-->	
+			<% } %>
+
+
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+
+	<!-- inline scripts related to this page -->
+	<script>
+		function btnSendNotificationMessage(){
+			var envelope = {"message": {"text": $("#notify_message_text").val()}}
+			getPOST("/api/client/notify", envelope, function(res){
+				if(res.error){ handleError(res.error); }
+				else{
+					showAlert("Message sent");
+				}
+			});
+		}
+	</script>
+	
+</body>
+</html>

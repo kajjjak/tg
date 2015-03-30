@@ -171,6 +171,11 @@ module.exports = function(app, passport) {
         res.render('page_mobileapply.ejs', params);            
     });
 
+    app.get('/notify.html', /*isLoggedIn,*/ function(req, res) {
+        var params = getCommonVars(req);
+        res.render('page_notify.ejs', params);
+    });
+
     // STATISTICS SECTION =========================
     
     app.get('/areastats.html'/*, isLoggedIn*/, function(req, res) {
@@ -526,6 +531,41 @@ module.exports = function(app, passport) {
             }
         });
     });
+    app.post('/api/client/notify', /*isLoggedInAPI,*/ function(req, res) {
+        var params = getCommonVars(req);
+        var company_id = "tgc-e6ed05461250df994aa26e7c2d58b82a"; //params.user.company_id;
+        // https://taxigateway.cloudant.com/tgc-e6ed05461250df994aa26e7c2d58b82a/_design/list/_view/users
+        var envelope = req.body || {};
+        var path = "/" + company_id + "/_design/list/_view/users";
+        getJSON({
+            port: 80, //http
+            host: global._cfgv.dbhost,
+            path: path,
+            method:"GET",
+            headers:{'Content-Type': 'application/json'}
+        }, function(status, body) {
+            var apns = [];
+            var gcms = [];
+            var user = null;
+            for(var i in body.rows){
+                user = body.rows[i].value;
+                if (user.doctype == envelope.exclude){ continue; }
+                if(user.notification_apn){ apns.push(user.notification_apn); }
+                if(user.notification_gcm){ gcms.push(user.notification_gcm); }
+            }
+            envelope.token = {"apn": apns, "gcm": gcms};
+            envelope.notify = {"published_ts": new Date().getTime()};
+            envelope.doctype = "notify";
+            var doc_id = JSON.stringify(envelope);
+            doc_id = "msg-" + crypto.createHash('md5').update(doc_id).digest('hex');
+            console.info("asdf  " + JSON.stringify(envelope))
+            setCompanyDocument(company_id, doc_id, envelope, function(doc){
+                res.send(envelope);
+            }, function(e){ res.send({error: e}); });
+        }, function(err){
+            res.send({"response": err, "success":false, "path": path, "host": global._cfgv.dbhost});
+        });        
+    });    
     app.post('/api/client/mobile/version', isLoggedInAPI, function(req, res) {
         var params = getCommonVars(req);
         if(req.body.action == "deploy"){
