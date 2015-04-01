@@ -170,6 +170,10 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		if(keys.length){ url = url + "?keys=" + JSON.stringify(keys);}
 		jobs = {};
 		$.getJSON(url, function(res){
+			if(res.error){
+				callback_onerror({"statusCode": "server_errorresponse"});
+				return;
+			}
 			for(var i in res.rows){
 				var job = res.rows[i].value;
 				jobs[job._id] = job;
@@ -185,7 +189,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 			if(callback_updated){
 				callback_updated();
 			}							
-		});
+		}).error(function(){callback_onerror({"statusCode": "network_errorgetjson"})});
 	};
 
 	this._track = function(){
@@ -236,7 +240,9 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 						handleMarkerClick(markers[marker_id]);
 					});
 				}catch(e){
-					throw {"error": 12313, "message": "Could not create marker " + marker_id, "details": JSON.stringify(e)};
+					if(callback_onerror){
+						callback_onerror({"error": 12313, "message": "Could not create marker " + marker_id, "details": e, "silent": true});
+					}
 				}
 			}else{
 				markers[marker_id].setIcon(getStateIcon(doc));
@@ -311,7 +317,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 
 	function getStateIcon(doc){
 		var selected_icon = getState(doc);
-		var icons={"assign": iconAssign, "waiting": iconWaiting, "driving": iconDriving, "completed": iconComplete, "canceled": iconAssign, "driver": iconDriver};
+		var icons={"assign": iconCreate, "waiting": iconCreate, "driving": iconCreate, "completed": iconComplete, "canceled": iconComplete, "driver": iconDriver};
 		return icons[selected_icon];
 	}
 

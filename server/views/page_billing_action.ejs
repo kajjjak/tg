@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<% include partial_head %>
+</head>
+
+<body>
+	<% include partial_headermenu %>
+	<!-- start: Header -->	
+		<div class="container">
+		<div class="row">
+
+			<% include partial_mainmenu %>
+			
+			<!-- start: Content -->
+			<div id="content" class="col-sm-11">
+				<div id="payment_state"></div>
+			</div>
+			<!-- end: Content -->
+			
+			<% include partial_widgetsarea %>
+
+		<a id="widgets-area-button" class="hidden-sm hidden-xs open"><i class="fa fa-bars"></i></a>				
+		</div><!--/row-->
+
+		<% include partial_modal %>
+		
+	</div><!--/container-->
+
+	<div class="clearfix"></div>
+	<% include partial_footer %>
+	<% include partial_postscripts %>
+	<script>
+		var payment_state = <%- JSON.stringify(payment) %>;
+		if(payment_state.instalment){
+			$("#payment_state").append("<div>Instalment payment completed </div>");
+		}
+		if(payment_state.subscription){
+			$("#payment_state").append("<div>Subscription payment complete</div>");
+		}
+	</script>
+
+	<!-- inline scripts related to this page -->
+	
+</body>
+</html>

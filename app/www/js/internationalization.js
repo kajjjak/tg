@@ -1,5 +1,23 @@
 var lang_support = {
     "en": {
+        "errors":{
+        "default":{
+            "title": "Alert",
+            "message": "Something unexpected happened"
+        },
+        "network_errorgetjson":{
+            "title": "Network issues",
+            "message": "Having network problems. Could you verify that everything is ok?"
+        },
+        "server_errorresponse":{
+            "title": "Server issues",
+            "message": "Server responed with unexpected error. Could you try to restart the app and try again?"
+        },
+        "network_shortaddress":{
+            "title": "Address",
+            "message": "The result is not specifc enough. You may proceed but it would help the driver if you would relocate the marker"        
+        }
+    },        
         "notification": {
             "accepted": {
                 "message": "We are on our way to pick you up",

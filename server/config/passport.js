@@ -35,8 +35,8 @@ function validateMemberData(data){
     data.role = {"driver": 0, "router": 0, "config": 0, "member": 0};
     if(data.group == "driver"){  data.role.driver = 1;}
     if(data.group == "router"){  data.role.router = 1; data.role.config = 1; data.role.member = 1;}
-    if(data.group == "manager"){ data.role.router = 1; data.role.config = 1; data.role.member = 1; data.role.report = 2; }
-    if(data.group == "admin"){ data.role.driver = 3; data.role.router = 3; data.role.config = 3; data.role.member = 3; data.role.admin = 3; data.role.report = 3; }
+    if(data.group == "manager"){ data.role.router = 1; data.role.config = 1; data.role.member = 1; data.role.report = 2; data.role.payment = 3;}
+    if(data.group == "admin"){ data.role.driver = 3; data.role.router = 3; data.role.config = 3; data.role.member = 3; data.role.admin = 3; data.role.report = 3; data.role.payment = 3; }
     if(!data.role){ throw "Member group was invalid. Must be one of these: driver, router, manager or admin";}
     data.created = parseInt(data.created);
     if(!data.name.length){ throw "Member must have a name"; }

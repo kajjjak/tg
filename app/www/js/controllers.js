@@ -105,7 +105,8 @@ angular.module('starter.controllers', [])
     //lets collect all the info
     if(!window.map){  $state.go('app.home'); /*openPage("home");*/ }
     //validate data required
-    data.location = window.map.getCenter();
+    var jp = window.map.getCenter();
+    data.location = [jp.lat, jp.lng];
     data.address = getJobAddress();
     if(!data.location){  $state.go('app.home'); /*openPage("home");*/ }
     data.pickup_time = data.pickup_time || new Date().getTime(); //should be set by UI
@@ -134,18 +135,27 @@ angular.module('starter.controllers', [])
     data.destination = null;
     data.price = null;
     data.route = null;
+    data.client_ts = new Date().getTime();
     if(data.driver.id){
+      data.author = "driver";
       data.driver.gcm = data.notification_gcm;
       data.driver.apn = data.notification_apn;
       data.driver.lang = getSelectedLanguage();
     }else{
+      data.author = "client";
       data.client.gcm = data.notification_gcm;
       data.client.apn = data.notification_apn;      
       data.client.lang = getSelectedLanguage();
     }
     $("#request_action").attr('disabled','disabled');
     //saves the request to server
-    gateway.addJob(data);
+    //gateway.addJobData(data);
+    gateway.setJobState("create", function(res){
+      console.info("Created job " + JSON.stringify(res));
+      if(res.job){
+        setCurrentGatewayJob(res.job); //{err:err, response:res, doc: dict});      
+      }
+    }, undefined, data);
     //open communication window    
   };
 
@@ -380,7 +390,7 @@ angular.module('starter.controllers', [])
   $ionicPlatform.ready(function() {
 
     gateway.init($cordovaDevice.getUUID());
-    gateway.setCallbackChange(guiCallbackGatewayProperty, setCurrentGatewayJob);
+    gateway.setCallbackChange(guiCallbackGatewayProperty);
     try{
       $scope.watchUserLocation();
       $scope.registerPushNotification();
@@ -388,9 +398,7 @@ angular.module('starter.controllers', [])
       console.log("Error registering watch or notification. Got: " + JSON.stringify(e));
     }
     setTimeout(function(){
-      window.vt = new GatewayTracker(config.database.name, window.map, guiShowFeedbackState, function(e){
-          alert(JSON.stringify(e));
-        }, function(marker){
+      window.vt = new GatewayTracker(config.database.name, window.map, guiShowFeedbackState, guiHandleKnownErrors, function(marker){
         }, {"filter_rules_all": true, "path_view": "/_design/jobs/_view/user"}); //?keys=[%22" + gateway.getUserIdentifier() + "%22]"});
       window.vt.setFilterUser(gateway.getUserIdentifier(), true);
       window.vt.setFilterUser(gateway.getDriverAccess().account, true);
@@ -554,7 +562,7 @@ function setCurrentGatewayJob(doc){
     guiShowFeedbackState(doc);
     window.vt.stop();
     window.vt.clearFilterMarkers();
-    window.vt.setFilterMarkers(doc._id, true);
+    window.vt.setFilterMarkers(doc._id || doc.id, true);
     window.vt.start();
   }
 }
@@ -754,21 +762,36 @@ function _fetchJobAddress(lat, lng, passed_timedid){
   var url = "http://taxigateway.com/api/geocode/reverse/"+lat+"/"+lng+"/mapquest";
   $.getJSON(url, function(res){
     var address = res.street;
+    if(!address){
+      guiHandleKnownErrors({"statusCode": "network_shortaddress"});
+    }
     if(res.street_number){ address = address + " " + res.street_number; }
     if(res.city){ address = address + ", " + res.city; }
     res.formated = address;
     sessionStorage.setItem("job_address", JSON.stringify(res));
     $(".job_address").html(address);
-  });
+  }).error(function(e){guiHandleKnownErrors({"statusCode": "network_errorgetjson"});});
 }
 
 function getJobAddress(){
   return JSON.parse(sessionStorage.getItem("job_address") || "null");
 }
+function showAlert(msg, title){
+  alert(msg, title || lang.errors.default.title);
+}
 function handleException(e){
   console.log(e);
 }
-
+function handleError(e){
+  handleException(e);
+}
+function guiHandleKnownErrors(e){
+  var msg = lang.errors[e.statusCode] || {};
+  //LOG THIS TO GOOGLE ANALYTICS
+  if(!msg.silent){
+    showAlert(msg.message || e.statusCode, msg.title || lang.errors.default.title);
+  }
+}
 function showUserVisualLocation(loc, dist){
   if(!window.map){ return ; }
   loc = loc || gateway.getUserLocation();
@@ -813,5 +836,4 @@ function getVehicleMenuItems(selected_item_only){
     return vehicles;
   }
 }
-
 

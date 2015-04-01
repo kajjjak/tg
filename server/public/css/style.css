@@ -7,3 +7,26 @@
 	border-width: 3px;
 	border-color: black;
 }
+
+.maptoolbar_complete_btn{
+	background-color: rgb(170, 170, 170) !important;
+ 	color: white !important;
+ }
+
+ .select-job-details-row{
+ 	display:inline-block;
+ }
+
+ .select-job-details-time{
+ 	float: left;
+ }
+
+ .select-job-details-address{
+ }
+
+ .select-job-details-vehicle{
+ 	float: right;
+ }
+ .select-job-details-driver{
+ 	float: right;
+ }

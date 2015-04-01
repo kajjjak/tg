@@ -67,46 +67,37 @@
 
 				</div>
 
-				<div style="width: 100%;text-align: center;">
-					<!-- https://www.paypal.com  test:;  https://www.sandbox.paypal.com/cgi-bin/webscr-->
-					<!-- form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" -->
-					<!-- https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/ -->
-					<!--
-						http://taxigateway.com/billing/paypal/payment/page/accept
-						http://taxigateway.com/billing/paypal/payment/page/cancel
-					 -->
-					<!-- form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-						<input type="hidden" name="cmd" value="_s-xclick">
-						<input type="hidden" name="hosted_button_id" value="7Z48JWZ5B9PBJ">
-						<table style="margin: 0 auto;">
-						<tr><td><input type="hidden" name="on0" value="Payment options">Payment options</td></tr><tr><td><select name="os0">
-						<option value="Basic">Basic : $200.00 USD - monthly</option>
-						<option value="Standard">Standard : $400.00 USD - monthly</option>
-						<option value="Deluxe">Deluxe : $700.00 USD - monthly</option>
-						</select> </td></tr>
-						</table>
-						<input type="hidden" name="custom" value="xvxvxvxcvxvxvxvx">
-						<input type="hidden" name="currency_code" value="USD">
-						<input type="hidden" name="buisiness" value="kjartan@agamecompany.com">
-						<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_subscribeCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-						<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-					</form -->
-<!-- <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-<input type="hidden" name="cmd" value="_s-xclick">
-<input type="hidden" name="hosted_button_id" value="XQKASXQ5YL8B6">
-<table>
-<tr><td><input type="hidden" name="on0" value="Payment options">Payment options</td></tr><tr><td><select name="os0">
-	<option value="Basic">Basic : $200.00 USD - monthly</option>
-	<option value="Standard">Standard : $400.00 USD - monthly</option>
-	<option value="Deluxe">Deluxe : $700.00 USD - monthly</option>
-</select> </td></tr>
-</table>
-<input type="hidden" name="currency_code" value="USD">
-business
+				<div style="text-align:center;">
+					<hr>
+					<center>
+						<!-- https://www.paypal.com  test:;  https://www.sandbox.paypal.com/cgi-bin/webscr-->
+						<!-- form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top" -->
+						<!-- https://developer.paypal.com/docs/classic/paypal-payments-standard/integration-guide/Appx_websitestandard_htmlvariables/ -->
 
-<input type="image" src="https://www.sandbox.paypal.com/en_US/i/btn/btn_subscribeCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-<img alt="" border="0" src="https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-</form> -->
+						<div id="subscribe" style="display: none;">
+							<!-- subscribe subscription -->
+							<form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+							<input type="hidden" name="cmd" value="_s-xclick">
+							<input type="hidden" name="hosted_button_id" value="7Z48JWZ5B9PBJ">
+							<table>
+							<tr><td><input type="hidden" name="on0" value="Payment options">First month will be free of charge</td></tr><tr><td><select name="os0">
+								<option value="Basic">Basic : $220.00 USD - monthly</option>
+								<option value="Standard">Standard : $430.00 USD - monthly</option>
+								<option value="Deluxe">Deluxe : $750.00 USD - monthly</option>
+							</select> </td></tr>
+							</table>
+							<input type="hidden" name="currency_code" value="USD">
+							<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_subscribeCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+							<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+							</form>
+						</div>
+						<div id="unsubscribe" style="display: none">
+							<!-- unsubscribe subscription -->
+							<A HREF="https://www.paypal.com/cgi-bin/webscr?cmd=_subscr-find&alias=7L7GU3WBQ3L2U">
+							<IMG SRC="https://www.paypalobjects.com/en_US/i/btn/btn_unsubscribe_SM.gif" BORDER="0">
+							</A>
+						</div>
+					</center>
 
 				</div>
 
@@ -135,22 +126,36 @@ business
 	<% include partial_footer %>
 	<% include partial_postscripts %>
 
+	<script src="/js/gatewayapi.js"></script>
+
 	<script>
-		var url = getSystemDatabasePath() + "/_design/list/_view/payment?keys=[%22" + user.company_id + "%22]";
-		var payment_header = "";
-		payment_header = payment_header + "<th>Date</th>";
-   		payment_header = payment_header + "<th>Amount</th>";
-		$("#payments").append("<tr>"+payment_header+"</tr>");
-		$.getJSON(url, function(result){
-			for(var i in result.rows){
-				var row = result.rows[i].value;
-				var payment_row = "";
-				payment_row = payment_row + "<td>" + row.payment_date + "</td>";
-				payment_row = payment_row + "<td>" + row.mc_gross + "</td>";
-				console.info(row.mc_gross1)
-				$("#payments").append("<tr>"+payment_row+"</tr>");
+
+		$(function () {
+			var url = getSystemDatabasePath() + "/_design/list/_view/payment?keys=[%22" + user.company_id + "%22]";
+			var payment_header = "";
+			payment_header = payment_header + "<th>Date</th>";
+	   		payment_header = payment_header + "<th>Amount</th>";
+			$("#payments").append("<tr>"+payment_header+"</tr>");
+			$.getJSON(url, function(result){
+				for(var i in result.rows){
+					var row = result.rows[i].value;
+					var payment_row = "";
+					payment_row = payment_row + "<td>" + row.payment_date + "</td>";
+					payment_row = payment_row + "<td>" + row.mc_gross + "</td>";
+					console.info(row.mc_gross1)
+					$("#payments").append("<tr>"+payment_row+"</tr>");
+				}
+			});
+
+			// figure out what payment button to show
+			var payment = gapi.getClientDoc().payment || {};
+			if(payment.subscription){ //jup, he is or want to subscribe
+				$("#unsubscribe").show(); //lets allow him to unsubscribe
+			}else{
+				$("#subscribe").show(); //lets allow him to subscribe
 			}
-		});
+
+        });
 
 	</script>
 	

@@ -11,11 +11,11 @@
 	<!-- end: Mobile Specific -->
 	
 	<!-- start: CSS -->
-	<link href="assets/css/bootstrap.min.css" rel="stylesheet">
-	<link href="assets/css/style.min.css" rel="stylesheet">
-	<link href="assets/css/retina.min.css" rel="stylesheet">
-	<link href="assets/datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
-	<link href="css/style.css" rel="stylesheet">
+	<link href="/assets/css/bootstrap.min.css" rel="stylesheet">
+	<link href="/assets/css/style.min.css" rel="stylesheet">
+	<link href="/assets/css/retina.min.css" rel="stylesheet">
+	<link href="/assets/datetimepicker/css/bootstrap-datetimepicker.min.css" rel="stylesheet">
+	<link href="/css/style.css" rel="stylesheet">
 
 	<!-- end: CSS -->
 
@@ -23,30 +23,38 @@
 	<!--[if lt IE 9]>
 	  	<script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
 		<script src="/assets/js/respond.min.js"></script>
-		<link href="assets/css/ie.css" rel="stylesheet">
+		<link href="/assets/css/ie.css" rel="stylesheet">
 	<![endif]-->
 	
 	<!--[if IE 9]>
-		<link id="ie9style" href="assets/css/ie9.css" rel="stylesheet">
+		<link id="ie9style" href="/assets/css/ie9.css" rel="stylesheet">
 	<![endif]-->
 	
 	<!-- start: Favicon and Touch Icons -->
-	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
-	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
-	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
-	<link rel="apple-touch-icon-precomposed" sizes="57x57" href="assets/ico/apple-touch-icon-57-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="144x144" href="/assets/ico/apple-touch-icon-144-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="114x114" href="/assets/ico/apple-touch-icon-114-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="72x72" href="/assets/ico/apple-touch-icon-72-precomposed.png">
+	<link rel="apple-touch-icon-precomposed" sizes="57x57" href="/assets/ico/apple-touch-icon-57-precomposed.png">
 	<link rel="shortcut icon" href="assets/ico/favicon.png">
 	<!-- end: Favicon and Touch Icons -->
 	<script>
 		var user = {};
 		var conn = {};
 
-		function getCompanyDatabasePath(u){
+		function getCompanyDatabasePath(callback_success){
 			if(!conn.dbserver){ return null; }
-			var codat = gapi.getClientDoc();
-			var server_path = conn.dbserver; 
-			server_path = server_path.replace("http://", "http://"+codat.access.name+":"+codat.access.passw+"@");
-			return server_path + "/" + user.company_id;
+			if (callback_success){
+				gapi.getClientDoc(function(codat){
+					var server_path = conn.dbserver; 
+					server_path = server_path.replace("http://", "http://"+codat.access.name+":"+codat.access.passw+"@");
+					callback_success(server_path + "/" + user.company_id);
+				});	
+			}else{
+				var codat = gapi.getClientDoc();
+				var server_path = conn.dbserver; 
+				server_path = server_path.replace("http://", "http://"+codat.access.name+":"+codat.access.passw+"@");
+				return server_path + "/" + user.company_id;			
+			}
 		}
 
 		function getSystemDatabasePath(){

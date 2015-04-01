@@ -119,7 +119,7 @@ module.exports = function(app, passport) {
 
     function getCommonVars(req){
         var params = global._cfgv
-        params["user"] = req.user; //{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user;
+        params["user"] = req.user;//{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user;
         //if(!params["user"]){ params["user"] = {};}
         //if(!params["user"]["role"]){ params["user"]["role"] = {};}
         params["app_social_facebook_appid"] = global._cfgv.social_facebook_appid;
@@ -141,10 +141,12 @@ module.exports = function(app, passport) {
         res.render('page_setup.ejs', params);
     });
 
-    app.get('/payments.html', isLoggedIn, function(req, res) {
+    app.get('/notify.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('page_billing.ejs', params);
+        res.render('page_notify.ejs', params);
     });
+
+    // APP CONFIGURATION SECTION =========================
 
     app.get('/mobileinfo.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
@@ -171,14 +173,35 @@ module.exports = function(app, passport) {
         res.render('page_mobileapply.ejs', params);            
     });
 
-    app.get('/notify.html', /*isLoggedIn,*/ function(req, res) {
+    // PAYMENTS SECTION =========================
+
+    app.get('/payments.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
-        res.render('page_notify.ejs', params);
+        res.render('page_billing.ejs', params);
+    });
+    
+    app.get('/billing/paypal/page/:payment_type/:payment_action', isLoggedIn, function(req, res) {
+        var type = req.params.payment_type;
+        var action = req.params.    payment_action;
+        var params = getCommonVars(req);
+        if(((type == "instalment") || (type == "subscribe")) && (action == "confirmed")){
+            //OK we may be getting payment from our prospect, lets open the system up
+            var dict = {"payment": {}};
+            dict["payment"][type] = {"prospect": new Date().getTime()};
+            params.payment = dict["payment"];
+            setDocument(params.user.company_id, dict, function(d){
+                res.render('page_billing_action.ejs', params);
+            }, function(e){
+                res.render('page_billing_action.ejs', params);
+            });
+        }else{
+            res.render('page_billing_action.ejs', params);
+        }
     });
 
     // STATISTICS SECTION =========================
     
-    app.get('/areastats.html'/*, isLoggedIn*/, function(req, res) {
+    app.get('/areastats.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
         res.render('page_areastats.ejs', params);
     });
@@ -531,9 +554,9 @@ module.exports = function(app, passport) {
             }
         });
     });
-    app.post('/api/client/notify', /*isLoggedInAPI,*/ function(req, res) {
+    app.post('/api/client/notify', isLoggedInAPI, function(req, res) {
         var params = getCommonVars(req);
-        var company_id = "tgc-e6ed05461250df994aa26e7c2d58b82a"; //params.user.company_id;
+        var company_id = params.user.company_id;
         // https://taxigateway.cloudant.com/tgc-e6ed05461250df994aa26e7c2d58b82a/_design/list/_view/users
         var envelope = req.body || {};
         var path = "/" + company_id + "/_design/list/_view/users";
@@ -569,19 +592,25 @@ module.exports = function(app, passport) {
     app.post('/api/client/mobile/version', isLoggedInAPI, function(req, res) {
         var params = getCommonVars(req);
         if(req.body.action == "deploy"){
-            getDocument(params.user.company_id + "-edit", function(doc){
-                // final validation
-                doc.app_config.database.name = getCompanyDatabase(req);
-                // save to live version
-                setDocument(params.user.company_id, {"app_config": doc.app_config}, function(){
-                    res.send({"success": true});
-                },function(e){
-                res.send(e);
+            getDocument(params.user.company_id, function(cdoc){ //check the company document if a payment has been made
+                if(!cdoc.payment){ cdoc.payment = {}; }
+                if(cdoc.payment.instalment && cdoc.payment.subscription){
+                    getDocument(params.user.company_id + "-edit", function(doc){
+                        // final validation
+                        doc.app_config.database.name = getCompanyDatabase(req);
+                        // save to live version
+                        setDocument(params.user.company_id, {"app_config": doc.app_config}, function(){
+                            res.send({"success": true});
+                        },function(e){
+                        res.send(e);
+                    });
+                    },function(e){
+                        res.send(e);
+                    });
+                }else{
+                    res.send({"error":"Instalment and subscription commitment required"});
+                }
             });
-            },function(e){
-                res.send(e);
-            });
-
         }else{
             res.send({"error": "Nothing to do"});
         }
@@ -615,7 +644,7 @@ module.exports = function(app, passport) {
 
 
     app.delete('/api/client/:company_id/job', isLoggedInAPI, function(req, res) { //
-        if(req.user.role.admin < 100){
+        if(req.user.role.admin > 9){
             throw "Administrator rights required";
         }        
         var company_id = req.params.company_id;
@@ -648,7 +677,8 @@ module.exports = function(app, passport) {
                 res.send({"error": e});
                 return;
             }
-            if((!req.user) && (req.body.author == "router")){
+            user = req.user || {"role":{}};
+            if((!user) && (req.body.author == "router")){
                 res.send(403);
                 return;
             }
@@ -733,7 +763,7 @@ module.exports = function(app, passport) {
         if(data.doctype == "notify"){ throw "Not allowed to create notify document. sorry :( "; }
         if(!data.doc_id){ throw "Document id must be specified "; }
         setCompanyDocument(company_id, data.doc_id, data, function(d){
-            res.send({success: true});
+            res.send(d);
         }, function(e){
             res.send({"error": e});
         });
@@ -1331,6 +1361,7 @@ function setCompanyDocument(dbid, id, obj, success, failure){
             doc[key] = obj[key] || doc[key];
           }
         }
+        //doc = mergeRecursive(doc, obj);
         if(!doc.version){ doc.version = global._cfgv.version; }
         try{
             db.insert(doc, id, function(err, changed_doc){
@@ -1354,6 +1385,7 @@ function getCompanyDocument(dbid, id, success, failure){
 }
 
 function bulkRemove(dbname, docs, callback_result){
+  var nano = getNanoSecure();
   var db = nano.db.use(dbname);
   var row, remove = [];
   for (var i in docs){
@@ -1396,6 +1428,7 @@ function setDocument(id, obj, success, failure){
             doc[key] = obj[key];
           }
         }
+        //doc = mergeRecursive(doc, obj);
         try{
             if(!doc.version){ doc.version = global._cfgv.version; }
 	        db.insert(doc, id, function(err, changed_doc){

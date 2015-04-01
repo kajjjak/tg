@@ -1,3 +1,30 @@
+function createMap (elid, callback_success){
+    // calls callback_success with map reference
+    window.gapi.getClientDoc(function(cdoc){
+        var map_position = JSON.parse(localStorage.getItem("map_position") || "null") || cdoc.app_config.map.position;
+        var map_zoom = JSON.parse(localStorage.getItem("map_zoom") || "null") || cdoc.app_config.map.zoom;
+        if(!(map_position[0] + map_position[1])){
+            try{
+                map_position = cdoc.registration.company.stats.country.latlng;
+                map_zoom = 7;
+            }catch(e){}
+        }
+        window.map = L.map(elid).setView(map_position, map_zoom);
+        // add an OpenStreetMap tile layer
+        L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        window.map.on('moveend', function(e){
+            var latlng = window.map.getCenter();
+            localStorage.setItem("map_position", JSON.stringify([latlng.lat, latlng.lng]));
+            localStorage.setItem("map_zoom", map.getZoom());
+        });
+        if(callback_success){callback_success(window.map);}
+    });
+};
+
+
 function guiStateButtonsEnabled(b){
 	if(!b){
 		$(".maptoolbar_btn").attr("disabled", "disabled");	
@@ -33,10 +60,10 @@ function setJobLabelDetails(job){
 		if(job.doctype == "job"){
 			var vehicles = res.service.vehicles;
 			var pickup_type = getJobVehiclesName(job.vehicles, vehicles);
-			var pickup_time = new Date(job.pickup_time || job.datetime).toLocaleString();
+			var pickup_time = moment(job.pickup_time || job.datetime).lang(res.language).format('LLL');
 			var pickup_driver = "";
 			try{ if(job.driver.name){pickup_driver = job.driver.name;} }catch(e){}
-			$(".selected-job-details").html("<b>"+pickup_time+"</b> vehicle type " + pickup_type + " at <b>" + (job.address.formated || job.address.street) + "</b> " + pickup_driver);
+			$(".selected-job-details").html("<div class='select-job-details-row select-job-details-time'>"+pickup_time+"</div> <div class='select-job-details-row select-job-details-address'>" + (job.address.formated || job.address.street) + "</div><div class='select-job-details-row select-job-details-vehicle'>Vehicle type " + pickup_type + "</div><div class='select-job-details-row select-job-details-driver'>" + pickup_driver + "</div>");
 		}else{
 			//TODO: display driver information driver
 		}

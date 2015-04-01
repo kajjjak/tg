@@ -42,7 +42,7 @@
 				    <button id="maptoolbar_driving" type="button" class="maptoolbar_btn btn btn-success" onclick="showJobState(this)">Pickup</button>
 				  </div>
 				  <div class="btn-group" role="group">
-				    <button id="maptoolbar_complete" type="button" class="maptoolbar_btn btn btn-default" onclick="showJobState(this)">Complete</button>
+				    <button id="maptoolbar_complete" type="button" class="maptoolbar_btn btn btn-default maptoolbar_complete_btn" onclick="showJobState(this)">Complete</button>
 				  </div>
 				</div>
 
@@ -133,8 +133,7 @@
 					<div class="modal-footer">
 						<button type="button" class="btn btn-success" data-dismiss="modal" onclick="setJobState(0)">Show</button>
 						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(1)">Create</button>
-						<button type="button" class="btn btn-warning" data-dismiss="modal" onclick="setJobState(2)">Cancel</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<!-- <button type="button" class="btn btn-warning" data-dismiss="modal" onclick="setJobState(2)">Cancel</button> -->
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
@@ -174,7 +173,6 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(4)">Assign</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
@@ -207,8 +205,9 @@
 							<option value="180">3 hours</option>
 						</select>
 						<button type="button" class="btn btn-warning" data-dismiss="modal" onclick="setJobState(50)">On route</button>
-						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(5)">Arrived</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="showModalCancel(-2)">Driver canceled</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="showModalCancel(-1)">Client canceled</button>						
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(5)">Arrived</button>						
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
@@ -228,7 +227,8 @@
 					</div>
 					<div class="modal-footer">
 						<!-- button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(6)">Driving</button -->
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="showModalCancel(-1)">Client canceled</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(7)">Complete</button>
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
@@ -250,7 +250,6 @@
 						<button type="button" class="btn btn-danger" data-dismiss="modal" onclick="showModalCancel(-2)">Driver canceled</button>
 						<button type="button" class="btn btn-warning" data-dismiss="modal" onclick="showModalCancel(-1)">Client canceled</button>
 						<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="setJobState(7)">Complete</button>
-						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
 					</div>
 				</div><!-- /.modal-content -->
 			</div><!-- /.modal-dialog -->
@@ -275,23 +274,13 @@
 	<script>
 
         $(function () {
-        	var company_location = [0,0];
-        	var company_zoomlevel = 4;
-        	try{ company_location = gapi.getClientDoc().registration.company.stats.country.latlng; company_zoomlevel = 7; }catch(e){}
-			window.map = L.map('map').setView(company_location, company_zoomlevel);
-			// add an OpenStreetMap tile layer
-			L.tileLayer('http://{s}.tile.osm.org/{z}/{x}/{y}.png', {
-			    attribution: '&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-			}).addTo(map);
-
+            createMap('map', function(map){});
             window.datepicker = $('#datetimepicker').datetimepicker({
             	defaultDate: new Date(),
             	locale:'is',
             	sideBySide: true,
             	showTodayButton: true
             });
-
-            window.gapi.getClientDoc(); //make sure we have updated info on client setup
         });
 
 

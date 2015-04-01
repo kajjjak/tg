@@ -132,6 +132,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 	}
 
 	this._fetchState = function(){
+		/*
 		var url = getCompanyDatabasePath() + (options.path_view || "/_design/jobs/_view/active");
 		getJSON(url, function(res){
 			var rows = res.rows;
@@ -148,29 +149,58 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 				callback_updated();
 			}										
 		});
+		*/
+		var self = this;
+		getCompanyDatabasePath(function(url){
+			url = url + (options.path_view || "/_design/jobs/_view/active");
+			var keys = getFiltered() || []; 
+			if(keys.length){ url = url + "?keys=" + JSON.stringify(keys);}
+			jobs = {};
+			$.getJSON(url, function(res){
+				for(var i in res.rows){
+					var job = res.rows[i].value;
+					jobs[job._id] = job;
+					if(isFiltered(job) && (!options.cacheonly)){
+						if(callback_changes){
+							callback_changes(job, !options.update);
+						}
+						try{
+							setMapChanged(job);
+						}catch(e){}
+					}
+				}
+				if(callback_updated){
+					callback_updated();
+				}							
+			});
+		});
+
 	};
 
 	this._track = function(){
-		this.dbinst = new PouchDB(getCompanyDatabasePath());
-		this._changes = this.dbinst.changes({
-		  since: 'now',
-		  include_docs: true,
-		  doc_ids: getFiltered(),//options.doc_ids,
-		  live: true
-		}).on('change', function(change) {
-			// we get 
-			// {"seq":4,"id":"a11b32e4b11b4d3272f5d9df62003ac9","changes":[{"rev":"3-a6e46ba86c10a7c19abf0860174cb322"}],"doc":{"_id":"a11b32e4b11b4d3272f5d9df62003ac9","_rev":"3-a6e46ba86c10a7c19abf0860174cb322","doctype":"job","location":[-64,-21.12312313],"time":1424219775643,"client_alias":null}}
-			//console.info("Change " + JSON.stringify(change));
-			try{
-				setMapChanged(change.doc);
-			}catch(e){
-				if(callback_onerror){
-					callback_onerror(e);
+		var self = this;
+		getCompanyDatabasePath(function(url){
+			self.dbinst = new PouchDB(url);
+			self._changes = self.dbinst.changes({
+			  since: 'now',
+			  include_docs: true,
+			  doc_ids: getFiltered(),//options.doc_ids,
+			  live: true
+			}).on('change', function(change) {
+				// we get 
+				// {"seq":4,"id":"a11b32e4b11b4d3272f5d9df62003ac9","changes":[{"rev":"3-a6e46ba86c10a7c19abf0860174cb322"}],"doc":{"_id":"a11b32e4b11b4d3272f5d9df62003ac9","_rev":"3-a6e46ba86c10a7c19abf0860174cb322","doctype":"job","location":[-64,-21.12312313],"time":1424219775643,"client_alias":null}}
+				//console.info("Change " + JSON.stringify(change));
+				try{
+					setMapChanged(change.doc);
+				}catch(e){
+					if(callback_onerror){
+						callback_onerror(e);
+					}
 				}
-			}
-			if(callback_changes){
-				callback_changes(change.doc);
-			}
+				if(callback_changes){
+					callback_changes(change.doc);
+				}
+			});
 		});
 	}
 
@@ -179,6 +209,12 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		if(callback_location){
 			callback_location(marker);
 		}
+	}
+
+	function getLatLng(p){
+		if(!p.lat){latlng = {"lat": parseFloat(p[0]), "lng": parseFloat(p[1])};
+		}else{ latlng = p; }
+		return latlng;
 	}
 
 	function setMapChanged(doc){
@@ -193,9 +229,11 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 				console.info("WHOOHOHOOOOO got driver id "+doc.driver.arrives_id+", new we need to save it and restart the tracker !!!!!! ");
 			}
 			*/
+			// make sure latlng is ok
+			var marker_location = getLatLng(doc.location);
 			if(!markers[marker_id]){ // missing marker create one
 				try{
-					markers[marker_id] = L.marker(doc.location, {icon: getStateIcon(doc)}).addTo(window.map);
+					markers[marker_id] = L.marker(marker_location, {icon: getStateIcon(doc)}).addTo(window.map);
 					markers[marker_id].id = marker_id;
 					markers[marker_id].on("click", function(e){
 						handleMarkerClick(markers[marker_id]);
@@ -205,7 +243,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 				}
 			}else{
 				markers[marker_id].setIcon(getStateIcon(doc));
-				markers[marker_id].setLatLng(doc.location);
+				markers[marker_id].setLatLng(marker_location);
 			}
 			markers[marker_id].doc = doc;
 			if(doc.doctype == "driver"){

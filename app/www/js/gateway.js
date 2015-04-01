@@ -23,9 +23,9 @@
       };
     })();        
 
-    this.setCallbackChange = function(fn, fn2){
+    this.setCallbackChange = function(fn){
       this.callback_change = fn;
-      this.callback_addjob = fn2;
+      //this.callback_addjob = fn2;
     }
 
     this.getUserIdentifier = function(){
@@ -99,7 +99,7 @@
     };
 
 
-    this.setDocument = function(doc_id, dict){
+    this.setDocument = function(doc_id, dict, callback_success){
       dict = dict || {};
       var company_id = window.config.database.name;
       var url = getServerAPIPath() + "api/client/" + company_id + "/mobile/doc";
@@ -108,6 +108,8 @@
         console.info("Saved document result " + JSON.stringify(result));
         if(result.error){
           handleException(result.error);
+        }else{
+          if(callback_success){callback_success(result);}
         }
       });
 /*      
@@ -124,8 +126,26 @@
     };
 
     this.addJobData = function(dict){
+      // NOT USED
+/*      
       var doc_id = "job-" + CryptoJS.MD5(JSON.stringify(dict));
-      this.setDocument(doc_id, dict);
+      this.setDocument(doc_id, dict, function(response){
+        if(response.error){
+          //{"status":500,"name":"unknown_error","message":"Database encountered an unknown error","error":true}
+          handleException(response.error);
+          return;
+        }
+        if(gateway.callback_addjob){
+          dict.id = response.id;
+          gateway.callback_addjob(dict);//{err:err, response:response, doc: dict});
+        }
+        
+        //console.info("Added document response  " + JSON.stringify({err:err, response:response}));
+        //localStorage.setItem("order_id", response.id);
+        //guiShowFeedbackState(dict);        
+
+      });
+*/
 /*      
       Gateway.db.post(dict, function(err, response) {
         if(err && err.error){
@@ -206,9 +226,13 @@
       //if job_id is not set then we use the last one selected
       data = data || {};
       data.access_passkey = getAccountAccessKey();//{"user_id": "e3d56304c5288ccd6dd6c4a0bb8c3d57", "passkey": "7e4a4da8-e7de-8d3d-c4b3-174d7e0d2a9a"}
-      var url = getServerAPIPath() + "api/client/"+window.config.database.name+"/job/"+job_id+"/"+state;
       var call_success = callback_success;
-      if(getAccountAccessKey().account){ // if this is a driver
+      var url = getServerAPIPath() + "api/client/"+window.config.database.name+"/job"; // "/" +job_id+"/"+state;
+      if(state != "create"){
+          //expects {"client_ts": new Date().getTime(), "time": time, "location": location};
+          url = url + "/"+job_id+"/"+state;
+      }      
+      if(data.access_passkey.account){ // if this is a driver
         //always append the drivers/client device token id if available (so we can send him notifications)
         data.driver_notification_apn = this.getJobData().notification_apn;
         data.driver_notification_gcm = this.getJobData().notification_gcm;
