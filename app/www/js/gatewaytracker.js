@@ -231,7 +231,7 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 		console.info("Map changed: " + JSON.stringify(doc));
 		var marker_id = doc._id || doc.id;
 		jobs[marker_id] = doc;
-		if((doc.location) && (doc.doctype == "driver") || (doc.doctype == "job")){
+		if((doc.location) && /*(doc.doctype == "driver") ||*/ (doc.doctype == "job")){ //Disable driver for now due to bug of location
 			if(!markers[marker_id]){ // missing marker create one
 				try{
 					markers[marker_id] = L.marker(doc.location, {icon: getStateIcon(doc)}).addTo(window.map);
