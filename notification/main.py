@@ -11,14 +11,16 @@ from apns import APNs, Frame, Payload
 #https://github.com/kajjjak/python-gcm
 from gcm import * #pip install python-gcm
 
-
 import argparse
-# API Key for your Google OAuth project
-GCM_API_KEY = 'AIzaSyB8XL-_Bx_UwssTqzpeb8g5K2UluwR-3d4' #'AIzaSyBwnZMPecUnvMYPbeFn0sDeo_gRZaCkGyw'
+import config
 
-dbserver = 'http://db01.taxigateway.com/';
-keydir = '../../pems/'
+# API Key for your Google OAuth project
+GCM_API_KEY = config.gcmkey_serverkey #'AIzaSyBwnZMPecUnvMYPbeFn0sDeo_gRZaCkGyw'
+dbserver = config.server_database
+keydir = config.apnkey_directory 
+
 couch_server = couchdb.Server(dbserver)
+couch_server.resource.credentials = (config.server_username, config.server_password)
 
 def fetchJobs(dbname):
 	url = dbserver + dbname + "/_design/jobs/_view/active"
@@ -42,25 +44,6 @@ def extractNotifications(docs):
 			if job["notify"]["receaved_ts"] != job["notify"]["published_ts"]:
 				notify_apn.append({"doc_id": job["_id"], "token": job["token"]["apn"], "action": "message", "text": job["message"]["text"]})
 				notify_gcm.append({"doc_id": job["_id"], "token": job["token"]["gcm"], "action": "message", "text": job["message"]["text"]})
-
-# {
-#   "_id": "test_msg",
-#   "_rev": "7-e981fe576a8fa96472c9ddd0b89794e3",
-#   "token": {
-#     "apn": [
-#       "8c63b4b2d4b2f0afff885ed03ffe22a409074e03de3a6c3c0459452d1042b86a"
-#     ],
-#     "gcm": []
-#   },
-#   "notify": {
-#     "receaved_ts": 123123131,
-#     "published_ts": 12312313131
-#   },
-#   "message": {
-#     "text": "hellow orld in message"
-#   },
-#   "doctype": "notify"
-# }
 
 		if job["doctype"] == "job": #if this is a job
 			if job.has_key("value"):
@@ -231,18 +214,15 @@ def saveNotificationSent(messages, dbname):
 			doc["notify"]["receaved_ts"] = doc["notify"]["published_ts"];
 			couch_database.save(doc)
 
-
-client_databases = ["tgc-e6ed05461250df994aa26e7c2d58b82a"];
-
 # for cdb in client_databases:
 # 	messages = extractNotifications(fetchJobs(cdb))
 # 	sendNotifications2APN(messages["apn"], cdb)
 # 	sendNotifications2GCM(messages["gcm"], cdb)
 
-cdb = client_databases[0];
+cdb = config.client_database;
 db = couch_server[cdb]
 # the since parameter defaults to 'last_seq' when using continuous feed
-ch = db.changes(feed='continuous', heartbeat='1000', include_docs=True, since='now')
+ch = db.changes(feed='continuous', heartbeat=config.changes_heartbeat, include_docs=True, since='now')
 # http://stackoverflow.com/questions/7840383/couchdb-python-change-notifications
 for line in ch:
 	doc = line['doc']

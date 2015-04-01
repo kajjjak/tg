@@ -184,7 +184,7 @@ module.exports = function(app, passport) {
         var type = req.params.payment_type;
         var action = req.params.    payment_action;
         var params = getCommonVars(req);
-        if(((type == "instalment") || (type == "subscribe")) && (action == "confirmed")){
+        if(((type == "instalment") || (type == "subscription")) && (action == "confirmed")){
             //OK we may be getting payment from our prospect, lets open the system up
             var dict = {"payment": {}};
             dict["payment"][type] = {"prospect": new Date().getTime()};
