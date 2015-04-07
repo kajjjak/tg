@@ -1,5 +1,5 @@
 var config = {
-    "changed": 1427586289049,
+    "changed": 1427898824037,
     "client": {
         "number": "8958283"
     },
@@ -9,6 +9,20 @@ var config = {
     },
     "design": {
         "map": {
+            "rad_userpositionrange": {
+              "name": "User location and range circle",
+              "class": "style-page-map-rad_userpositionrange",
+              "style": {
+                "color": "orange",
+                "fillColor": "orange",
+                "fillOpacity": 0.2
+              }
+            },
+            "ico_pickupcreate": {
+              "name": "Pickup marker icon",
+              "selection": "pickup_markers",
+              "value": "marker_leaflet_orange"
+            },            
             "btn_continue": {
                 "class": "style-page-map-btn_continue",
                 "name": "Design map button continue",
@@ -88,8 +102,8 @@ var config = {
             }
         },
         "revoke": {
-            "btn_close": {
-                "class": "style-page-revoke-btn_close",
+            "btn_call": {
+                "class": "style-page-revoke-btn_call",
                 "name": "Revoke request button",
                 "style": {
                     "background-color": "#ECB300",
@@ -137,10 +151,20 @@ var config = {
     },
     "map": {
         "position": [
-            64.145674,
-            -21.931911
+            64.141819,
+            -21.933487
         ],
         "zoom": 16
+    },
+    "notification": {
+        "apnkey_directory": "../pems/",
+        "changes_heartbeat": 1000,
+        "client_database": "tgc-e6ed05461250df994aa26e7c2d58b82a",
+        "gcmkey_serverapi": "852062115167",
+        "gcmkey_serverkey": "AIzaSyB8XL-_Bx_UwssTqzpeb8g5K2UluwR-3d4",
+        "server_database": "http://db01.taxigateway.com/",
+        "server_password": "alicia.123",
+        "server_username": "taxigateway"
     },
     "serverapi": {
         "host": "http://taxigateway.com/"
@@ -198,7 +222,8 @@ var config = {
             "accepted": "bingbingbing",
             "arrived": "beepbeep",
             "assigned": "bingbingbing",
-            "canceled": "bingbingbing"
+            "canceled": "bingbingbing",
+            "message": "bingbingbing"
         }
     }
 };

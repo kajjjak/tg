@@ -153,11 +153,14 @@
 			window.config.sound.notification.arrived = $("#sound_notification_arrived").val();
 			window.config.sound.notification.canceled = $("#sound_notification_canceled").val();
 			window.config.sound.notification.message = $("#sound_notification_message").val();
+			//saving icons
+			window.config.design.map.ico_pickupdefault.value = $("#sound_notification_message").val();
 			//saving styles
 			$("#btnSave").html("Saving ...");
 			$("#btnNext").html("One moment");
 			getPOST("/api/client/mobile/config/edit", {"data": JSON.stringify(window.config)}, function(res){
 				$("#btnSave").html("Saved");
+				$("#btnNext").html("Next");
 				if(next){window.location.href = "/mobileapply.html";}
 				if(res.error){
 					handleError(res.error);
@@ -178,12 +181,23 @@
 			$(".styledel").each(function(i, obj){
 				console.info("saving " + obj.id + " = " + obj.value);
 				styled_elements[styled_elements_selection]["ref"][obj.id] = obj.value;
+
+				if(obj.id == "select_pickup_marker"){
+					$("#select_pickup_marker_preview").attr("src", "/media/" + support[obj.id ][obj.value].image);
+				}
 			});
 		}
 		function populateStyleElementItem(type, value){
 			var input, elid = type;
-			if(type == "poop"){
-
+			if(type == "select_pickup_marker"){ // if this is a selection, get the selection list
+				var sel, options = "";
+				for(var i in support[type]){
+					sel = "";
+					if(i == value){ sel = " selected"; }
+	                options = options + "<option value='" + i + "' " + sel + ">" + support[type][i].name + "</option>";
+	            }
+				input = '<select class="form-control styledel" onload="saveStyledChanges()" onchange="saveStyledChanges()" id="' + type + '" style="  float: left;display: inline-block;width: 90%;">' + options + '</select>';
+				input = input + '<img id="select_pickup_marker_preview" src="/media/'+support[type][value].image+'" style="float:right;display:inline-block;">';
 			}else{
 				input = '<input type="text" class="form-control styledel" id="'+elid+'" value="' + value + '" onchange="saveStyledChanges()">';
 			}

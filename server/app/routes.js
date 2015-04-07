@@ -181,9 +181,14 @@ module.exports = function(app, passport) {
     });
     
     app.get('/billing/paypal/page/:payment_type/:payment_action', isLoggedIn, function(req, res) {
+
         var type = req.params.payment_type;
-        var action = req.params.    payment_action;
+        var action = req.params.payment_action;
         var params = getCommonVars(req);
+        if(!params.user.role.payment){
+            res.send({"error": "Role manager required"});
+            return;
+        }        
         if(((type == "instalment") || (type == "subscription")) && (action == "confirmed")){
             //OK we may be getting payment from our prospect, lets open the system up
             var dict = {"payment": {}};
@@ -203,6 +208,10 @@ module.exports = function(app, passport) {
     
     app.get('/areastats.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
+        if(!params.user.role.report){
+            res.send({"error": "Role report required"});
+            return;
+        }                
         res.render('page_areastats.ejs', params);
     });
 
@@ -210,6 +219,10 @@ module.exports = function(app, passport) {
     
     app.get('/users.html', isLoggedIn, function(req, res) {
         var params = getCommonVars(req);
+        if(!params.user.role.member){
+            res.send({"error": "Role member required"});
+            return;
+        }                
         res.render('page_users.ejs', params);
     });
 
@@ -546,6 +559,10 @@ module.exports = function(app, passport) {
     app.post('/api/client/mobile/lang', isLoggedInAPI, function(req, res) {
         var params = getCommonVars(req);
         // fetch defaults
+        if(!params.user.role.config){
+            res.send({"error": "Role config required"});
+            return;
+        }
         setDocument(params.user.company_id + "-lang", {"languages": req.body, "changed": new Date().getTime()}, function(result){
             if(result.error){
                 res.send(result);
@@ -560,6 +577,10 @@ module.exports = function(app, passport) {
         // https://taxigateway.cloudant.com/tgc-e6ed05461250df994aa26e7c2d58b82a/_design/list/_view/users
         var envelope = req.body || {};
         var path = "/" + company_id + "/_design/list/_view/users";
+        if(!params.user.role.notify){
+            res.send({"error": "Role notify required"});
+            return;
+        }
         getJSON({
             port: 80, //http
             host: global._cfgv.dbhost,
@@ -590,6 +611,10 @@ module.exports = function(app, passport) {
         });        
     });    
     app.post('/api/client/mobile/version', isLoggedInAPI, function(req, res) {
+        if(!params.user.role.config){
+            res.send({"error": "Role config required"});
+            return;
+        }                 
         var params = getCommonVars(req);
         if(req.body.action == "deploy"){
             getDocument(params.user.company_id, function(cdoc){ //check the company document if a payment has been made
@@ -626,6 +651,11 @@ module.exports = function(app, passport) {
     });
 
     app.get('/api/client/:company_id/report', isLoggedInAPI, function(req, res) { //
+        var params = getCommonVars(req);        
+        if(!params.user.role.report){
+            res.send({"error": "Role report required"});
+            return;
+        }          
         var company_id = req.params.company_id;
         var path = "/" + company_id + "/_design/jobs/_view/all";
         getJSON({
@@ -644,8 +674,10 @@ module.exports = function(app, passport) {
 
 
     app.delete('/api/client/:company_id/job', isLoggedInAPI, function(req, res) { //
-        if(req.user.role.admin > 9){
-            throw "Administrator rights required";
+        var params = getCommonVars(req);
+        if(!params.user.role.admin >= 9){
+            res.send({"error": "Role config required"});
+            return;
         }        
         var company_id = req.params.company_id;
         var path = "/" + company_id + "/_design/list/_view/jobs";

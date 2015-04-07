@@ -219,17 +219,37 @@ def saveNotificationSent(messages, dbname):
 # 	sendNotifications2APN(messages["apn"], cdb)
 # 	sendNotifications2GCM(messages["gcm"], cdb)
 
-cdb = config.client_database;
-db = couch_server[cdb]
-# the since parameter defaults to 'last_seq' when using continuous feed
-ch = db.changes(feed='continuous', heartbeat=config.changes_heartbeat, include_docs=True, since='now')
-# http://stackoverflow.com/questions/7840383/couchdb-python-change-notifications
-for line in ch:
-	doc = line['doc']
-	messages = extractNotifications([doc])
-	sendNotifications2APN(messages["apn"], cdb)
-	sendNotifications2GCM(messages["gcm"], cdb)
 
+class NotificationKillException(Exception):
+	def __init__(self, value):
+		self.value = value
+	def __str__(self):
+		return repr(self.value)
+
+def runMainLoop():
+	print "----- STARTING MAIN LOOP -----"
+	try:
+		cdb = config.client_database;
+		db = couch_server[cdb]
+		# the since parameter defaults to 'last_seq' when using continuous feed
+		ch = db.changes(feed='continuous', heartbeat=config.changes_heartbeat, include_docs=True, since='now')
+		# http://stackoverflow.com/questions/7840383/couchdb-python-change-notifications
+		for line in ch:
+			doc = line['doc']
+			messages = extractNotifications([doc])
+			if(len(messages["apn"]) > 0): 
+				if(messages["apn"][0]["text"] == "restart"):
+					raise Exception("Requst restart notification service for " + cdb)
+				if(messages["apn"][0]["text"] == "kill"):
+					raise NotificationKillException("Kill notification service for " + cdb)
+			sendNotifications2APN(messages["apn"], cdb)
+			sendNotifications2GCM(messages["gcm"], cdb)
+	except NotificationKillException as e:
+		print ("Exception detected: " + str(e))
+	except Exception as e:
+		print ("Exception detected: " + str(e))
+		runMainLoop()
+runMainLoop()
 
 #canonical ----  APA91bHfyj_2oQQHoUl8o49FwQreGDMK-mzU8xKhnDhI-f_244i71NSy7JSGZ6uqXZRkFyFvuL4eVXzDce6wNhxuV3np70JSEh06xhH05x4KxL6wEwr5zJsjNsnXF9fxXuDqHW8iPiQyS8j4mFJ3kzZ7AU1hHE5RDh0st1aGcS0okA7mtJSplDo
 #sendNotifications2GCMDevice("APA91bF79-90Oacmp3uTb-q1_cQI8jfNjcJ8wvhL8wXPfn05aQRSCXq9zg2yb33Ox6y2SbE85CJHH6ov5fY_sPMB8c1x_-HrFk5M2wuVtaDnbQjs2S36eBQ_VTr-KNz7KRXeZeX41zowWTU6BSKp9fpOuWcz_TkAsg", "MYMESSEGE WITH DEVID")

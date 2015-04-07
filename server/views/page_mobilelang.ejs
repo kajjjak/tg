@@ -96,6 +96,7 @@
 			});
 			getPOST("/api/client/mobile/lang", window.languages, function(res){
 				$("#btnSave").html("Saved");
+				$("#btnNext").html("Next");
 				if(next){window.location.href = "/mobilestyle.html";}
 				if(res.error){
 					handleError(res.error);

@@ -249,7 +249,7 @@ angular.module('starter.controllers', [])
         var config = null;
         if (ionic.Platform.isAndroid()) {
             config = {
-                "senderID": "852062115167" //"449629838087" // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
+                "senderID": window.config.notification.gcmkey_serverapi //"852062115167" //"449629838087" // REPLACE THIS WITH YOURS FROM GCM CONSOLE - also in the project URL like: https://console.developers.google.com/project/434205989073
             };
         }
         else if (ionic.Platform.isIOS()) {
@@ -388,8 +388,9 @@ angular.module('starter.controllers', [])
 
   //document.addEventListener("deviceready", function () {
   $ionicPlatform.ready(function() {
-
-    gateway.init($cordovaDevice.getUUID());
+    var device_id = "debugdevid"; //since brower does not have a device id
+    try{device_id = $cordovaDevice.getUUID()}catch(e){}
+    gateway.init();
     gateway.setCallbackChange(guiCallbackGatewayProperty);
     try{
       $scope.watchUserLocation();
@@ -525,7 +526,8 @@ angular.module('starter.controllers', [])
 
     window.map.setView(view_position, window.config.map.zoom);
     
-    window.marker = L.marker(map.getCenter()).addTo(map);   
+    window.marker = L.marker(map.getCenter()).addTo(map);
+    window.marker.setIcon(iconCreate);
 
     window.map.on('move', setCenterMarker);
     window.map.on('zoomend ', setCenterMarker);
@@ -805,11 +807,12 @@ function showUserVisualLocation(loc, dist){
     pan2UserVisualLocation();
   }
   if(!window.user_location_marker){
-    window.user_location_marker = L.circle(loc, dist || 100, {
+    var circle_style = window.config.design.map.rad_userpositionrange.style || {
       color: 'blue',
       fillColor: 'blue',
       fillOpacity: 0.2
-    }).addTo(window.map);
+    };
+    window.user_location_marker = L.circle(loc, dist || 100, circle_style).addTo(window.map);
   }
   window.user_location_marker.setLatLng(loc);
   if(dist){window.user_location_marker.setRadius(dist);}

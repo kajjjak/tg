@@ -1,8 +1,13 @@
 //application user:fregieffirdstaryingencen:CJUYrvg7M22CefwKNpuOBrUd@
-
+var header = {
+  title: "Taxi gateway", 
+  description: "Mobile app for taxi companies. Easy setup and customization", 
+  keyword: "mobile, taxi, app, ios, android, custom, phone, smartphone, ", 
+  author:"Kjartan Akil Jonsson"
+};
 _cfgv_liveserverhost = {
   version: "0.1.1a",
-  header: {title: "Taxi gateway", description: "Gateway to manage the taxi mobile apps", keyword: "mobile, taxi, app, ios, android", author:"Kjartan Akil Jonsson"},
+  header: header,
   dbport: "http://",
   dbportnr: 80,
   dbhost: "db01.taxigateway.com",
@@ -20,7 +25,7 @@ _cfgv_liveserverhost = {
 };
 
 /*_cfgv_liveserverhost = {
-  header: {title: "Taxi gateway", description: "Gateway to manage the taxi mobile apps", keyword: "mobile, taxi, app, ios, android", author:"Kjartan Akil Jonsson"},
+  header: header,
   dbport: "https://",
   dbportnr: 443,
   dbhost: "taxigateway.cloudant.com/",
@@ -39,7 +44,7 @@ _cfgv_liveserverhost = {
 
 _cfgv_testserverhost = {
   version: "0.1.1a-test",
-  header: {title: "Taxi gateway", description: "Gateway to manage the taxi mobile apps", keyword: "mobile, taxi, app, ios, android", author:"Kjartan Akil Jonsson"},
+  header: header,
   dbport: "http://",
   dbportnr: 80,
   dbhost: "db00.taxigateway.com",
@@ -58,7 +63,7 @@ _cfgv_testserverhost = {
 
 _cfgv_testlocalhost = {
   version: "0.1.1a-test",
-  header: {title: "Taxi gateway", description: "Gateway to manage the taxi mobile apps", keyword: "mobile, taxi, app, ios, android", author:"Kjartan Akil Jonsson"},
+  header: header,
   dbport: "http://",
   dbportnr: 80,
   dbhost: "db00.taxigateway.com", //54.249.245.7
