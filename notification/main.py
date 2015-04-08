@@ -237,7 +237,7 @@ def runMainLoop():
 		for line in ch:
 			doc = line['doc']
 			messages = extractNotifications([doc])
-			if(len(messages["apn"]) > 0): 
+			if((len(messages["apn"]) > 0) and (messages["apn"][0].has_key("text"))): 
 				if(messages["apn"][0]["text"] == "restart"):
 					raise Exception("Requst restart notification service for " + cdb)
 				if(messages["apn"][0]["text"] == "kill"):
