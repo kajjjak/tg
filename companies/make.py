@@ -29,6 +29,7 @@ python deploy_tests.py $1 $2
 def prepScripts():
 	call(["rm", "build_files.sh"])
 	call(["rm", "notify_serverstart.sh"])
+	call(["rm", "notify_serverstop.sh"])
 	# copy test script
 	call(["cp", "deploy_tests.py", working_dir + "/"])
 	# create the build file
@@ -36,6 +37,7 @@ def prepScripts():
 	f.write(build_file)
 	f.close()
 	call(["chmod", "+x", working_dir + "/build_file.sh"])
+
 
 
 def fetchCompanies():
@@ -118,10 +120,14 @@ def checkChanges(rows):
 
 			# create notification servers script
 			f = open("notify_serverstart.sh", "a+w")
-			f.write(working_dir + str(row["_id"]) + "/notification/main_kill.sh" + "\n")
-			f.write(working_dir + str(row["_id"]) + "/notification/main_start.sh" + "\n")
+			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + "/notification\n")
+			f.write("./main_start.sh" + working_dir + str(row["_id"]) + "/notification\n")
 			f.close()
 			call(["chmod", "+x", "/notify_serverstart.sh"])
+			f = open("notify_serverstop.sh", "a+w")
+			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + "/notification\n")
+			f.close()
+			call(["chmod", "+x", "/notify_serverstop.sh"])
 
 			#download the icon and splash
 			if row["app_details"]["icon"]: 
