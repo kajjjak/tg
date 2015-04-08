@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-kill -9 `cat $1/PID`
+kill -9 `cat PID`
