@@ -120,12 +120,12 @@ def checkChanges(rows):
 
 			# create notification servers script
 			f = open("notify_serverstart.sh", "a+w")
-			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + " /notification\n")
-			f.write("./main_start.sh" + working_dir + str(row["_id"]) + " /notification\n")
+			f.write("./main_kill.sh " + working_dir + str(row["_id"]) + "/notification\n")
+			f.write("./main_start.sh " + working_dir + str(row["_id"]) + "/notification\n")
 			f.close()
 			call(["chmod", "+x", "notify_serverstart.sh"])
 			f = open("notify_serverstop.sh", "a+w")
-			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + " /notification\n")
+			f.write("./main_kill.sh " + working_dir + str(row["_id"]) + "/notification\n")
 			f.close()
 			call(["chmod", "+x", "notify_serverstop.sh"])
 
