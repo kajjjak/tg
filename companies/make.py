@@ -116,18 +116,18 @@ def checkChanges(rows):
 					deployment_email = str(row["app_config"]["testers"]["android"][0])
 			f.write(working_dir + "build_file.sh " + str(row["_id"]) + " " + deployment_email + "\n")
 			f.close()
-			call(["chmod", "+x", "/build_files.sh"])
+			call(["chmod", "+x", "build_files.sh"])
 
 			# create notification servers script
 			f = open("notify_serverstart.sh", "a+w")
-			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + "/notification\n")
-			f.write("./main_start.sh" + working_dir + str(row["_id"]) + "/notification\n")
+			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + " /notification\n")
+			f.write("./main_start.sh" + working_dir + str(row["_id"]) + " /notification\n")
 			f.close()
-			call(["chmod", "+x", "/notify_serverstart.sh"])
+			call(["chmod", "+x", "notify_serverstart.sh"])
 			f = open("notify_serverstop.sh", "a+w")
-			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + "/notification\n")
+			f.write("./main_kill.sh" + working_dir + str(row["_id"]) + " /notification\n")
 			f.close()
-			call(["chmod", "+x", "/notify_serverstop.sh"])
+			call(["chmod", "+x", "notify_serverstop.sh"])
 
 			#download the icon and splash
 			if row["app_details"]["icon"]: 
