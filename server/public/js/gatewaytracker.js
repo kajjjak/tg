@@ -200,6 +200,11 @@ function GatewayTracker (dbid, map, callback_changes, callback_onerror, callback
 				if(callback_changes){
 					callback_changes(change.doc);
 				}
+			}).on('complete', function(info) {
+			  // changes() was canceled
+			  console.warn("Changes was canceled")
+			}).on('error', function (err) {
+			  console.warn("Changes error: " + err);
 			});
 		});
 	}

@@ -1,0 +1,27 @@
+1. Developer portal login
+2. Create app id
+3. Configure Development / Production for push notification
+4. Upload Requested certificate created by Keychain access (CertificateSigningRequest.certSigningRequest)
+5. Generate certificate and download to company build folder
+6. Install the certificate by double tapping it
+7. Open keychain access and find certificate and export it as cert.p12 and key.p12
+
+8. Run 
+
+openssl pkcs12 -clcerts -nokeys -out cert.pem -in cert.p12
+openssl pkcs12 -nocerts -out key.pem -in key.p12
+openssl rsa -out key.unencrypted.pem -in key.pem
+cat key.pem key.unencrypted.pem > uck.pem
+cat cert.pem key.pem > ck.pem
+
+
+9. Create new provisioning profile naming it as client id 
+10.Install by drag and dropping
+11.In "Build settings" select Code Signing and the "provisioning profile" Then "Code Signing Identity"
+
+NOTE THE CERTIFICATE THAT WE USE TO EXPORT FROM SHOULD BE THE SAME THAT WE BUILD WITH
+
+Issues:
+	
+	1. If aps enviroment is not valid try removing app folder and rebuilding all
+	2. http://stackoverflow.com/questions/27324020/no-valid-aps-environment-entitlement-string-found-for-application-on-app-store	

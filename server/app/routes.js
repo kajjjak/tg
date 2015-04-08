@@ -764,6 +764,7 @@ module.exports = function(app, passport) {
             }else{
                 res.send({success:true, result: d, job: data});
             }
+            healtyJobState(company_id, d);
         }, function(e){
             res.send({"error": e});
         });        
@@ -1181,6 +1182,34 @@ function validateMemberData(data){
     if(!data.email.length){ throw "Member must have a email"; }
     return data;
 }
+function reportPlatformProblem(company_id, problem_id, data){
+    var time_now = new Date().getTime();
+    var doc = {"doctype": "fault", "server_ts": time_now};
+    doc[problem_id] = {"server_ts": time_now, "data": data}
+    setDocument(company_id+"-err", doc, function(d){}, function(e){}, function(olddoc){
+        if((time_now - (olddoc.server_ts || 0)) > (60000*60)){ //is this a recent error (older than an hour)
+            console.info("Error detected, sending email to developer")
+            var mailto = 'Kjartan Jónsson <kjartan@taxigateway.com>';
+            var mailfrom = 'kjartan@taxigateway.com';
+            var subject = 'Taxi Gateway - Server error ' + problem_id + " " + company_id;
+            var content = JSON.stringify(data, null, 2);
+            sendMail(mailfrom, mailto, subject, content, function(result){});
+        }
+    });
+}
+function healtyJobState(company_id, state){
+    //detect if something is wrong and notify the developer
+    //check if notifications are being sent
+    if(state.client.apn || state.client.gcm){
+        //if there are device tokens for notifications check if anything has been sent
+        if(state.driver.complete_ts){ //when job is done make sure we sent some notifications
+            if((!state.notify.arrived_ts) && (state.driver.arrived_ts)){
+                //this company notification server did not send arrived notifications
+                reportPlatformProblem(company_id, "notify_arrived", state);
+            }
+        }
+    }
+}
 function handleJobState(state_id, user, state_data){
     /*
             client_assigned_id: null,
@@ -1443,13 +1472,14 @@ function removeCompanyDocument(dbid, id, success, failure){
     }); 
 }
 
-function setDocument(id, obj, success, failure){
+function setDocument(id, obj, success, failure, callback_olddoc){
 	var db = nano.db.use(global._cfgv.dbname);
     db.get(id, function(err, doc){
         if(err){
         	if ((err.status_code || err.statusCode) != 404){ failure(err); return; }
         	doc = {"_id": id};
         }
+        if(callback_olddoc){ callback_olddoc(doc); }
         for (var key in obj) {
           if (typeof(obj[key]) == "object"){
             if(!doc[key]){ doc[key] = {}; }
