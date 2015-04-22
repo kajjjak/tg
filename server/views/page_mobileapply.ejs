@@ -180,7 +180,12 @@
 
 		$(function(){
 			checkMobileAppVersion();
-			$("#app_preview_email").val(user.email);
+			try{
+				$("#app_preview_email").val(user.auth.local.username);
+			}catch(e){
+				$("#app_preview_email").val(user.email);
+			}
+			
 		});
 
 	</script>

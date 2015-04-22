@@ -84,11 +84,11 @@ map_markers["marker_taxiplainfront_black"] = L.icon({
     shadowAnchor: [10, 41]
 });
 
-
-var iconCreate = map_markers[window.config.design.map.ico_pickupcreate.value];
-var iconAssign = map_markers[window.config.design.map.ico_pickupcreate.value];
-var iconWaiting = map_markers[window.config.design.map.ico_pickupcreate.value];
-var iconDriving = map_markers[window.config.design.map.ico_pickupcreate.value];
-var iconComplete = map_markers[window.config.design.map.ico_pickupcreate.value];
-var iconCanceled = map_markers[window.config.design.map.ico_pickupcreate.value];
-var iconDriver = map_markers[window.config.design.map.ico_pickupcreate.value];
+var icon_pickupcreate = window.config.design.map.ico_pickupcreate.style.select_pickup_marker;
+var iconCreate = map_markers[icon_pickupcreate];
+var iconAssign = map_markers[icon_pickupcreate];
+var iconWaiting = map_markers[icon_pickupcreate];
+var iconDriving = map_markers[icon_pickupcreate];
+var iconComplete = map_markers[icon_pickupcreate];
+var iconCanceled = map_markers[icon_pickupcreate];
+var iconDriver = map_markers[icon_pickupcreate];

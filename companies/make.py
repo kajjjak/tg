@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 #
 # Notes on release APK 
@@ -35,7 +34,8 @@ ionic plugin add com.ionic.keyboard
 ionic plugin add org.apache.cordova.device
 ionic resources
 ionic build ios
-cordova build android --release
+cordova build android
+#cordova build android --release
 cd ..
 cd ..
 python deploy_tests.py $1 $2
@@ -98,10 +98,11 @@ def checkChanges(rows):
 			for page in doc["app_config"]["design"]:
 				for style_id in doc["app_config"]["design"][page]:
 					style = doc["app_config"]["design"][page][style_id];
-					config_style = config_style + "." + style["class"] + " {\n";
-					for style_el in style["style"]:
-						config_style = config_style + "\t" + style_el + ": " + style["style"][style_el] + " !important;\n";
-					config_style = config_style + "}\n\n"
+					if style.has_key("class"):
+						config_style = config_style + "." + style["class"] + " {\n";
+						for style_el in style["style"]:
+							config_style = config_style + "\t" + style_el + ": " + str(style["style"][style_el]) + " !important;\n";
+						config_style = config_style + "}\n\n"
 			f.write(config_style)
 			f.close()			
 			# fetch language
@@ -159,7 +160,7 @@ def checkChanges(rows):
 				f.write(row["app_details"]["splash"].replace("data:image/png;base64,", "").decode('base64'))
 				f.close()
 
-			#couch_database.save(doc); #sets updated = changed (so we know that we compiled this version)
+			couch_database.save(doc); #sets updated = changed (so we know that we compiled this version)
 
 prepScripts()
 checkChanges(fetchCompanies())
