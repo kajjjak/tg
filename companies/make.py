@@ -1,3 +1,17 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+#
+# Notes on release APK 
+# 	Create an ant.properties file in platforms/android/ with a keystore path and alias name
+# 		key.store=../../pems/gatewayware.jks
+# 		key.alias=kajjjak
+#		
+#	http://ilee.co.uk/Sign-Releases-with-Cordova-Android/
+#	http://developer.android.com/tools/publishing/app-signing.html
+#	http://stackoverflow.com/questions/5334399/automation-for-android-release-build
+
+
 from subprocess import call, Popen
 
 import urllib, json
@@ -20,11 +34,13 @@ ionic platform add android
 ionic plugin add com.ionic.keyboard
 ionic plugin add org.apache.cordova.device
 ionic resources
-ionic build
+ionic build ios
+cordova build android --release
 cd ..
 cd ..
 python deploy_tests.py $1 $2
 """
+
 
 def prepScripts():
 	call(["rm", "build_files.sh"])
@@ -49,7 +65,9 @@ def fetchCompanies():
 def checkChanges(rows):
 	for rowval in rows:
 		row = rowval["value"]
-		if(row.has_key("app_details") and (row.has_key("app_config") or (row["app_config"]["changed"] != row["app_config"]["updated"]))):
+		if not row["app_config"].has_key("changed"): row["app_config"]["changed"] = None;
+		if not row["app_config"].has_key("updated"): row["app_config"]["updated"] = None;
+		if(row.has_key("app_details") and (row.has_key("app_config") and (row["app_config"]["changed"] != row["app_config"]["updated"]))):
 			print ("Needs code update " + row["_id"])
 			# make sure directory exists
 			call(["mkdir", working_dir + row["_id"]])
@@ -58,6 +76,7 @@ def checkChanges(rows):
 			call(["cp", "-rf", gitfile_dir + "notification", working_dir + row["_id"] + "/notification"])
 			# fetch config
 			doc = couch_database[row["_id"]]
+			doc["app_config"]["updated"] = doc["app_config"]["changed"];
 			# create notification config
 			f = open(working_dir + "" + row["_id"] + "/notification/config.py", "w")
 			f.write("client_database = '" + row["_id"] + "'\n")
@@ -114,10 +133,10 @@ def checkChanges(rows):
 			if row["app_config"].has_key("testers"):
 				if row["app_config"]["testers"].has_key("android") and len(row["app_config"]["testers"]["android"]):
 					deployment_email = str(row["app_config"]["testers"]["android"][0])
-			f.write(working_dir + "build_file.sh " + str(row["_id"]) + " " + deployment_email + "\n")
+			f.write("./build_file.sh " + str(row["_id"]) + " " + deployment_email + "\n")
 			f.close()
 			call(["chmod", "+x", "build_files.sh"])
-
+			call(["mv", "build_files.sh", working_dir])
 			# create notification servers script
 			f = open("notify_serverstart.sh", "a+w")
 			f.write("./main_kill.sh " + working_dir + str(row["_id"]) + "/notification\n")
@@ -140,6 +159,7 @@ def checkChanges(rows):
 				f.write(row["app_details"]["splash"].replace("data:image/png;base64,", "").decode('base64'))
 				f.close()
 
+			#couch_database.save(doc); #sets updated = changed (so we know that we compiled this version)
 
 prepScripts()
 checkChanges(fetchCompanies())

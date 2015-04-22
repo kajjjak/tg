@@ -33,7 +33,45 @@
 				<div class="col-lg-12">			
 					<div class="box">
 						<div class="box-header" data-original-title>
-							<h2><i class="fa fa-info"></i><span class="break"></span>App information</h2>
+							<h2><i class="fa fa-info"></i><span class="break"></span>Preview app</h2>
+							<div class="box-icon">
+								<a href="table.html#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
+								<a href="table.html#" class="btn-close"><i class="fa fa-times"></i></a>
+							</div>
+						</div>
+						<div class="box-content">		
+
+							To preview your app simple enter the email address bellow and we will send you an app that you can install on your android device.
+
+							<form class="form-horizontal">
+							  <div class="form-group">
+							    <label for="app_name" class="col-sm-2 control-label">
+							    	Preview Android app
+							    </label>
+							    <div class="col-sm-10">
+							      <input type="email" class="form-control" id="app_preview_email" placeholder="Email address" value="">
+							      <p class="help-block">The email address to send the mobile app</p>
+							    </div>
+							  </div>
+							  <div class="form-group">
+							    <div class="col-sm-offset-2 col-sm-10">
+							      <button type="button" class="btn btn-success" onclick="testingMobileAppVersion()">Preview</button>
+							    </div>
+							  </div>
+							</form>
+
+
+
+						</div> <!-- /box content -->
+					</div>
+				</div><!--/col-->			
+
+
+
+				<div class="col-lg-12">			
+					<div class="box">
+						<div class="box-header" data-original-title>
+							<h2><i class="fa fa-info"></i><span class="break"></span>Deploy app</h2>
 							<div class="box-icon">
 								<a href="table.html#" class="btn-minimize"><i class="fa fa-chevron-up"></i></a>
 								<a href="table.html#" class="btn-close"><i class="fa fa-times"></i></a>
@@ -63,6 +101,11 @@
 						</div> <!-- /box content -->
 					</div>
 				</div><!--/col-->			
+
+
+
+
+
 			</div><!--/row-->
 			
 			<% } %>
@@ -87,16 +130,31 @@
 
 	<script>
 
-		function deployMobileAppVersion(){
-			getPOST("/api/client/mobile/version", {"action": "deploy"}, function(res){
+		function deployMobileApp(data, alert_text, changed_state){
+			getPOST("/api/client/mobile/version", data, function(res){
 				if(res.error){
 					handleError(res.error);
 				}else{
-					showAlert("Successfully deployed");
-					$("#changed_compare_config").html("Style or configuration has been applied");
-					checkMobileAppVersion();
+					showAlert(alert_text);
+					if(changed_state){
+						$("#changed_compare_config").html(changed_state);
+						checkMobileAppVersion();
+					}
 				}
 			});
+		}
+
+		function deployMobileAppVersion(){
+			deployMobileApp({"action": "deploy"}, "Successfully deployed", "Style or configuration has been applied");
+		}
+
+		function testingMobileAppVersion(){
+			var app_preview_email = $("#app_preview_email").val();
+			if(app_preview_email.length == 0){
+				showAlert("Please provide an email address to send the preview to")
+			}else{
+				deployMobileApp({"action": "preview", "email": app_preview_email}, "Sending you a test version within the hour");
+			}
 		}
 
 		function checkMobileAppVersion(){
@@ -122,7 +180,7 @@
 
 		$(function(){
 			checkMobileAppVersion();
-
+			$("#app_preview_email").val(user.email);
 		});
 
 	</script>

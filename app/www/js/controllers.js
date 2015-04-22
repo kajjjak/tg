@@ -746,7 +746,7 @@ function getNiceJobFormat(dict_jobs){
 
 function guiUpdateJob(){
   $("#btn_update_feedbackstate").html(lang.page.request.lbl_updating);
-  window.vt.start({update:true});
+  window.vt.start({update:true, cacheonly: false});
 }
 
 function getSelectedLanguage(){

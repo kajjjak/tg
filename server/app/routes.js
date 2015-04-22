@@ -119,7 +119,8 @@ module.exports = function(app, passport) {
 
     function getCommonVars(req){
         var params = global._cfgv
-        params["user"] = req.user;//{role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e3d56304c5288ccd6dd6c4a0bb8c3d57", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user;
+        params["user"] = req.user;
+        params["user"] = {role:{router:3,member:3, report:3, config:3}, company_id:"tgc-e6ed05461250df994aa26e7c2d58b82a", company:{location:[64.13856919460817,-21.908959150314328]}, auth:{local:{username:""}}}, //req.user;
         //if(!params["user"]){ params["user"] = {};}
         //if(!params["user"]["role"]){ params["user"]["role"] = {};}
         params["app_social_facebook_appid"] = global._cfgv.social_facebook_appid;
@@ -268,7 +269,9 @@ module.exports = function(app, passport) {
 		// LOGIN ===============================
 		// show the login form
 		app.get('/login', function(req, res) {
-			res.render('login.ejs', { message: req.flash('loginMessage') });
+            var params = getCommonVars(req);
+            params["message"] = req.flash('loginMessage');
+			res.render('login.ejs', params);
 		});
 
 		// process the login form
@@ -281,7 +284,9 @@ module.exports = function(app, passport) {
 		// SIGNUP =================================
 		// show the signup form
 		app.get('/signup', function(req, res) {
-			res.render('signup.ejs', { message: req.flash('loginMessage') });
+            var params = getCommonVars(req);
+            params["message"] = req.flash('loginMessage');
+			res.render('signup.ejs', params);
 		});
 
 		// SIGNUP =================================
@@ -610,13 +615,16 @@ module.exports = function(app, passport) {
             res.send({"response": err, "success":false, "path": path, "host": global._cfgv.dbhost});
         });        
     });    
-    app.post('/api/client/mobile/version', isLoggedInAPI, function(req, res) {
+    app.post('/api/client/mobile/version', /*isLoggedInAPI,*/ function(req, res) {
+        var params = getCommonVars(req);
         if(!params.user.role.config){
             res.send({"error": "Role config required"});
             return;
         }                 
-        var params = getCommonVars(req);
         if(req.body.action == "deploy"){
+            // 1. create a backup of old version
+            // 2. save the new version
+            // 3. do not check for payment here (only during actual deployment phase because we will show in GUI)
             getDocument(params.user.company_id, function(cdoc){ //check the company document if a payment has been made
                 if(!cdoc.payment){ cdoc.payment = {}; }
                 if(cdoc.payment.instalment && cdoc.payment.subscription){
@@ -636,9 +644,46 @@ module.exports = function(app, passport) {
                     res.send({"error":"Instalment and subscription commitment required"});
                 }
             });
-        }else{
-            res.send({"error": "Nothing to do"});
+            return;
         }
+        if(req.body.action == "preview"){
+            var preview_testers = {
+                "requested": new Date().getTime(),
+                "android": [
+                    req.body.email
+                ]
+            }
+            getDocument(params.user.company_id + "-edit", function(doc){
+                // final validation
+                if(!doc.app_config.database){ doc.app_config.database = {}; }
+                doc.app_config.database.name = getCompanyDatabase(req, params.user);
+                doc.app_config.changed = new Date().getTime();
+                doc.app_config.testers = preview_testers;
+                // save to live version
+                setDocument(params.user.company_id, {"app_config": doc.app_config}, function(){
+                    res.send({"success": true});
+                },function(e){
+                    res.send(e);
+                });
+            },function(e){
+                getDocument("mobile_configuration", function(doc){
+                doc.default.database.name = getCompanyDatabase(req, params.user);
+                doc.default.changed = new Date().getTime();
+                doc.default.testers = preview_testers;
+
+                // save default config to live version
+                setDocument(params.user.company_id, {"app_config": doc.default}, function(){
+                    res.send({"success": true});
+                },function(e){
+                    res.send(e);
+                });
+                },function(e){
+                    res.send(e);
+                });
+            });
+            return;
+        }
+        res.send({"error": "Nothing to do"});
     });    
     app.get('/api/client/invite/resend', isLoggedInAPI, function(req, res) { //
         var mailto = 'Kjartan Jónsson <mail@kjartanjonsson.com>';

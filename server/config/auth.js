@@ -7,6 +7,7 @@ var header = {
 };
 _cfgv_liveserverhost = {
   version: "0.1.1a",
+  analytics: "UA-61567142-1",
   header: header,
   dbport: "http://",
   dbportnr: 80,
@@ -44,6 +45,7 @@ _cfgv_liveserverhost = {
 
 _cfgv_testserverhost = {
   version: "0.1.1a-test",
+  analytics: "UA-61567142-0",
   header: header,
   dbport: "http://",
   dbportnr: 80,
@@ -63,6 +65,7 @@ _cfgv_testserverhost = {
 
 _cfgv_testlocalhost = {
   version: "0.1.1a-test",
+  analytics: "UA-61567142-0",
   header: header,
   dbport: "http://",
   dbportnr: 80,
