@@ -34,8 +34,8 @@ ionic plugin add com.ionic.keyboard
 ionic plugin add org.apache.cordova.device
 ionic resources
 ionic build ios
-cordova build android
-#cordova build android --release
+#cordova build android
+cordova build android --release
 cd ..
 cd ..
 python deploy_tests.py $1 $2
@@ -43,9 +43,11 @@ python deploy_tests.py $1 $2
 
 
 def prepScripts():
-	call(["rm", "build_files.sh"])
-	call(["rm", "notify_serverstart.sh"])
-	call(["rm", "notify_serverstop.sh"])
+	call(["rm", "-f", "../../taxigateways/build_files.sh"])
+	call(["rm", "-f", "../../taxigateways/servers_start.sh"])
+	call(["rm", "-f", "../../taxigateways/servers_stop.sh"])
+	call(["rm", "-f", "servers_start.sh"])
+	call(["rm", "-f", "servers_stop.sh"])
 	# copy test script
 	call(["cp", "deploy_tests.py", working_dir + "/"])
 	# create the build file
@@ -54,7 +56,20 @@ def prepScripts():
 	f.close()
 	call(["chmod", "+x", working_dir + "/build_file.sh"])
 
+	f = open(working_dir + "/build_file.sh", "w")
+	f.write(build_file)
+	f.close()
+	call(["chmod", "+x", working_dir + "/build_file.sh"])
 
+def postScripts():
+	call(["chmod", "+x", "build_files.sh"])
+	call(["mv", "build_files.sh", working_dir])
+	call(["chmod", "+x", "servers_start.sh"])
+	call(["mv", "servers_start.sh", working_dir])
+	call(["chmod", "+x", "servers_stop.sh"])
+	call(["mv", "servers_stop.sh", working_dir])
+	call(["cp", "main_start.sh", working_dir])
+	call(["cp", "main_kill.sh", working_dir])
 
 def fetchCompanies():
 	url = dbserver + dbase + "/_design/list/_view/companies"
@@ -67,13 +82,23 @@ def checkChanges(rows):
 		row = rowval["value"]
 		if not row["app_config"].has_key("changed"): row["app_config"]["changed"] = None;
 		if not row["app_config"].has_key("updated"): row["app_config"]["updated"] = None;
+		if row.has_key("app_details") and (row.has_key("app_config")) : #always create notification server regarless of change since we will used it
+			# create notification servers script
+			f = open("servers_start.sh", "a+w")
+			f.write("./main_kill.sh " + str(row["_id"]) + "/notification\n")
+			f.write("./main_start.sh " + str(row["_id"]) + "/notification\n")
+			f.close()
+			f = open("servers_stop.sh", "a+w")
+			f.write("./main_kill.sh " + working_dir + str(row["_id"]) + "/notification\n")
+			f.close()
+
 		if(row.has_key("app_details") and (row.has_key("app_config") and (row["app_config"]["changed"] != row["app_config"]["updated"]))):
 			print ("Needs code update " + row["_id"])
 			# make sure directory exists
 			call(["mkdir", working_dir + row["_id"]])
 			# copy new code to new directory
-			call(["cp", "-rf", gitfile_dir + "app", working_dir + row["_id"] + "/app"])
-			call(["cp", "-rf", gitfile_dir + "notification", working_dir + row["_id"] + "/notification"])
+			call(["cp", "-rf", gitfile_dir + "app/", working_dir + row["_id"] + "/app"])
+			call(["cp", "-rf", gitfile_dir + "notification/", working_dir + row["_id"] + "/notification"])
 			# fetch config
 			doc = couch_database[row["_id"]]
 			doc["app_config"]["updated"] = doc["app_config"]["changed"];
@@ -136,18 +161,6 @@ def checkChanges(rows):
 					deployment_email = str(row["app_config"]["testers"]["android"][0])
 			f.write("./build_file.sh " + str(row["_id"]) + " " + deployment_email + "\n")
 			f.close()
-			call(["chmod", "+x", "build_files.sh"])
-			call(["mv", "build_files.sh", working_dir])
-			# create notification servers script
-			f = open("notify_serverstart.sh", "a+w")
-			f.write("./main_kill.sh " + working_dir + str(row["_id"]) + "/notification\n")
-			f.write("./main_start.sh " + working_dir + str(row["_id"]) + "/notification\n")
-			f.close()
-			call(["chmod", "+x", "notify_serverstart.sh"])
-			f = open("notify_serverstop.sh", "a+w")
-			f.write("./main_kill.sh " + working_dir + str(row["_id"]) + "/notification\n")
-			f.close()
-			call(["chmod", "+x", "notify_serverstop.sh"])
 
 			#download the icon and splash
 			if row["app_details"]["icon"]: 
@@ -164,3 +177,4 @@ def checkChanges(rows):
 
 prepScripts()
 checkChanges(fetchCompanies())
+postScripts()

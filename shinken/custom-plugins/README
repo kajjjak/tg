@@ -1,0 +1,12 @@
+README
+
+        Checking faults
+        -----------------
+        If we fix the fault we need to update the doc.fixed_ts attribute to be larger than doc.server_ts in document
+        To find the recent error check the error code which is a name (ex: notify_arrived) and its "server_ts" date should match the doc.server_ts date
+        Possible errors are
+        	- notify_arrived: is generated if system detected that we should have sent a notification but did not. This detection is done by the router.py on server while validating the state see function healtyJobState()
+
+        Checking make app
+        ------------------
+        If we created an app we need to add doc.payment.deployed object

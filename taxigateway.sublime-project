@@ -1,0 +1,21 @@
+{
+	"folders":
+	[
+		{
+			"follow_symlinks": true,
+			"path": "app"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "notification"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "server"
+		},
+		{
+			"follow_symlinks": true,
+			"path": "companies"
+		}
+	]
+}
